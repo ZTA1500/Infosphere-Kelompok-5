@@ -1,0 +1,53 @@
+{
+  "_comment": "English and Mandarin versions of chatbot answers, keyed by the exact Indonesian answer text in the Q&A datasets. Room answers generated from data/rooms.json are translated automatically (name_en/name_zh, location_en/location_zh there). An answer without an entry here is shown in Indonesian. Check with: python scripts/validate_data.py",
+  "answers": {
+    "LSC Berada di Lantai 4 disamping eskalator naik": {
+      "en": "LSC is on Floor 4, next to the up escalator.",
+      "zh": "LSC 位于 4 楼，在上行扶梯旁边。"
+    },
+    "SSC Berada di samping eskalator naik atrium": {
+      "en": "SSC is next to the up escalator in the atrium.",
+      "zh": "SSC 位于中庭的上行扶梯旁边。"
+    },
+    "LKC Berada di depan Gedung A samping kanan tulisan Binus": {
+      "en": "LKC is in front of Building A, to the right of the BINUS sign.",
+      "zh": "LKC 位于 A 栋前面，BINUS 标志的右侧。"
+    },
+    "Auditorium Berada di lantai 5 gedung B di ruangan \"B0507\"": {
+      "en": "The Auditorium is on Floor 5 of Building B, in room B0507.",
+      "zh": "礼堂位于 B 栋 5 楼的 B0507 室。"
+    },
+    "Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.": {
+      "en": "You can reach the gym from the drop-off area by heading to the sports hall (GOR). Inside the GOR, take the path on the left, then go up the stairs.",
+      "zh": "从下车区前往体育馆（GOR）即可到达健身房。进入体育馆后，走左边的通道，然后上楼梯。"
+    },
+    "Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.": {
+      "en": "From the drop-off, head to the area between Blibli and LKC. After the halfway point, turn left in front of the Fashion classroom, walk past the copy center and you will reach the first-aid room (P3K).",
+      "zh": "从下车区走到 Blibli 和 LKC 之间的区域。过了中间之后，在时装教室前左转，经过复印中心，就到急救室（P3K）了。"
+    },
+    "Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.": {
+      "en": "From the drop-off, head to the area between Blibli and LKC. After the halfway point, turn left in front of the Fashion classroom and keep walking until you reach the copy center.",
+      "zh": "从下车区走到 Blibli 和 LKC 之间的区域。过了中间之后，在时装教室前左转，一直走到复印中心。"
+    },
+    "Dari Drop off, ke arah kanan sebelum di depan logo binus": {
+      "en": "From the drop-off, turn right just before the BINUS logo.",
+      "zh": "从下车区出发，在 BINUS 标志前向右走。"
+    },
+    "Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall": {
+      "en": "From the drop-off, turn right just before the BINUS logo. Inside the GOR, turn right to the sports hall door.",
+      "zh": "从下车区出发，在 BINUS 标志前向右走。进入体育馆（GOR）后右转，走到运动大厅的门口。"
+    },
+    "Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan": {
+      "en": "To find the library, enter LKC and go straight until you reach the left turn towards the library.",
+      "zh": "进入 LKC 后一直往前走，到左转路口后转向图书馆即可。"
+    },
+    "Binus Support terletak di samping eskalator naik atrium": {
+      "en": "Binus Support is next to the up escalator in the atrium.",
+      "zh": "Binus Support 位于中庭的上行扶梯旁边。"
+    },
+    "Maaf, saya hanya membantu menunjukkan lokasi ruangan di kampus. Coba tanyakan lokasi ruangan, contohnya \"Dimana Admisi?\" atau \"Lokasi LSC?\"": {
+      "en": "Sorry, I can only help you find places on campus. Try asking for a room, for example \"Where is Admisi?\" or \"Where is LSC?\"",
+      "zh": "抱歉，我只能帮您查找校园内的位置。请试着问一个房间，例如“Admisi 在哪里？”或“LSC 在哪里？”"
+    }
+  }
+}

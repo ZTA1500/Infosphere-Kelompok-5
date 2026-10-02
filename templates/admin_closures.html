@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="robots" content="noindex, nofollow">
+<title>Infosphere · Area Status</title>
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/map.css">
+</head>
+<body>
+<div class="bg"></div>
+<div class="shell">
+
+{% include 'admin_header.html' %}
+
+<div class="content">
+  <h2 class="section-label">Area Status</h2>
+  <p class="as-intro">
+    Mark a room or an area as <b>Closed</b> or <b>Under construction</b>. It is darkened on every
+    visitor's map straight away, routes still show the way, and visitors get a warning.
+  </p>
+
+  <div class="as-grid">
+    <section class="as-map-box" aria-label="Floor map">
+      <div class="as-map-tools">
+        <span class="as-hint" id="as-hint">Choose a floor, then click a room on the map.</span>
+        <button class="btn-action outline" type="button" id="btn-draw">▭ Draw area</button>
+        <button class="btn-action outline" type="button" id="btn-draw-cancel" hidden>Cancel drawing</button>
+      </div>
+      <div class="as-map" id="as-map"><p class="empty-state">Loading map…</p></div>
+    </section>
+
+    <section class="as-side">
+      <form class="as-form" id="as-form" novalidate>
+        <h3 id="as-form-title">New closure</h3>
+
+        <div class="as-field">
+          <span class="as-label">Selected area</span>
+          <div class="as-selected" id="as-selected">Nothing selected yet — click a room or draw an area.</div>
+        </div>
+
+        <div class="as-field">
+          <label class="as-label" for="as-status">Status</label>
+          <select class="inbox-select" id="as-status" required>
+            <option value="closed">Closed</option>
+            <option value="under_construction">Under construction</option>
+          </select>
+        </div>
+
+        <div class="as-field">
+          <label class="as-label" for="as-note">Note <span class="as-opt">(optional, max 200)</span></label>
+          <input class="as-input" id="as-note" type="text" maxlength="200" placeholder="e.g. Use the stairs near C0209">
+        </div>
+
+        <div class="as-field">
+          <label class="as-label" for="as-ends">Ends <span class="as-opt">(optional — leave empty to keep it until removed)</span></label>
+          <input class="as-input" id="as-ends" type="datetime-local">
+        </div>
+
+        <p class="as-error" id="as-error" role="alert"></p>
+        <div class="as-actions">
+          <button class="btn-action" type="submit" id="as-save">Save</button>
+          <button class="btn-action outline" type="button" id="as-reset">Clear</button>
+        </div>
+      </form>
+
+      <div class="table-box as-list-box">
+        <div class="inbox-toolbar">
+          <h3 class="as-list-title">Active &amp; scheduled</h3>
+          <span class="spacer"></span>
+          <span class="inbox-count" id="as-count"></span>
+        </div>
+        <div id="as-list" aria-live="polite"><p class="empty-state">Loading…</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<dialog class="as-dialog" id="as-confirm" aria-labelledby="as-confirm-title">
+  <form method="dialog">
+    <h3 id="as-confirm-title">Remove this closure?</h3>
+    <p id="as-confirm-text">The area will show as open again for every visitor.</p>
+    <div class="as-actions">
+      <button class="btn-action outline" value="cancel">Cancel</button>
+      <button class="btn-action danger" value="ok">Remove</button>
+    </div>
+  </form>
+</dialog>
+
+<footer>Infosphere Admin · copyright 2025 @infosphere</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/static/js/admin-common.js"></script>
+<script src="/static/js/panzoom.js"></script>
+<script src="/static/js/floor-map.js"></script>
+<script src="/static/js/admin-closures.js"></script>
+</body>
+</html>

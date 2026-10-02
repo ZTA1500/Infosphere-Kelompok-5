@@ -1,0 +1,28 @@
+[project]
+name = "infosphere"
+version = "1.0.0"
+description = "Campus navigation kiosk for BINUS University: floor maps, wayfinding, a voice/text assistant and an admin dashboard."
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+extend-exclude = [".venv", "instance"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "S"]
+ignore = [
+  "E401", "E402", "E701", "E702",   # app.py keeps its original import/one-liner style
+  "S101",                           # assert is fine in tests
+  "S104",                           # binding 0.0.0.0 is intended (configurable via HOST)
+  "S110",                           # deliberate best-effort try/except/pass
+  "S603", "S607",                   # subprocess with fixed argument lists (ffmpeg, own worker)
+  "S301",                           # pickle: the model file is written by this app only
+  "B904",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

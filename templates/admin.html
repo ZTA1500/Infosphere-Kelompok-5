@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="robots" content="noindex, nofollow">
+<title>Infosphere · Admin Dashboard</title>
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<link rel="stylesheet" href="/static/css/admin.css">
+<script src="/static/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="bg"></div>
+<div class="shell">
+
+{% include 'admin_header.html' %}
+
+<div class="content">
+
+  <h2 class="section-label">Website at a glance</h2>
+  <div class="stats-row six">
+    <div class="stat-card">
+      <div class="stat-val" id="s-visits-total">—</div>
+      <div class="stat-label">Total Visits</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-val" id="s-visits-today">—</div>
+      <div class="stat-label">Visits Today</div>
+      <div class="stat-sub">since midnight</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-val" id="s-visits-7d">—</div>
+      <div class="stat-label">Last 7 Days</div>
+      <div class="stat-sub">including today</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-val" id="s-unique">—</div>
+      <div class="stat-label">Unique Visitors</div>
+      <div class="stat-sub">anonymised, all time</div>
+    </div>
+    <a class="stat-card" href="/admin/feedback">
+      <div class="stat-val" id="s-fb-total">—</div>
+      <div class="stat-label">Total Feedback</div>
+      <div class="stat-cta">Open inbox →</div>
+    </a>
+    <a class="stat-card orange" href="/admin/feedback?status=unread">
+      <div class="stat-val" id="s-fb-unread">—</div>
+      <div class="stat-label">Unread Feedback</div>
+      <div class="stat-sub" id="s-fb-unread-sub">&nbsp;</div>
+    </a>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" type="button" role="tab" aria-selected="true" data-tab="overview">Chatbot</button>
+    <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="visits">Visits</button>
+  </div>
+
+  <section class="tab-panel active" data-tab="overview">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="val-total">—</div>
+      <div class="stat-label">Total Queries</div>
+      <div class="stat-sub" id="sub-total">all time</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-val" id="val-today">—</div>
+      <div class="stat-label">Today's Queries</div>
+      <div class="stat-sub" id="sub-today">since midnight</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-val" id="val-ms">—</div>
+      <div class="stat-label">Avg Response</div>
+      <div class="stat-sub">chatbot processing time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="val-conf">—</div>
+      <div class="stat-label">Avg Confidence</div>
+      <div class="stat-sub">chatbot match quality</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-box">
+      <h3>Language Distribution</h3>
+      <canvas id="lang-chart" height="190"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Confidence Distribution</h3>
+      <canvas id="conf-chart" height="190"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Hourly Activity (all time)</h3>
+      <canvas id="hourly-chart" height="190"></canvas>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="feedback-box">
+      <h3>Answer Ratings (👍 / 👎)</h3>
+      <div class="fb-numbers">
+        <div class="fb-num">
+          <span class="fb-emoji">👍</span>
+          <span class="fb-count pos" id="fb-pos">—</span>
+          <span class="fb-label">HELPFUL</span>
+        </div>
+        <div class="fb-bar-wrap">
+          <div class="fb-bar-fill" id="fb-bar" style="width:50%"></div>
+        </div>
+        <div class="fb-num">
+          <span class="fb-emoji">👎</span>
+          <span class="fb-count neg" id="fb-neg">—</span>
+          <span class="fb-label">NOT HELPFUL</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topq-box">
+      <h3>Top 5 Questions</h3>
+      <div id="topq-list">
+        <p style="color:var(--gray);font-size:.82rem">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <div class="table-header">
+      <h3>❓ Unanswered / Low-confidence Questions
+        <span style="font-weight:400;color:var(--gray)">— what the dataset is missing</span>
+      </h3>
+      <span id="unanswered-total" style="font-size:.68rem;color:var(--gray)"></span>
+    </div>
+    <p style="font-size:.74rem;color:var(--gray);margin-bottom:10px">
+      Type the correct answer and click <b>Teach</b> — it's added to the dataset and the model retrains instantly.
+    </p>
+    <div id="unanswered-list">
+      <p style="color:var(--gray);font-size:.82rem">Loading…</p>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <div class="table-header">
+      <h3>Recent Queries <span style="font-weight:400;color:var(--gray)">(last 20)</span></h3>
+      <span id="last-updated"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Question</th>
+          <th>Answer</th>
+          <th>Confidence</th>
+          <th>Lang</th>
+          <th>ms</th>
+        </tr>
+      </thead>
+      <tbody id="recent-body">
+        <tr><td colspan="6" style="color:var(--gray);text-align:center;padding:20px">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  </section>
+
+  <section class="tab-panel" data-tab="visits">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="v-total">—</div>
+        <div class="stat-label">Total Visits</div>
+        <div class="stat-sub">all tracked pages</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-val" id="v-unique">—</div>
+        <div class="stat-label">Unique Visitors</div>
+        <div class="stat-sub">keyed hash of device + browser</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-val" id="v-today">—</div>
+        <div class="stat-label">Today's Visits</div>
+        <div class="stat-sub" id="v-today-unique">since midnight</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="v-7d">—</div>
+        <div class="stat-label">Last 7 Days</div>
+        <div class="stat-sub">including today</div>
+      </div>
+    </div>
+
+    <div class="charts-row" style="grid-template-columns: 2fr 1fr;">
+      <div class="chart-box">
+        <h3>Visits per Day — Last 30 Days</h3>
+        <p class="stat-sub" id="v-30d-total" style="margin:-6px 0 10px"></p>
+        <canvas id="visits-chart" height="130"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Devices &amp; Browsers</h3>
+        <canvas id="device-chart" height="130"></canvas>
+      </div>
+    </div>
+
+    <div class="table-box">
+      <div class="table-header"><h3>Top Pages</h3></div>
+      <div id="top-pages-list">
+        <p style="color:var(--gray);font-size:.82rem">Loading…</p>
+      </div>
+    </div>
+
+    <p class="stat-sub" style="margin-bottom:18px">
+      Counted: real page views of /, /landing, /about and /feedback. Not counted: admin pages, API calls,
+      static files, bots/crawlers and link prefetches. No raw IP addresses are stored.
+    </p>
+
+  </section>
+
+</div>
+<footer>Infosphere Admin · copyright 2025 @infosphere · Auto-refreshes every 30 s</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/static/js/admin-common.js"></script>
+<script src="/static/js/admin-dashboard.js"></script>
+</body>
+</html>

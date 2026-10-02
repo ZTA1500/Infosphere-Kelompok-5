@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Who We Are — Infosphere</title>
+<script nonce="{{ csp_nonce() }}">
+/* Opened by double-clicking the .html file? Its styles, images and links are
+   served by the Infosphere server, so explain how to start it instead of
+   showing a broken page. (Browsers block file:// pages from probing localhost,
+   so we can't auto-detect a running server.) */
+(function () {
+  if (location.protocol !== 'file:') return;
+  var url = 'http://127.0.0.1:5000/about';
+  function help() {
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:#0b1f3a;color:#fff;font:16px/1.6 system-ui,sans-serif;text-align:center';
+    box.innerHTML = '<div style="max-width:520px"><h1 style="font-size:1.5rem;margin:0 0 12px">Start Infosphere first</h1>'
+      + '<p style="margin:0 0 8px">Do not open the .html files directly. Double-click <b>Start Infosphere.bat</b> in the project folder and wait for the browser to open.</p>'
+      + '<p style="margin:0 0 20px;opacity:.75">Jangan buka file .html langsung. Klik dua kali <b>Start Infosphere.bat</b>, lalu tunggu browser terbuka.</p>'
+      + '<a href="' + url + '" style="display:inline-block;padding:10px 20px;border-radius:8px;background:#f7941d;color:#0b1f3a;font-weight:700;text-decoration:none">Already started? Open Infosphere</a></div>';
+    document.body.appendChild(box);
+  }
+  if (document.body) help(); else document.addEventListener('DOMContentLoaded', help);
+})();
+</script>
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/vendor/ScrollTrigger.min.js"></script>
+<script src="/static/js/constellation.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Local aliases onto the shared navy/azure token system (assets/theme-tokens.css). */
+  :root {
+    --ink:       var(--text);
+    --ink-dim:   var(--text-muted);
+    --ink-faint: var(--text-faint);
+    --panel:     var(--surface);
+    --line:      var(--border);
+    --line-2:    var(--border-strong);
+    --ease:      var(--ease-out);
+  }
+
+  html { background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+  button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 6px;
+  }
+
+  /* ─────────────────── orbit background (canvas) ─────────────────── */
+  #orbit {
+    position: fixed; inset: 0; z-index: 0;
+    width: 100%; height: 100%;
+    display: block;
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: radial-gradient(rgba(238,243,248,.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: .4;
+    mask-image: radial-gradient(ellipse 65% 55% at 50% 30%, #000 40%, transparent 90%);
+  }
+
+  /* ─────────────────── nav ─────────────────── */
+  .nav {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px clamp(20px, 5vw, 64px) 0;
+  }
+  .nav-mark { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .nav-mark .mark-icon { height: 22px; width: auto; }
+  .nav-back {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .04em; color: var(--ink-dim);
+    border: 1px solid var(--line-2); border-radius: 100px; padding: 8px 16px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .nav-back:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  /* ─────────────────── hero ─────────────────── */
+  .hero {
+    position: relative; z-index: 2;
+    min-height: 86svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 40px clamp(20px, 5vw, 64px);
+  }
+  .eyebrow {
+    font-size: .74rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 22px;
+    opacity: 0;
+  }
+  .hero h1 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    line-height: 1.02; letter-spacing: -.01em;
+    max-width: 920px;
+  }
+  .hero h1 .line { display: block; overflow: hidden; }
+  .hero h1 .line span { display: inline-block; transform: translateY(110%); }
+  .hero h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+  .hero-sub {
+    margin-top: 26px; max-width: 520px;
+    color: var(--ink-dim); font-size: clamp(1rem, 1.4vw, 1.12rem); line-height: 1.7;
+    opacity: 0;
+  }
+
+  .scroll-cue {
+    margin-top: 48px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--ink-faint); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    opacity: 0;
+  }
+  .scroll-cue .stem {
+    width: 1px; height: 34px; background: linear-gradient(var(--ink-faint), transparent);
+  }
+
+  /* ─────────────────── mission pull-quote ─────────────────── */
+  .mission {
+    position: relative; z-index: 2;
+    padding: clamp(60px, 14vh, 160px) clamp(20px, 5vw, 64px);
+    max-width: 980px; margin: 0 auto;
+    text-align: center;
+  }
+  .mission p {
+    font-family: var(--font-display); font-weight: 400; font-style: italic;
+    font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+    line-height: 1.35;
+    color: var(--ink-dim);
+  }
+  .mission p em { color: var(--ink); font-style: italic; }
+  .mission-word { opacity: .18; }
+
+  /* ─────────────────── story (pinned steps) ─────────────────── */
+  .story {
+    position: relative; z-index: 2;
+    background: var(--bg-alt);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    perspective: 1400px;
+  }
+  .story-track {
+    display: flex;
+    width: 300%;
+    transform-style: preserve-3d;
+  }
+  .story-panel {
+    width: 100vw; flex-shrink: 0;
+    min-height: 100svh;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    padding: 0 clamp(24px, 8vw, 120px);
+    position: relative;
+    will-change: transform, opacity, filter;
+  }
+  .story-num {
+    font-family: var(--font-display); font-size: clamp(5rem, 14vw, 11rem); font-weight: 500;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--line-2);
+    line-height: 1; margin-bottom: 18px;
+  }
+  .story-panel h3 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    max-width: 640px; margin-bottom: 16px;
+  }
+  .story-panel h3 em { color: var(--accent); font-style: italic; font-weight: 500; }
+  .story-panel p { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; max-width: 480px; }
+
+  .story-progress {
+    position: absolute; bottom: 40px; left: clamp(24px, 8vw, 120px);
+    display: flex; gap: 8px;
+  }
+  .story-progress span {
+    width: 30px; height: 2px; background: var(--line-2);
+    position: relative; overflow: hidden;
+  }
+  .story-progress span i {
+    position: absolute; inset: 0; background: var(--accent);
+    transform: scaleX(0); transform-origin: left;
+  }
+
+  @media (max-width: 720px) {
+    .story-track { width: 100%; flex-direction: column; }
+    .story-panel { width: 100%; min-height: auto; padding: 90px clamp(20px, 6vw, 40px); }
+  }
+
+  /* ─────────────────── values ─────────────────── */
+  .values {
+    position: relative; z-index: 2;
+    padding: clamp(60px, 12vh, 120px) clamp(20px, 5vw, 64px);
+    max-width: 1120px; margin: 0 auto;
+  }
+  .values-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 20px;
+    margin-bottom: 44px; flex-wrap: wrap;
+  }
+  .values-head h2 {
+    font-family: var(--font-display); font-weight: 500; font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  }
+  .values-head span { color: var(--ink-faint); font-size: .82rem; max-width: 340px; }
+
+  .value-row {
+    display: flex; align-items: baseline; gap: 28px;
+    padding: 26px 0; border-top: 1px solid var(--line);
+    opacity: 0; transform: translateY(24px);
+  }
+  .value-row:last-child { border-bottom: 1px solid var(--line); }
+  .value-index { font-family: var(--font-display); font-size: 1rem; color: var(--accent); flex-shrink: 0; width: 34px; }
+  .value-row h4 { font-size: 1.02rem; font-weight: 700; flex: 0 0 220px; }
+  .value-row p { color: var(--ink-faint); font-size: .88rem; line-height: 1.6; }
+
+  @media (max-width: 680px) {
+    .value-row { flex-direction: column; gap: 8px; }
+    .value-row h4 { flex: none; }
+  }
+
+  /* ─────────────────── stats ─────────────────── */
+  .stats {
+    position: relative; z-index: 2;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: clamp(50px, 10vh, 90px) clamp(20px, 5vw, 64px);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    max-width: 1120px; margin: 0 auto;
+    gap: 20px;
+  }
+  .stat { text-align: center; }
+  .stat strong {
+    display: block;
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    color: var(--ink);
+  }
+  .stat span { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+
+  @media (max-width: 640px) { .stats { grid-template-columns: 1fr; gap: 36px; } }
+
+  /* ─────────────────── closing cta ─────────────────── */
+  .closing {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: clamp(80px, 16vh, 160px) clamp(20px, 5vw, 64px);
+    max-width: 720px; margin: 0 auto;
+  }
+  .closing h2 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1.15; margin-bottom: 28px;
+  }
+  .closing h2 em { color: var(--accent); font-style: italic; font-weight: 500; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 15px 30px; border-radius: 100px; border: none; cursor: pointer;
+    font-weight: 700; font-size: .94rem;
+    background: var(--accent); color: var(--on-accent);
+    box-shadow: 0 10px 30px rgba(33,131,217,.28);
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 38px rgba(33,131,217,.4); }
+  .btn:active { transform: translateY(0) scale(.98); }
+
+  footer.site-footer {
+    position: relative; z-index: 2;
+    background: var(--bg-alt);
+    color: var(--ink-faint); font-size: .82rem;
+    border-top: 1px solid var(--line);
+    padding: 30px clamp(20px, 5vw, 64px);
+  }
+  .footer-inner {
+    max-width: 1120px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .footer-mark {
+    display: flex; align-items: center; gap: 9px;
+    font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--ink-dim);
+  }
+  .footer-mark .mark-icon { height: 18px; width: auto; }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a { font-weight: 600; font-size: .8rem; color: var(--ink-faint); transition: color .2s ease; }
+  .footer-links a:hover { color: var(--accent-2); }
+  .footer-copy { font-size: .74rem; letter-spacing: .02em; }
+  @media (max-width: 560px) { .footer-inner { justify-content: center; text-align: center; } }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(20px);
+    z-index: 100;
+    background: var(--panel); border: 1px solid var(--line-2); color: var(--ink);
+    padding: 12px 20px; border-radius: 12px; font-size: .82rem; font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease, transform .3s var(--ease);
+    max-width: 90vw;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #orbit { opacity: .5; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="orbit" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav">
+  <div class="nav-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+  <a class="nav-back" href="/landing">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    Back to campus
+  </a>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero">
+  <div class="eyebrow" id="eyebrow">Who We Are</div>
+  <h1 id="heroTitle">
+    <span class="line"><span>We're not an app.</span></span>
+    <span class="line"><span>We're a <em>voice</em> your campus</span></span>
+    <span class="line"><span>never had before.</span></span>
+  </h1>
+  <p class="hero-sub" id="heroSub">
+    Infosphere started as one question: why does finding a room, an office,
+    or an answer on campus still feel like guesswork? We built the assistant
+    we wished existed.
+  </p>
+  <div class="scroll-cue" id="scrollCue"><span>Scroll</span><span class="stem"></span></div>
+</section>
+
+<!-- ═══════════════════ MISSION ═══════════════════ -->
+<section class="mission">
+  <p id="missionText">
+    We believe technology on a campus should feel like <em>asking a friend</em>,
+    not filling out a form — fast, honest, and human enough to say
+    <em>"I don't know yet, but I'm learning."</em>
+  </p>
+</section>
+
+<!-- ═══════════════════ STORY (horizontal pin) ═══════════════════ -->
+<section class="story" id="story">
+  <div class="story-track" id="storyTrack">
+
+    <div class="story-panel">
+      <div class="story-num">01</div>
+      <h3>We <em>listen</em> first.</h3>
+      <p>Every question — spoken or typed, in Indonesian, English, or Mandarin — starts by actually being heard, not pattern-matched against a script.</p>
+      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+    </div>
+
+    <div class="story-panel">
+      <div class="story-num">02</div>
+      <h3>We <em>understand</em> the space.</h3>
+      <p>Rooms, floors, offices, routes — mapped and cross-referenced for whichever space we're set up to serve, so an answer isn't just correct, it's actually useful to someone standing there.</p>
+      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+    </div>
+
+    <div class="story-panel">
+      <div class="story-num">03</div>
+      <h3>We <em>guide</em>, not just answer.</h3>
+      <p>Every conversation makes the next one sharper. Infosphere is built to keep learning from whichever space it's deployed to — quietly, in the background.</p>
+      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ VALUES ═══════════════════ -->
+<section class="values">
+  <div class="values-head">
+    <h2>How we think about it</h2>
+    <span>The principles that shape every answer Infosphere gives.</span>
+  </div>
+
+  <div class="value-row"><div class="value-index">01</div><h4>Clarity over cleverness</h4><p>A short, correct answer beats an impressive-sounding vague one, every time.</p></div>
+  <div class="value-row"><div class="value-index">02</div><h4>Say "I don't know"</h4><p>Guessing confidently is worse than admitting a gap — so Infosphere is built to do the latter.</p></div>
+  <div class="value-row"><div class="value-index">03</div><h4>Local, not generic</h4><p>Trained on each space's own data — its rooms, its language, its people — not a one-size-fits-all script.</p></div>
+  <div class="value-row"><div class="value-index">04</div><h4>Always improving</h4><p>Every unanswered question gets reviewed and taught back in — the assistant is never really "finished."</p></div>
+</section>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<section class="stats">
+  <div class="stat"><strong data-count="588">0</strong><span>Questions known</span></div>
+  <div class="stat"><strong data-count="3">0</strong><span>Languages spoken</span></div>
+  <div class="stat"><strong data-count="4">0</strong><span>Floors mapped</span></div>
+</section>
+
+<!-- ═══════════════════ CLOSING ═══════════════════ -->
+<section class="closing">
+  <h2>Curious what Infosphere sounds like <em>in person</em>?</h2>
+  <button class="btn" data-ai-chat="about-closing">
+    Talk to Infosphere
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+    <nav class="footer-links">
+      <a href="/landing#product">Product</a>
+      <a href="/landing#faq">FAQ</a>
+      <a href="/landing">Home</a>
+      <a href="/feedback">Feedback</a>
+    </nav>
+    <span class="footer-copy">copyright 2025 @infosphere · BINUS University</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script nonce="{{ csp_nonce() }}">
+/* Same placeholder contract as landing.html — replace the body to wire up
+   the real chat UI. Logs + toasts which button triggered it. */
+function openAIChat(source) {
+  console.info('[openAIChat] triggered from:', source);
+  showToast('Opening Infosphere…');
+  setTimeout(() => { window.location.href = '/'; }, 350);
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Galaxy rings restored alongside the constellation particles — both layers
+   now live in the shared assets/js/constellation.js module. */
+initConstellation(document.getElementById('orbit'), { galaxy: true });
+
+/* ═══════════════════ GSAP reveals ═══════════════════ */
+gsap.registerPlugin(ScrollTrigger);
+
+if (reduceMotion) {
+  gsap.set(['.hero h1 .line span', '.hero-sub', '.eyebrow', '.scroll-cue', '.value-row'], { opacity: 1, y: 0 });
+} else {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('.eyebrow', { opacity: 1, duration: .5 })
+    .to('.hero h1 .line span', { y: '0%', duration: .9, stagger: .12 }, '-=.2')
+    .to('.hero-sub', { opacity: 1, duration: .7 }, '-=.4')
+    .to('.scroll-cue', { opacity: 1, duration: .6 }, '-=.3');
+
+  gsap.utils.toArray('.mission-word, .mission p').forEach(() => {});
+  gsap.from('.mission p', {
+    opacity: 0, y: 24, duration: 1,
+    scrollTrigger: { trigger: '.mission', start: 'top 75%' },
+  });
+
+  gsap.utils.toArray('.value-row').forEach((row, i) => {
+    gsap.to(row, {
+      opacity: 1, y: 0, duration: .7, delay: i * 0.04, ease: 'power2.out',
+      scrollTrigger: { trigger: row, start: 'top 88%' },
+    });
+  });
+
+  gsap.utils.toArray('.stat strong').forEach((el) => {
+    const target = Number(el.dataset.count);
+    ScrollTrigger.create({
+      trigger: el, start: 'top 85%', once: true,
+      onEnter: () => gsap.fromTo(el, { textContent: 0 }, {
+        textContent: target, duration: 1.4, ease: 'power2.out', snap: { textContent: 1 },
+        onUpdate: function () { el.textContent = Math.floor(this.targets()[0].textContent); },
+      }),
+    });
+  });
+
+  /* horizontal-pin story section, desktop only */
+  const mq = window.matchMedia('(min-width: 721px)');
+  if (mq.matches) {
+    const track = document.getElementById('storyTrack');
+    const panels = gsap.utils.toArray('.story-panel');
+    const bars = gsap.utils.toArray('.story-progress i');
+
+    const storyTween = gsap.to(track, {
+      x: () => -(track.scrollWidth - window.innerWidth),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#story',
+        start: 'top top',
+        end: () => '+=' + (track.scrollWidth - window.innerWidth),
+        scrub: 1,
+        pin: true,
+        anticipatePin: 1,
+      },
+    });
+
+    panels.forEach((panel, i) => {
+      ScrollTrigger.create({
+        trigger: panel,
+        containerAnimation: storyTween,
+        start: 'left 60%',
+        end: 'right 40%',
+        onEnter: () => gsap.to(bars[i], { scaleX: 1, duration: .3 }),
+        onLeaveBack: () => gsap.to(bars[i], { scaleX: 0, duration: .3 }),
+      });
+
+      // whoosh: each panel drifts in tilted-back-and-dim, passes through flat-
+      // crisp-full at center, exits tilted the other way — a camera gliding
+      // past rather than a slide. Scroll-scrubbed, so ease stays 'none': the
+      // scrollbar itself is the easing curve here.
+      gsap.timeline({
+        scrollTrigger: {
+          containerAnimation: storyTween,
+          trigger: panel,
+          start: 'left right',
+          end: 'right left',
+          scrub: 0.4,
+        },
+      })
+        .fromTo(panel,
+          { rotateY: -26, z: -320, scale: .82, opacity: .2, filter: 'blur(3px)' },
+          { rotateY: 0, z: 0, scale: 1, opacity: 1, filter: 'blur(0px)', ease: 'none' })
+        .to(panel,
+          { rotateY: 26, z: -320, scale: .82, opacity: .2, filter: 'blur(3px)', ease: 'none' });
+    });
+  }
+}
+
+/* Event wiring — inline onclick= attributes are blocked by the
+   Content-Security-Policy, so elements carry data-ai-chat="source" instead. */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-ai-chat]');
+  if (el) openAIChat(el.dataset.aiChat);
+});
+document.addEventListener('keydown', e => {
+  const el = e.target.closest('[data-ai-chat][role="button"]');
+  if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openAIChat(el.dataset.aiChat); }
+});
+</script>
+
+</body>
+</html>

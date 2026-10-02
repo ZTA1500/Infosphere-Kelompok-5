@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Infosphere — Campus AI Assistant</title>
+<script nonce="{{ csp_nonce() }}">
+/* Opened by double-clicking the .html file? Its styles, images and links are
+   served by the Infosphere server, so explain how to start it instead of
+   showing a broken page. (Browsers block file:// pages from probing localhost,
+   so we can't auto-detect a running server.) */
+(function () {
+  if (location.protocol !== 'file:') return;
+  var url = 'http://127.0.0.1:5000/landing';
+  function help() {
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:#0b1f3a;color:#fff;font:16px/1.6 system-ui,sans-serif;text-align:center';
+    box.innerHTML = '<div style="max-width:520px"><h1 style="font-size:1.5rem;margin:0 0 12px">Start Infosphere first</h1>'
+      + '<p style="margin:0 0 8px">Do not open the .html files directly. Double-click <b>Start Infosphere.bat</b> in the project folder and wait for the browser to open.</p>'
+      + '<p style="margin:0 0 20px;opacity:.75">Jangan buka file .html langsung. Klik dua kali <b>Start Infosphere.bat</b>, lalu tunggu browser terbuka.</p>'
+      + '<a href="' + url + '" style="display:inline-block;padding:10px 20px;border-radius:8px;background:#f7941d;color:#0b1f3a;font-weight:700;text-decoration:none">Already started? Open Infosphere</a></div>';
+    document.body.appendChild(box);
+  }
+  if (document.body) help(); else document.addEventListener('DOMContentLoaded', help);
+})();
+</script>
+<meta name="description" content="Infosphere is BINUS University's voice-and-text campus assistant — wayfinding, schedules, and answers in Indonesian, English, and Mandarin, available 24/7.">
+<meta name="theme-color" content="#0d1b2a">
+<meta property="og:title" content="Infosphere — Campus AI Assistant">
+<meta property="og:description" content="Ask your campus anything, get there faster. Built for BINUS University.">
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Local aliases onto the shared navy/azure token system (assets/theme-tokens.css)
+     so the rest of this stylesheet — written against --ink/--panel/--line/--shadow —
+     didn't need a full rewrite of every rule. */
+  :root {
+    --ink:       var(--text);
+    --ink-dim:   var(--text-muted);
+    --ink-faint: var(--text-faint);
+    --panel:     var(--surface);
+    --panel-2:   var(--surface-elevated);
+    --line:      var(--border);
+    --line-2:    var(--border-strong);
+    --shadow:    var(--shadow-lg);
+    --ease:      var(--ease-out);
+    --ease-out-back: cubic-bezier(.2,1.1,.4,1);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--on-accent); }
+
+  button { font-family: inherit; }
+
+  a { color: inherit; }
+
+  img { max-width: 100%; display: block; }
+
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  /* ————————————————————————— accessibility ————————————————————————— */
+  .skip-link {
+    position: fixed; left: 16px; top: -60px; z-index: 200;
+    background: var(--accent); color: var(--on-accent);
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 700; font-size: .85rem;
+    transition: top .25s var(--ease);
+  }
+  .skip-link:focus { top: 16px; }
+
+  button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 20px;
+  }
+  .eyebrow::before {
+    content: ''; width: 22px; height: 1px; background: var(--accent-2);
+  }
+
+  /* ————————————————————————— ambient bg ————————————————————————— */
+  .ambient {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    background: var(--bg);
+  }
+  .ambient::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(rgba(238,243,248,.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: .35;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, #000 40%, transparent 90%);
+  }
+  .grain {
+    position: absolute; inset: -10%;
+    opacity: .05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+  .blob {
+    position: absolute;
+    width: 52vw; height: 52vw;
+    max-width: 720px; max-height: 720px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .55;
+    will-change: transform;
+  }
+  #webCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .blob-1 { top: -10%;  left: -8%;  background: radial-gradient(circle, var(--accent) 0%, transparent 68%); }
+  .blob-2 { top: 6%;    right: -14%; background: radial-gradient(circle, var(--success) 0%, transparent 70%); opacity: .35; }
+  .blob-3 { bottom: -22%; left: 20%; background: radial-gradient(circle, var(--accent-2) 0%, transparent 72%); opacity: .28; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blob { transition: none !important; }
+  }
+
+  /* ————————————————————————— buttons ————————————————————————— */
+  .btn {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 26px;
+    border-radius: 100px;
+    border: none; cursor: pointer;
+    font-weight: 700; font-size: .92rem;
+    overflow: hidden;
+    will-change: transform;
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease), background .25s ease, border-color .25s ease;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--on-accent);
+    box-shadow: 0 10px 30px rgba(33,131,217,.28);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.4) 46%, transparent 62%);
+    transform: translateX(-130%);
+    transition: transform .75s var(--ease);
+    pointer-events: none;
+  }
+  .btn-primary:hover::after { transform: translateX(130%); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 38px rgba(33,131,217,.4); }
+  .btn-primary:active { transform: translateY(0) scale(.97); }
+
+  .btn-lg { padding: 17px 32px; font-size: 1rem; }
+
+  .btn-ghost {
+    background: transparent; color: var(--ink-dim);
+    border: 1px solid var(--line-2);
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--accent-2); transform: translateY(-2px); box-shadow: 0 10px 26px hsl(var(--shadow-color) / .3); }
+  .btn-ghost:active { transform: translateY(0) scale(.97); }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.32);
+    transform: scale(0);
+    animation: rippleAnim .6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes rippleAnim { to { transform: scale(1); opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn, .btn-primary::after { transition: none !important; }
+    .ripple { animation: none !important; display: none; }
+  }
+
+  /* ————————————————————————— hero ————————————————————————— */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+  }
+
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 20px;
+    padding: 22px clamp(20px, 5vw, 64px);
+    transition: background .35s ease, border-color .35s ease, backdrop-filter .35s ease, padding .35s ease;
+    border-bottom: 1px solid transparent;
+  }
+  .nav.scrolled {
+    background: var(--scrim-strong);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom-color: var(--line);
+    padding-top: 14px; padding-bottom: 14px;
+  }
+  .nav-mark {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-display); font-weight: 600; font-size: 1.15rem;
+    letter-spacing: .01em;
+  }
+  .nav-mark .mark-icon { height: 22px; width: auto; }
+  .nav-links { display: flex; gap: 28px; justify-self: center; }
+  .nav-links a {
+    position: relative;
+    font-size: .78rem; font-weight: 700; letter-spacing: .02em;
+    color: var(--ink-faint);
+    padding: 4px 0;
+    transition: color .25s ease;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; left: 0; right: 100%; bottom: -2px; height: 1px;
+    background: var(--accent-2);
+    transition: right .35s var(--ease);
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+  .nav-links a:hover::after, .nav-links a.active::after { right: 0; }
+  .nav-tag {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 700;
+    justify-self: end;
+  }
+  @media (max-width: 860px) { .nav-links { display: none; } }
+
+  .hero-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    align-items: center;
+    gap: clamp(24px, 5vw, 64px);
+    padding: clamp(28px, 6vh, 56px) clamp(20px, 5vw, 64px) clamp(40px, 8vh, 80px);
+    max-width: 1360px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-copy { max-width: 560px; }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.4rem, 5.6vw, 4.1rem);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    margin-bottom: 22px;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+  .hero-sub {
+    color: var(--ink-dim);
+    font-size: clamp(1rem, 1.4vw, 1.1rem);
+    line-height: 1.65;
+    max-width: 460px;
+    margin-bottom: 32px;
+  }
+
+  .hero-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+
+  .hero-meta {
+    display: flex; gap: 28px; margin-top: 40px;
+    padding-top: 24px; border-top: 1px solid var(--line);
+    max-width: 460px;
+  }
+  .hero-meta div { display: flex; flex-direction: column; gap: 3px; }
+  .hero-meta strong { font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .hero-meta span { font-size: .72rem; color: var(--ink-faint); letter-spacing: .04em; }
+
+  /* ————————————————————————— carousel ————————————————————————— */
+  .carousel-wrap {
+    position: relative;
+    justify-self: end;
+    width: 100%;
+    max-width: 440px;
+  }
+  .carousel-frame {
+    position: absolute;
+    inset: 14px -14px -14px 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 26px;
+    z-index: -1;
+  }
+
+  .carousel {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    perspective: 1400px;
+    background: var(--panel);
+  }
+  .carousel-stage {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+  }
+  .slide {
+    position: absolute; inset: 0;
+    transition: transform .62s var(--ease), opacity .62s var(--ease);
+    backface-visibility: hidden;
+  }
+  .slide img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: saturate(.94) contrast(1.03);
+  }
+  .slide[data-pos="active"] { transform: rotateY(0deg) translateZ(0); opacity: 1; z-index: 3; }
+  .slide[data-pos="next"]   { transform: rotateY(38deg) translateZ(-120px); opacity: 0; z-index: 1; pointer-events: none; }
+  .slide[data-pos="prev"]   { transform: rotateY(-38deg) translateZ(-120px); opacity: 0; z-index: 1; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: opacity .35s ease; }
+    .slide[data-pos="next"], .slide[data-pos="prev"] { transform: none; }
+  }
+
+  .slide-overlay {
+    position: absolute; inset: 0;
+    background: var(--scrim-strong);
+    display: flex; align-items: center; justify-content: center;
+    cursor: not-allowed;
+  }
+  .slide-overlay span {
+    font-family: var(--font-body); font-weight: 700; font-size: .78rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--on-scrim);
+    padding: 8px 18px;
+    border: 1px solid rgba(238,243,248,.35);
+    border-radius: 100px;
+    backdrop-filter: blur(4px);
+  }
+
+  .slide-live { cursor: pointer; }
+  .slide-live::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, var(--scrim-strong) 100%);
+    pointer-events: none;
+  }
+  .chat-badge {
+    position: absolute; left: 18px; bottom: 18px; z-index: 4;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px 9px 12px;
+    background: var(--scrim);
+    border: 1px solid rgba(238,243,248,.25);
+    border-radius: 100px;
+    backdrop-filter: blur(6px);
+    font-size: .78rem; font-weight: 700; color: var(--on-scrim);
+    pointer-events: none;
+  }
+  .chat-badge .pip {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(63,178,127,.6);
+    animation: pipPulse 1.8s ease-out infinite;
+  }
+  @keyframes pipPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(63,178,127,.55); }
+    70%  { box-shadow: 0 0 0 9px rgba(63,178,127,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,178,127,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chat-badge .pip { animation: none; }
+  }
+
+  .carousel-controls {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px;
+    pointer-events: none;
+  }
+  .arrow {
+    pointer-events: auto;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--scrim);
+    border: 1px solid rgba(238,243,248,.25);
+    color: var(--on-scrim);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: background .2s ease, transform .2s var(--ease);
+  }
+  .arrow:hover { background: rgba(33,131,217,.85); border-color: transparent; }
+  .arrow:active { transform: scale(.9); }
+
+  .dots {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 5;
+    display: flex; gap: 7px;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(238,243,248,.35);
+    border: none; cursor: pointer; padding: 0;
+    transition: background .25s ease, width .25s var(--ease);
+  }
+  .dot.active { background: var(--accent-2); width: 20px; border-radius: 4px; }
+
+  /* ————————————————————————— side rail cta ————————————————————————— */
+  .rail-cta {
+    position: fixed;
+    right: 0; top: 50%; transform: translateY(-50%);
+    z-index: 40;
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 20px 16px 24px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none; cursor: pointer;
+    border-radius: 100px 0 0 100px;
+    font-weight: 800; font-size: .82rem; letter-spacing: .02em;
+    box-shadow: -10px 10px 34px rgba(33,131,217,.32);
+    overflow: hidden;
+    will-change: transform;
+    transition: padding .3s var(--ease), transform .3s var(--ease), box-shadow .3s var(--ease);
+  }
+  .rail-cta::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.4) 46%, transparent 62%);
+    transform: translateX(-130%);
+    transition: transform .75s var(--ease);
+    pointer-events: none;
+  }
+  .rail-cta:hover::after { transform: translateX(130%); }
+  .rail-cta:hover { padding-right: 28px; box-shadow: -14px 14px 40px rgba(33,131,217,.42); }
+  .rail-cta:active { transform: translateY(-50%) scale(.96); }
+  .rail-cta svg { flex-shrink: 0; }
+
+  @media (max-width: 860px) {
+    .rail-cta { display: none; }
+  }
+
+  /* ————————————————————————— section shells ————————————————————————— */
+  section[id] { position: relative; z-index: 1; scroll-margin-top: 90px; }
+
+  .product { background: var(--bg-alt); border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); }
+  .proof   { background: var(--bg);     border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 110px) clamp(20px, 5vw, 64px); }
+  .campus  { background: var(--bg-alt); border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); }
+  .demo    { background: var(--bg);     border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); }
+  .faq     { background: var(--bg-alt); border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); }
+
+  .product-inner, .proof-inner, .campus-inner, .demo-inner, .faq-inner { max-width: 1120px; margin: 0 auto; }
+
+  h2 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+    line-height: 1.15;
+  }
+  h2 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+  /* ————————————————————————— product ————————————————————————— */
+  .product-head {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: end;
+    margin-bottom: clamp(48px, 8vh, 84px);
+  }
+  .product-head h2 { max-width: 480px; }
+  .product-desc { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; max-width: 46ch; }
+
+  .product-head-actions {
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    margin-top: 22px;
+  }
+  .link-about {
+    font-size: .85rem; font-weight: 700; color: var(--ink-dim);
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .link-about:hover { color: var(--accent-2); border-color: var(--accent-2); }
+  .link-about span { display: inline-block; transition: transform .25s var(--ease); }
+  .link-about:hover span { transform: translateX(3px); }
+
+  /* features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: clamp(56px, 9vh, 96px);
+  }
+  .feature {
+    background: var(--panel);
+    padding: 30px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    transition: background .3s ease, transform .3s var(--ease);
+  }
+  .feature:hover { background: var(--panel-2); transform: translateY(-3px); }
+  .feature-ico {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    color: var(--accent-2);
+    background: rgba(33,131,217,.12);
+    border: 1px solid rgba(33,131,217,.22);
+    transition: transform .35s var(--ease-out-back);
+  }
+  .feature:hover .feature-ico { transform: scale(1.1) rotate(-4deg); }
+  .feature h3 { font-size: .96rem; font-weight: 700; }
+  .feature p { font-size: .84rem; color: var(--ink-faint); line-height: 1.55; }
+
+  @media (max-width: 920px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .features { grid-template-columns: 1fr; }
+  }
+
+  /* how it works */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 36px); }
+  .step { position: relative; padding-left: 46px; }
+  .step-num {
+    position: absolute; left: 0; top: -2px;
+    font-family: var(--font-display); font-weight: 500; font-size: 1.6rem;
+    color: var(--ink-faint);
+  }
+  .step h4 { font-size: .92rem; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: .82rem; color: var(--ink-faint); line-height: 1.55; }
+
+  .steps-progress { position: relative; height: 14px; margin-top: 44px; }
+  .steps-progress-line {
+    position: absolute; left: 0; right: 0; top: 50%; height: 2px;
+    background: var(--line-2); border-radius: 2px; overflow: hidden;
+    transform: translateY(-50%);
+  }
+  .steps-progress-fill {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transform-origin: left center; transform: scaleX(0);
+  }
+  .steps-progress-dot {
+    position: absolute; top: 50%; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--line-2);
+    transform: translate(-50%, -50%);
+  }
+  .steps-progress-puck {
+    position: absolute; top: 50%; left: 0%; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 4px rgba(33,131,217,.25), 0 4px 14px rgba(33,131,217,.4);
+    transform: translate(-50%, -50%);
+  }
+
+  @media (max-width: 720px) {
+    .product-head { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; gap: 22px; }
+    .steps-progress { display: none; }
+  }
+
+  /* ————————————————————————— proof / stats ————————————————————————— */
+  .proof-head { max-width: 560px; margin-bottom: clamp(40px, 7vh, 64px); }
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .proof-stat {
+    padding: 8px 28px 8px 0;
+    border-left: 1px solid var(--line);
+  }
+  .proof-stat:first-child { border-left: none; padding-left: 0; }
+  .proof-stat strong {
+    display: block;
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(2.1rem, 4vw, 3.1rem);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .proof-stat span { font-size: .82rem; color: var(--ink-faint); line-height: 1.5; display: block; max-width: 22ch; }
+  @media (max-width: 860px) {
+    .proof-grid { grid-template-columns: repeat(2, 1fr); row-gap: 32px; }
+    .proof-stat:nth-child(3) { border-left: none; padding-left: 0; }
+  }
+  @media (max-width: 480px) {
+    .proof-grid { grid-template-columns: 1fr; }
+    .proof-stat { border-left: none; padding-left: 0; padding-top: 20px; border-top: 1px solid var(--line); }
+    .proof-stat:first-child { border-top: none; padding-top: 0; }
+  }
+
+  /* ————————————————————————— campus gallery ————————————————————————— */
+  .campus-head { max-width: 620px; margin-bottom: clamp(44px, 7vh, 72px); }
+  .campus-desc { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; margin-top: 16px; max-width: 46ch; }
+
+  .campus-grid {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr 1fr;
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+  }
+  .campus-img {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--line-2);
+    box-shadow: var(--shadow);
+    background: var(--panel);
+  }
+  .campus-img img {
+    position: absolute; top: -14%; left: 0;
+    width: 100%; height: 128%;
+    object-fit: cover;
+    filter: saturate(.92) contrast(1.02);
+  }
+  .campus-img figcaption {
+    position: absolute; left: 14px; bottom: 14px; z-index: 2;
+    font-size: .74rem; font-weight: 700; letter-spacing: .02em;
+    color: var(--on-scrim);
+    padding: 7px 14px;
+    background: var(--scrim);
+    border: 1px solid rgba(238,243,248,.2);
+    border-radius: 100px;
+    backdrop-filter: blur(6px);
+  }
+  .campus-img::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, transparent 55%, var(--scrim-strong) 100%);
+  }
+  .campus-img-a { grid-column: 1; grid-row: 1 / span 2; aspect-ratio: 3 / 4; }
+  .campus-img-b { grid-column: 2; grid-row: 1; aspect-ratio: 4 / 5; margin-top: 34px; }
+  .campus-img-c { grid-column: 3; grid-row: 1 / span 2; aspect-ratio: 3 / 4; }
+
+  @media (max-width: 860px) {
+    .campus-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .campus-img-a { grid-column: 1 / span 2; grid-row: auto; aspect-ratio: 16/9; }
+    .campus-img-b { grid-column: 1; grid-row: auto; margin-top: 0; aspect-ratio: 4/3; }
+    .campus-img-c { grid-column: 2; grid-row: auto; aspect-ratio: 4/3; }
+  }
+  @media (max-width: 560px) {
+    .campus-grid { grid-template-columns: 1fr; }
+    .campus-img-a, .campus-img-b, .campus-img-c { grid-column: 1; aspect-ratio: 4/3; margin-top: 0; }
+  }
+
+  /* ————————————————————————— demo ————————————————————————— */
+  .demo-inner {
+    display: grid;
+    grid-template-columns: .95fr 1.05fr;
+    gap: clamp(32px, 6vw, 72px);
+    align-items: center;
+  }
+  .demo-desc { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; margin-bottom: 30px; max-width: 46ch; }
+  .demo-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+  .demo-tab {
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--line-2);
+    background: transparent;
+    color: var(--ink-dim);
+    font-weight: 700; font-size: .82rem;
+    cursor: pointer;
+    transition: background .25s ease, color .25s ease, border-color .25s ease, transform .25s var(--ease);
+  }
+  .demo-tab:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .demo-tab.active { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+
+  .demo-window {
+    background: var(--panel);
+    border: 1px solid var(--line-2);
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .demo-window-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .78rem; font-weight: 700; color: var(--ink-dim);
+    padding-bottom: 16px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .demo-window-head .pip {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(63,178,127,.6);
+    animation: pipPulse 1.8s ease-out infinite;
+  }
+  .demo-thread { display: flex; flex-direction: column; gap: 12px; min-height: 168px; }
+  .bubble {
+    max-width: 84%;
+    padding: 13px 17px;
+    border-radius: 16px;
+    font-size: .89rem; line-height: 1.5;
+    transition: opacity .3s var(--ease), transform .3s var(--ease);
+  }
+  .bubble-user {
+    align-self: flex-end; text-align: right;
+    background: rgba(33,131,217,.14);
+    border: 1px solid rgba(33,131,217,.28);
+    border-bottom-right-radius: 4px;
+  }
+  .bubble-bot {
+    align-self: flex-start;
+    background: var(--bg-alt);
+    border: 1px solid var(--line-2);
+    border-bottom-left-radius: 4px;
+  }
+  .demo-thread.switching .bubble { opacity: 0; transform: translateY(6px); }
+  @media (prefers-reduced-motion: reduce) {
+    .demo-thread.switching .bubble { opacity: 1; transform: none; }
+  }
+
+  @media (max-width: 860px) {
+    .demo-inner { grid-template-columns: 1fr; }
+  }
+
+  /* ————————————————————————— faq ————————————————————————— */
+  .faq-head { max-width: 560px; margin-bottom: clamp(40px, 7vh, 64px); }
+  .faq-body { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(24px, 4vw, 56px); }
+  .faq-list { display: flex; flex-direction: column; gap: 4px; }
+  .faq-item {
+    text-align: left;
+    background: transparent; border: none; cursor: pointer;
+    padding: 16px 18px;
+    border-radius: 14px;
+    font-family: inherit; font-weight: 700; font-size: .92rem;
+    color: var(--ink-faint);
+    display: flex; align-items: center; gap: 12px;
+    transition: background .25s ease, color .25s ease;
+  }
+  .faq-item::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line-2); flex-shrink: 0;
+    transition: background .25s ease, transform .25s ease;
+  }
+  .faq-item:hover { color: var(--ink); background: var(--panel); }
+  .faq-item.active { color: var(--ink); background: var(--panel); }
+  .faq-item.active::before { background: var(--accent); transform: scale(1.4); }
+
+  .faq-answer {
+    background: var(--panel);
+    border: 1px solid var(--line-2);
+    border-radius: 20px;
+    padding: clamp(24px, 3vw, 34px);
+    min-height: 200px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .faq-answer p {
+    font-size: 1rem; line-height: 1.75; color: var(--ink-dim);
+    transition: opacity .3s var(--ease), transform .3s var(--ease);
+  }
+  .faq-answer p.switching { opacity: 0; transform: translateY(6px); }
+  .faq-answer-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 14px; display: block;
+  }
+  @media (max-width: 780px) {
+    .faq-body { grid-template-columns: 1fr; }
+  }
+
+  /* ————————————————————————— give feedback ————————————————————————— */
+  .give-feedback { background: var(--bg); border-top: 1px solid var(--line); padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 64px); }
+  .give-feedback-inner {
+    max-width: 1120px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: center;
+  }
+  .give-feedback-head h2 { margin-bottom: 18px; }
+  .give-feedback-head p { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; max-width: 46ch; margin-bottom: 30px; }
+  .give-feedback-options { display: flex; flex-direction: column; gap: 12px; }
+  .fb-option {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; row-gap: 4px;
+    padding: 20px 22px;
+    background: var(--panel);
+    border: 1px solid var(--line-2);
+    border-radius: 18px;
+    color: var(--ink); text-decoration: none;
+    transition: border-color .25s ease, transform .25s var(--ease), box-shadow .25s ease;
+  }
+  .fb-option:hover { border-color: var(--accent-2); transform: translateY(-2px); box-shadow: 0 10px 26px hsl(var(--shadow-color) / .25); }
+  .fb-option:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .fb-option-tag {
+    grid-column: 1;
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent-2);
+  }
+  .fb-option-title { grid-column: 1; font-weight: 700; font-size: .95rem; line-height: 1.4; }
+  .fb-option-arrow {
+    grid-column: 2; grid-row: 1 / span 2;
+    color: var(--ink-faint); font-size: 1.1rem;
+    transition: transform .25s var(--ease), color .25s ease;
+  }
+  .fb-option:hover .fb-option-arrow { color: var(--accent-2); transform: translateX(4px); }
+  @media (max-width: 860px) {
+    .give-feedback-inner { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fb-option, .fb-option-arrow { transition: none; }
+    .fb-option:hover, .fb-option:hover .fb-option-arrow { transform: none; }
+  }
+
+  /* ————————————————————————— final cta ————————————————————————— */
+  .final-cta {
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    padding: clamp(80px, 14vh, 150px) clamp(20px, 5vw, 64px);
+    text-align: center;
+    overflow: hidden;
+  }
+  .final-cta-inner { max-width: 640px; margin: 0 auto; position: relative; }
+  .final-cta-inner::before {
+    content: '';
+    position: absolute; left: 50%; top: 50%;
+    width: 620px; height: 620px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(33,131,217,.16) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .final-cta .eyebrow { justify-content: center; }
+  .final-cta h2 { margin-bottom: 18px; }
+  .final-cta p { color: var(--ink-dim); font-size: 1.05rem; line-height: 1.65; max-width: 46ch; margin: 0 auto 36px; }
+  .final-cta-actions { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+
+  /* ————————————————————————— hero responsive ————————————————————————— */
+  @media (max-width: 980px) {
+    .hero-body { grid-template-columns: 1fr; }
+    .carousel-wrap { justify-self: stretch; max-width: 420px; margin: 0 auto; }
+  }
+  @media (max-width: 480px) {
+    .hero-meta { flex-wrap: wrap; row-gap: 16px; }
+  }
+
+  /* ————————————————————————— toast (dev placeholder feedback) ————————————————————————— */
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(20px);
+    z-index: 100;
+    background: var(--panel); border: 1px solid var(--line-2);
+    color: var(--ink);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: .82rem; font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease, transform .3s var(--ease);
+    max-width: 90vw;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer.site-footer {
+    position: relative; z-index: 1;
+    background: var(--bg-alt);
+    color: var(--ink-faint); font-size: .82rem;
+    border-top: 1px solid var(--line);
+    padding: 30px clamp(20px, 5vw, 64px);
+  }
+  .footer-inner {
+    max-width: 1120px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .footer-mark {
+    display: flex; align-items: center; gap: 9px;
+    font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--ink-dim);
+  }
+  .footer-mark .mark-icon { height: 18px; width: auto; }
+  .footer-links { display: flex; gap: 22px; }
+  .footer-links a { font-weight: 600; font-size: .8rem; color: var(--ink-faint); transition: color .2s ease; }
+  .footer-links a:hover { color: var(--accent-2); }
+  .footer-copy { font-size: .74rem; letter-spacing: .02em; }
+  @media (max-width: 560px) { .footer-inner { justify-content: center; text-align: center; } }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="ambient" aria-hidden="true">
+  <div class="blob blob-1" id="blob1"></div>
+  <div class="blob blob-2" id="blob2"></div>
+  <div class="blob blob-3" id="blob3"></div>
+  <canvas id="webCanvas"></canvas>
+  <div class="grain"></div>
+</div>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero" id="main">
+
+  <nav class="nav" id="siteNav">
+    <div class="nav-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+    <div class="nav-links">
+      <a href="#product" data-section="product">Product</a>
+      <a href="#proof" data-section="proof">Proof</a>
+      <a href="#campus" data-section="campus">Campus</a>
+      <a href="#demo" data-section="demo">Ask it</a>
+      <a href="#faq" data-section="faq">FAQ</a>
+      <a href="#feedback" data-section="feedback">Feedback</a>
+    </div>
+    <div class="nav-tag">BINUS University</div>
+  </nav>
+
+  <div class="hero-body">
+
+    <div class="hero-copy">
+      <div class="eyebrow" data-hero-el>Campus AI Assistant</div>
+      <h1 data-hero-el>Ask your campus <em>anything</em>, get there faster.</h1>
+      <p class="hero-sub" data-hero-el>
+        Infosphere answers questions, gives directions, and talks back — in
+        Indonesian, English, or Mandarin. Built for the BINUS campus, running
+        wherever a screen or a microphone is.
+      </p>
+      <div class="hero-actions" data-hero-el>
+        <button class="btn btn-primary" data-ai-chat="hero-cta">
+          Chat now
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </button>
+        <a href="#product" class="btn btn-ghost">See what it does</a>
+      </div>
+
+      <div class="hero-meta" data-hero-el>
+        <div><strong>3</strong><span>Languages spoken</span></div>
+        <div><strong>24/7</strong><span>Always on duty</span></div>
+        <div><strong>4</strong><span>Floors mapped</span></div>
+      </div>
+    </div>
+
+    <div class="carousel-wrap" data-hero-el>
+      <div class="carousel-frame" aria-hidden="true"></div>
+      <div class="carousel" id="carousel">
+        <div class="carousel-stage" id="stage">
+
+          <div class="slide" data-index="0" data-pos="prev">
+            <img src="/static/img/img1.jpg" alt="Coming soon feature preview" loading="lazy"/>
+            <div class="slide-overlay" tabindex="-1" aria-disabled="true">
+              <span>Coming Soon</span>
+            </div>
+          </div>
+
+          <div class="slide slide-live" data-index="1" data-pos="active"
+               role="button" tabindex="0" aria-label="Open AI chat"
+               data-ai-chat="carousel-live">
+            <img src="/static/img/img2.jpg" alt="Infosphere live — open AI chat" loading="lazy"/>
+            <div class="chat-badge"><span class="pip"></span>Chat now</div>
+          </div>
+
+          <div class="slide" data-index="2" data-pos="next">
+            <img src="/static/img/img3.jpg" alt="Coming soon feature preview" loading="lazy"/>
+            <div class="slide-overlay" tabindex="-1" aria-disabled="true">
+              <span>Coming Soon</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="carousel-controls">
+          <button class="arrow" id="prevBtn" aria-label="Previous image">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="arrow" id="nextBtn" aria-label="Next image">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="dots" id="dots">
+          <button class="dot" data-i="0" aria-label="Go to image 1"></button>
+          <button class="dot active" data-i="1" aria-label="Go to image 2"></button>
+          <button class="dot" data-i="2" aria-label="Go to image 3"></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<button class="rail-cta" id="railCta" data-ai-chat="rail-cta" aria-label="Open AI chat">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  Ask AI
+</button>
+
+<!-- ═══════════════════════ PRODUCT ═══════════════════════ -->
+<section class="product" id="product">
+  <div class="product-inner">
+
+    <div class="product-head">
+      <h2 data-reveal>What Infosphere does <em>on this campus</em>.</h2>
+      <div data-reveal>
+        <p class="product-desc">
+          Point it at a question and it finds the room, the office, or the answer —
+          then walks you there. No app to install, no forms to fill out, just ask.
+        </p>
+        <div class="product-head-actions">
+          <button class="btn btn-primary btn-try" data-ai-chat="product-try">Try It Out</button>
+          <a class="link-about" href="/about">Who's behind it? <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6 6-2z"/></svg>
+        </div>
+        <h3>Wayfinding</h3>
+        <p>Get turn-by-turn directions to any room, office, or facility on campus.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 20l1-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        </div>
+        <h3>Natural conversation</h3>
+        <p>Ask in Indonesian, English, or Mandarin and get a clear, direct answer.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6"/></svg>
+        </div>
+        <h3>Voice-first</h3>
+        <p>Hold the mic and talk — no typing required, powered by real-time speech.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+        </div>
+        <h3>Always learning</h3>
+        <p>Every new question it hears makes the next answer a little sharper.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Talk or type</h4>
+        <p>Press the mic, or just type it in — whichever's faster for you.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Ask anything</h4>
+        <p>Rooms, events, schedules, directions — just say what you need.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Get answered</h4>
+        <p>Instant, accurate, spoken back to you in your language.</p>
+      </div>
+    </div>
+
+    <div class="steps-progress" aria-hidden="true">
+      <div class="steps-progress-line"><span class="steps-progress-fill"></span></div>
+      <span class="steps-progress-dot" style="left:0%"></span>
+      <span class="steps-progress-dot" style="left:50%"></span>
+      <span class="steps-progress-dot" style="left:100%"></span>
+      <span class="steps-progress-puck"></span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ PROOF / STATS ═══════════════════════ -->
+<section class="proof" id="proof">
+  <div class="proof-inner">
+    <div class="proof-head" data-reveal>
+      <div class="eyebrow">In numbers</div>
+      <h2>Infosphere <em>at work</em>, this term.</h2>
+    </div>
+    <div class="proof-grid">
+      <div class="proof-stat" data-reveal>
+        <strong data-count="12482">0</strong>
+        <span>Conversations answered this term</span>
+      </div>
+      <div class="proof-stat" data-reveal>
+        <strong data-count="94.6" data-suffix="%">0</strong>
+        <span>Resolved without a staff handoff</span>
+      </div>
+      <div class="proof-stat" data-reveal>
+        <strong data-count="1.8" data-suffix="s">0</strong>
+        <span>Average time to first answer</span>
+      </div>
+      <div class="proof-stat" data-reveal>
+        <strong data-count="3">0</strong>
+        <span>Languages, one assistant</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CAMPUS GALLERY ═══════════════════════ -->
+<section class="campus" id="campus">
+  <div class="campus-inner">
+    <div class="campus-head" data-reveal>
+      <div class="eyebrow">Where it lives</div>
+      <h2>One assistant, <em>every corner</em> of campus.</h2>
+      <p class="campus-desc">From the front gate to the fourth floor, Infosphere knows the building as well as the people who work in it.</p>
+    </div>
+    <div class="campus-grid">
+      <figure class="campus-img campus-img-a" data-reveal data-parallax="-40">
+        <img src="/static/img/img1.jpg" alt="BINUS University main entrance with illuminated building signage" loading="lazy">
+        <figcaption>Main gate</figcaption>
+      </figure>
+      <figure class="campus-img campus-img-b" data-reveal data-parallax="36">
+        <img src="/static/img/img2.jpg" alt="BINUS tower and courtyard lit up in the evening" loading="lazy">
+        <figcaption>The central tower, after hours</figcaption>
+      </figure>
+      <figure class="campus-img campus-img-c" data-reveal data-parallax="-28">
+        <img src="/static/img/img3.jpg" alt="Architectural rendering of the BINUS ASO School of Engineering building" loading="lazy">
+        <figcaption>ASO School of Engineering</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ DEMO ═══════════════════════ -->
+<section class="demo" id="demo">
+  <div class="demo-inner">
+    <div class="demo-copy" data-reveal>
+      <div class="eyebrow">Try the phrasing</div>
+      <h2>Ask it in <em>whichever language</em> feels natural.</h2>
+      <p class="demo-desc">Switch tabs to see how the same kind of question sounds in each language Infosphere understands — then ask it for real.</p>
+      <div class="demo-tabs" role="tablist" id="demoTabs">
+        <button class="demo-tab active" data-lang="id" role="tab" aria-selected="true">Indonesian</button>
+        <button class="demo-tab" data-lang="en" role="tab" aria-selected="false">English</button>
+        <button class="demo-tab" data-lang="zh" role="tab" aria-selected="false">Mandarin</button>
+      </div>
+      <button class="btn btn-primary" data-ai-chat="demo-try">
+        Ask your own question
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="demo-panel" data-reveal>
+      <div class="demo-window">
+        <div class="demo-window-head"><span class="pip"></span>Infosphere — live preview</div>
+        <div class="demo-thread" id="demoThread"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FAQ ═══════════════════════ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-head" data-reveal>
+      <div class="eyebrow">Before you ask</div>
+      <h2>Questions people <em>already asked</em>.</h2>
+    </div>
+    <div class="faq-body" data-reveal>
+      <div class="faq-list" id="faqList" role="tablist">
+        <button class="faq-item active" data-i="0">Does it need an app installed?</button>
+        <button class="faq-item" data-i="1">What if it doesn't know the answer?</button>
+        <button class="faq-item" data-i="2">Is my conversation saved anywhere?</button>
+        <button class="faq-item" data-i="3">Can staff fix a wrong answer?</button>
+      </div>
+      <div class="faq-answer">
+        <span class="faq-answer-label" id="faqLabel">Does it need an app installed?</span>
+        <p id="faqAnswer">Nothing to install. It runs in the browser on any screen or kiosk around campus — the same interface whether you're on your phone or the lobby display.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FEEDBACK ═══════════════════════ -->
+<section class="give-feedback" id="feedback">
+  <div class="give-feedback-inner">
+    <div class="give-feedback-head" data-reveal>
+      <div class="eyebrow">Help us improve</div>
+      <h2>Tell us what it <em>got wrong</em>.</h2>
+      <p>Wrong room, missing answer, or something that worked better than expected — every note lands with the team that trains Infosphere. No account needed, and you can stay anonymous.</p>
+      <a href="/feedback" class="btn btn-ghost">
+        Give feedback
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="give-feedback-options" data-reveal>
+      <a class="fb-option" href="/feedback?category=Bug">
+        <span class="fb-option-tag">Bug</span>
+        <span class="fb-option-title">Something broke or answered wrong</span>
+        <span class="fb-option-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="fb-option" href="/feedback?category=Suggestion">
+        <span class="fb-option-tag">Suggestion</span>
+        <span class="fb-option-title">A question it should know, or a feature idea</span>
+        <span class="fb-option-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="fb-option" href="/feedback?category=Compliment">
+        <span class="fb-option-tag">Compliment</span>
+        <span class="fb-option-title">It helped — tell us what worked</span>
+        <span class="fb-option-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FINAL CTA ═══════════════════════ -->
+<section class="final-cta" id="final-cta">
+  <div class="final-cta-inner" data-reveal>
+    <div class="eyebrow">Ready when you are</div>
+    <h2>Stop searching. <em>Just ask.</em></h2>
+    <p>Whether it's a room number, an office hour, or a building you've never found on your own — Infosphere is faster than digging through a campus map.</p>
+    <div class="final-cta-actions">
+      <button class="btn btn-primary btn-lg" data-ai-chat="final-cta">
+        Chat with Infosphere
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <a href="#main" class="btn btn-ghost" id="backToTop">Back to top</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+    <nav class="footer-links">
+      <a href="#product">Product</a>
+      <a href="#faq">FAQ</a>
+      <a href="/about">About</a>
+      <a href="/feedback">Feedback</a>
+    </nav>
+    <span class="footer-copy">copyright 2025 @infosphere · BINUS University</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/vendor/ScrollTrigger.min.js"></script>
+<script src="/static/js/constellation.js"></script>
+
+<script nonce="{{ csp_nonce() }}">
+/* ═══════════════════════ AI chat placeholder ═══════════════════════
+   Every entry point (carousel live image, side rail, "Try It Out")
+   calls this one function. It is NOT wired to a backend yet — it just
+   confirms the click reached JS and tells you where it came from.
+   Replace the body with whatever actually opens your chat UI
+   (e.g. show a modal, focus the mic button on index.html, call your
+   /chat endpoint, etc).
+*/
+function openAIChat(source) {
+  console.info('[openAIChat] triggered from:', source);
+  showToast('Opening Infosphere…');
+  setTimeout(() => { window.location.href = '/'; }, 350);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ═══════════════════════ ambient background ═══════════════════════ */
+(function ambientBG() {
+  const blobs = [
+    { el: document.getElementById('blob1'), factor: 22, speed: 0.00018, phase: 0,  scrollFactor: .04 },
+    { el: document.getElementById('blob2'), factor: 16, speed: 0.00014, phase: 2,  scrollFactor: -.03 },
+    { el: document.getElementById('blob3'), factor: 26, speed: 0.00021, phase: 4,  scrollFactor: .06 },
+  ];
+
+  if (prefersReducedMotion) return; // leave blobs static, CSS-only
+
+  let mx = 0, my = 0, tx = 0, ty = 0, sy = 0;
+  window.addEventListener('mousemove', (e) => {
+    mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+    my = (e.clientY / window.innerHeight - 0.5) * 2;
+  }, { passive: true });
+  window.addEventListener('scroll', () => { sy = window.scrollY; }, { passive: true });
+
+  function frame(t) {
+    tx += (mx - tx) * 0.04;
+    ty += (my - ty) * 0.04;
+    blobs.forEach(b => {
+      const driftX = Math.sin(t * b.speed + b.phase) * 30;
+      const driftY = Math.cos(t * b.speed * 0.8 + b.phase) * 24;
+      const px = driftX + tx * b.factor;
+      const py = driftY + ty * b.factor + sy * b.scrollFactor;
+      b.el.style.transform = `translate3d(${px}px, ${py}px, 0)`;
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* Constellation "web" over the hero — no galaxy rings here, the blobs above
+   already carry landing's identity; this just adds the moving particle
+   network on top for depth. */
+initConstellation(document.getElementById('webCanvas'), { galaxy: false });
+
+/* ═══════════════════════ carousel ═══════════════════════ */
+(function carousel() {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dots   = Array.from(document.querySelectorAll('.dot'));
+  const total  = slides.length;
+  let current  = 1; // start on the live image
+  let touchStartX = null;
+
+  function render() {
+    slides.forEach(s => {
+      const i = Number(s.dataset.index);
+      let pos = 'next';
+      if (i === current) pos = 'active';
+      else if ((i + 1) % total === current) pos = 'prev';
+      s.dataset.pos = pos;
+    });
+    dots.forEach(d => d.classList.toggle('active', Number(d.dataset.i) === current));
+  }
+
+  function go(i) {
+    current = ((i % total) + total) % total;
+    render();
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => go(current + 1));
+  document.getElementById('prevBtn').addEventListener('click', () => go(current - 1));
+  dots.forEach(d => d.addEventListener('click', () => go(Number(d.dataset.i))));
+
+  document.addEventListener('keydown', (e) => {
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight') go(current + 1);
+    if (e.key === 'ArrowLeft')  go(current - 1);
+  });
+
+  const stage = document.getElementById('stage');
+  stage.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', (e) => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) go(dx < 0 ? current + 1 : current - 1);
+    touchStartX = null;
+  }, { passive: true });
+
+  render();
+})();
+
+/* ═══════════════════════ nav: scrolled state + scroll-spy ═══════════════════════ */
+(function nav() {
+  const nav = document.getElementById('siteNav');
+  let ticking = false;
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        nav.classList.toggle('scrolled', window.scrollY > 24);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const links = Array.from(document.querySelectorAll('.nav-links a'));
+  const sections = links
+    .map(a => document.getElementById(a.dataset.section))
+    .filter(Boolean);
+
+  if ('IntersectionObserver' in window && sections.length) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const link = links.find(a => a.dataset.section === entry.target.id);
+        if (!link) return;
+        if (entry.isIntersecting) {
+          links.forEach(a => a.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    sections.forEach(s => obs.observe(s));
+  }
+})();
+
+/* ═══════════════════════ magnetic buttons + ripple ═══════════════════════ */
+(function tactileButtons() {
+  const canHover = window.matchMedia('(pointer: fine)').matches;
+
+  function addRipple(el) {
+    el.addEventListener('pointerdown', (e) => {
+      if (prefersReducedMotion) return;
+      const r = el.getBoundingClientRect();
+      const span = document.createElement('span');
+      const size = Math.max(r.width, r.height) * 1.4;
+      span.className = 'ripple';
+      span.style.width = span.style.height = size + 'px';
+      span.style.left = (e.clientX - r.left - size / 2) + 'px';
+      span.style.top  = (e.clientY - r.top  - size / 2) + 'px';
+      el.appendChild(span);
+      span.addEventListener('animationend', () => span.remove());
+    });
+  }
+
+  function addMagnetic(el, strengthX, strengthY) {
+    if (!canHover || prefersReducedMotion || typeof gsap === 'undefined') return;
+    const xTo = gsap.quickTo(el, 'x', { duration: .5, ease: 'power3' });
+    const yTo = gsap.quickTo(el, 'y', { duration: .5, ease: 'power3' });
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      xTo((e.clientX - r.left - r.width / 2) * strengthX);
+      yTo((e.clientY - r.top - r.height / 2) * strengthY);
+    });
+    el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
+  }
+
+  document.querySelectorAll('.btn, .rail-cta').forEach(addRipple);
+  document.querySelectorAll('.btn-primary').forEach(el => addMagnetic(el, .18, .3));
+  const rail = document.getElementById('railCta');
+  if (rail) addMagnetic(rail, .12, .12);
+})();
+
+/* ═══════════════════════ stat counters ═══════════════════════ */
+(function statCounters() {
+  function format(value, suffix) {
+    if (suffix === '%' || suffix === 's') return value.toFixed(1) + suffix;
+    return Math.round(value).toLocaleString('en-US');
+  }
+  const els = Array.from(document.querySelectorAll('.proof-stat strong'));
+
+  if (prefersReducedMotion || typeof gsap === 'undefined') {
+    els.forEach(el => { el.textContent = format(parseFloat(el.dataset.count), el.dataset.suffix || ''); });
+    return;
+  }
+
+  els.forEach(el => {
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    ScrollTrigger.create({
+      trigger: el, start: 'top 90%', once: true,
+      onEnter: () => {
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: target, duration: 1.6, ease: 'power2.out',
+          onUpdate: () => { el.textContent = format(obj.v, suffix); }
+        });
+      }
+    });
+  });
+})();
+
+/* ═══════════════════════ demo language tabs ═══════════════════════ */
+(function demoTabs() {
+  const data = {
+    id: { q: 'Ruang dosen Pak Adi ada di lantai berapa?', a: 'Lantai 3, sayap timur — dekat tangga utama. Mau saya tunjukkan arahnya?' },
+    en: { q: "Where's the nearest printer that still has paper?", a: 'Level 2, right by the library entrance — it was refilled this morning.' },
+    zh: { q: '今天工程学院大厅有活动吗?', a: '有,下午两点在中庭举行迎新会,从主入口进去就能看到指示牌。' },
+  };
+  const tabs = Array.from(document.querySelectorAll('.demo-tab'));
+  const thread = document.getElementById('demoThread');
+  const tabsWrap = document.getElementById('demoTabs');
+  if (!thread || !tabs.length) return;
+
+  function renderThread(lang) {
+    const d = data[lang];
+    thread.innerHTML =
+      '<div class="bubble bubble-user">' + d.q + '</div>' +
+      '<div class="bubble bubble-bot">' + d.a + '</div>';
+  }
+
+  function setLang(lang, animate) {
+    tabs.forEach(t => {
+      const active = t.dataset.lang === lang;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    if (animate && !prefersReducedMotion) {
+      thread.classList.add('switching');
+      setTimeout(() => {
+        renderThread(lang);
+        thread.classList.remove('switching');
+      }, 180);
+    } else {
+      renderThread(lang);
+    }
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => { setLang(t.dataset.lang, true); resetAutoplay(); }));
+  setLang('id', false);
+
+  let autoplayTimer = null;
+  function resetAutoplay() {
+    clearInterval(autoplayTimer);
+    if (prefersReducedMotion) return;
+    autoplayTimer = setInterval(() => {
+      const order = ['id', 'en', 'zh'];
+      const current = tabs.findIndex(t => t.classList.contains('active'));
+      const next = order[(current + 1) % order.length];
+      setLang(next, true);
+    }, 7000);
+  }
+  resetAutoplay();
+  if (tabsWrap) {
+    tabsWrap.addEventListener('pointerenter', () => clearInterval(autoplayTimer));
+    tabsWrap.addEventListener('pointerleave', resetAutoplay);
+  }
+})();
+
+/* ═══════════════════════ faq list ═══════════════════════ */
+(function faq() {
+  const answers = [
+    "Nothing to install. It runs in the browser on any screen or kiosk around campus — the same interface whether you're on your phone or the lobby display.",
+    "It says so, instead of guessing. That question gets logged, a staff member reviews and teaches it the right answer, and the next student who asks gets it right.",
+    "Only the question and the answer are logged, to make the assistant sharper — not who asked it.",
+    "Yes — every logged question can be reviewed on the admin dashboard, corrected, and retrained into the model directly.",
+  ];
+  const items = Array.from(document.querySelectorAll('.faq-item'));
+  const answerEl = document.getElementById('faqAnswer');
+  const labelEl = document.getElementById('faqLabel');
+  if (!items.length || !answerEl) return;
+
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      const i = Number(item.dataset.i);
+      items.forEach(it => it.classList.remove('active'));
+      item.classList.add('active');
+      const swap = () => {
+        answerEl.textContent = answers[i];
+        labelEl.textContent = item.textContent;
+      };
+      if (prefersReducedMotion) { swap(); return; }
+      answerEl.classList.add('switching');
+      setTimeout(() => { swap(); answerEl.classList.remove('switching'); }, 180);
+    });
+  });
+})();
+
+/* ═══════════════════════ back to top ═══════════════════════ */
+(function backToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  });
+})();
+
+/* ═══════════════════════ scroll reveals + parallax (GSAP) ═══════════════════════ */
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+  const mm = gsap.matchMedia();
+
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+
+    // hero entrance
+    const heroEls = gsap.utils.toArray('[data-hero-el]');
+    if (heroEls.length) {
+      gsap.set(heroEls, { autoAlpha: 0, y: 22 });
+      gsap.set('.carousel-wrap', { scale: .95 });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: .85 }, delay: .1 });
+      heroEls.forEach((el, i) => {
+        tl.to(el, { autoAlpha: 1, y: 0, scale: 1 }, i === 0 ? 0 : '-=0.55');
+      });
+    }
+
+    // generic reveal-on-scroll
+    gsap.utils.toArray('[data-reveal]').forEach((el) => {
+      gsap.fromTo(el, { autoAlpha: 0, y: 30 }, {
+        autoAlpha: 1, y: 0, duration: .9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
+      });
+    });
+
+    // staggered groups
+    ScrollTrigger.batch('.feature', {
+      start: 'top 88%',
+      onEnter: batch => gsap.fromTo(batch, { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: .7, stagger: .1, ease: 'power3.out' }),
+      onLeaveBack: batch => gsap.set(batch, { autoAlpha: 0, y: 26 })
+    });
+    ScrollTrigger.batch('.step', {
+      start: 'top 88%',
+      onEnter: batch => gsap.fromTo(batch, { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: .7, stagger: .12, ease: 'power3.out' }),
+      onLeaveBack: batch => gsap.set(batch, { autoAlpha: 0, y: 22 })
+    });
+
+    // steps progress: a puck that actually travels from 01 to 03 as you
+    // scroll through the section, filling the line behind it. Scroll-scrubbed,
+    // so ease stays 'none' — the scrollbar is the easing curve.
+    const stepsProgress = document.querySelector('.steps-progress');
+    if (stepsProgress) {
+      gsap.timeline({
+        scrollTrigger: { trigger: '.steps', start: 'top 75%', end: 'bottom 60%', scrub: .5 },
+      })
+        .fromTo('.steps-progress-puck', { left: '0%' }, { left: '100%', ease: 'none' }, 0)
+        .fromTo('.steps-progress-fill', { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
+    }
+
+    // campus parallax
+    document.querySelectorAll('[data-parallax]').forEach((fig) => {
+      const val = parseFloat(fig.dataset.parallax);
+      const img = fig.querySelector('img');
+      if (!img) return;
+      gsap.to(img, {
+        yPercent: val, ease: 'none',
+        scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: .6 }
+      });
+    });
+
+  });
+}
+
+/* Event wiring — inline onclick= attributes are blocked by the
+   Content-Security-Policy, so elements carry data-ai-chat="source" instead. */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-ai-chat]');
+  if (el) openAIChat(el.dataset.aiChat);
+});
+document.addEventListener('keydown', e => {
+  const el = e.target.closest('[data-ai-chat][role="button"]');
+  if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openAIChat(el.dataset.aiChat); }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="robots" content="noindex, nofollow">
+<title>Infosphere · Feedback Inbox</title>
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+<div class="bg"></div>
+<div class="shell">
+
+{% include 'admin_header.html' %}
+
+<div class="content">
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="fb-total">—</div>
+      <div class="stat-label">Total Feedback</div>
+      <div class="stat-sub">from the public form</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-val" id="fb-unread">—</div>
+      <div class="stat-label">Unread</div>
+      <div class="stat-sub">not reviewed yet</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-val" id="fb-avg-rating">—</div>
+      <div class="stat-label">Average Rating</div>
+      <div class="stat-sub">out of 5, when given</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-val" id="fb-top-cat">—</div>
+      <div class="stat-label">Most Common Type</div>
+      <div class="stat-sub" id="fb-top-cat-n">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <div class="inbox-toolbar">
+      <div class="seg" role="group" aria-label="Filter by status">
+        <button type="button" data-status="all" aria-pressed="true">All</button>
+        <button type="button" data-status="unread" aria-pressed="false">Unread</button>
+        <button type="button" data-status="read" aria-pressed="false">Read</button>
+      </div>
+      <select class="inbox-select" id="cat-filter" aria-label="Filter by type">
+        <option value="">All types</option>
+        <option value="Bug">Bug</option>
+        <option value="Suggestion">Suggestion</option>
+        <option value="Compliment">Compliment</option>
+        <option value="Complaint">Complaint</option>
+        <option value="Other">Other</option>
+      </select>
+      <span class="spacer"></span>
+      <span class="inbox-count" id="inbox-count"></span>
+      <button class="btn-action outline" type="button" id="btn-read-all">✓ Mark all as read</button>
+    </div>
+
+    <div id="feedback-list" aria-live="polite">
+      <p class="empty-state">Loading…</p>
+    </div>
+
+    <nav class="pager" id="pager" aria-label="Pagination" hidden>
+      <button class="page-btn" type="button" id="page-prev">← Newer</button>
+      <span class="page-info" id="page-info"></span>
+      <button class="page-btn" type="button" id="page-next">Older →</button>
+    </nav>
+  </div>
+
+</div>
+<footer>Infosphere Admin · copyright 2025 @infosphere</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/static/js/admin-common.js"></script>
+<script src="/static/js/admin-feedback.js"></script>
+</body>
+</html>

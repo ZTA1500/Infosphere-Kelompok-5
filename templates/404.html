@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Page not found — Infosphere</title>
+<meta name="description" content="This page couldn't be found. Get back to Infosphere's campus assistant for BINUS University.">
+<meta name="theme-color" content="#0d1b2a">
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/js/constellation.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       var(--text);
+    --ink-dim:   var(--text-muted);
+    --ink-faint: var(--text-faint);
+    --panel:     var(--surface);
+    --line:      var(--border);
+    --line-2:    var(--border-strong);
+    --ease:      var(--ease-out);
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+  button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 6px;
+  }
+
+  #orbit { position: fixed; inset: 0; z-index: 0; }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: radial-gradient(rgba(238,243,248,.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: .4;
+    mask-image: radial-gradient(ellipse 65% 55% at 50% 30%, #000 40%, transparent 90%);
+  }
+
+  .nav {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px clamp(20px, 5vw, 64px) 0;
+  }
+  .nav-mark { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .nav-mark .mark-icon { height: 22px; width: auto; }
+  .nav-back {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .04em; color: var(--ink-dim);
+    border: 1px solid var(--line-2); border-radius: 100px; padding: 8px 16px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .nav-back:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  main {
+    position: relative; z-index: 2;
+    min-height: 86svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 40px clamp(20px, 5vw, 64px);
+  }
+
+  .code {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(4.5rem, 16vw, 9rem);
+    line-height: 1;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+    opacity: 0;
+  }
+  .code em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+  h1 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+    margin-bottom: 16px;
+    opacity: 0;
+  }
+
+  .sub {
+    max-width: 480px;
+    color: var(--ink-dim); font-size: 1rem; line-height: 1.7;
+    margin-bottom: 36px;
+    opacity: 0;
+  }
+
+  .quicknav { width: 100%; max-width: 420px; margin-bottom: 32px; opacity: 0; }
+  .quicknav-form { position: relative; }
+  .quicknav-input {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--line-2);
+    background: var(--panel);
+    color: var(--ink);
+    font-family: inherit; font-size: .92rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .quicknav-input::placeholder { color: var(--ink-faint); }
+  .quicknav-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--glow); }
+  .quicknav-submit {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: var(--on-accent);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .25s var(--ease);
+  }
+  .quicknav-submit:hover { transform: translateY(-50%) scale(1.06); }
+  .quicknav-hint { margin-top: 10px; font-size: .74rem; color: var(--ink-faint); min-height: 1.2em; }
+
+  .actions { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; opacity: 0; }
+  .btn {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 26px; border-radius: 100px; border: none; cursor: pointer;
+    font-weight: 700; font-size: .92rem;
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .2s ease, color .2s ease;
+  }
+  .btn-primary {
+    background: var(--accent); color: var(--on-accent);
+    box-shadow: 0 10px 30px var(--glow);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 38px var(--glow); }
+  .btn-primary:active { transform: translateY(0) scale(.97); }
+  .btn-ghost { background: transparent; color: var(--ink-dim); border: 1px solid var(--line-2); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--accent-2); transform: translateY(-2px); }
+  .btn-ghost:active { transform: translateY(0) scale(.97); }
+
+  footer.site-footer {
+    position: relative; z-index: 2;
+    text-align: center; padding: 24px 20px;
+    color: var(--ink-faint); font-size: .74rem; letter-spacing: .04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #orbit { opacity: .6; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="orbit" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav">
+  <div class="nav-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+  <a class="nav-back" href="/landing">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    Back to campus
+  </a>
+</nav>
+
+<main>
+  <div class="code" id="code">4<em>0</em>4</div>
+  <h1 id="heading">This page couldn't be found.</h1>
+  <p class="sub" id="sub">
+    The room, link, or page you're looking for doesn't exist here —
+    but the rest of Infosphere still does.
+  </p>
+
+  <div class="quicknav" id="quicknav">
+    <form class="quicknav-form" id="quicknavForm">
+      <input class="quicknav-input" id="quicknavInput" type="text"
+             placeholder="Try: campus, about, product, FAQ…" autocomplete="off">
+      <button class="quicknav-submit" type="submit" aria-label="Go">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    <div class="quicknav-hint" id="quicknavHint"></div>
+  </div>
+
+  <div class="actions" id="actions">
+    <button class="btn btn-primary" data-ai-chat="404-page">
+      Ask the AI
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <a class="btn btn-ghost" href="/landing">Go to campus</a>
+    <a class="btn btn-ghost" href="/about">Who we are</a>
+  </div>
+</main>
+
+<footer class="site-footer">copyright 2025 @infosphere · BINUS University</footer>
+
+<script nonce="{{ csp_nonce() }}">
+function openAIChat(source) {
+  console.info('[openAIChat] triggered from:', source);
+  window.location.href = '/';
+}
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+initConstellation(document.getElementById('orbit'), { galaxy: true });
+
+const els = ['#code', '#heading', '#sub', '#quicknav', '#actions'];
+if (reduceMotion || typeof gsap === 'undefined') {
+  els.forEach(sel => document.querySelector(sel).style.opacity = 1);
+} else {
+  gsap.timeline({ defaults: { ease: 'power3.out', duration: .8 } })
+    .to('#code',    { opacity: 1, y: 0 }, 0)
+    .fromTo('#code', { y: 16 }, { y: 0 }, 0)
+    .to('#heading', { opacity: 1 }, '-=.55')
+    .to('#sub',     { opacity: 1 }, '-=.55')
+    .to('#quicknav',{ opacity: 1 }, '-=.5')
+    .to('#actions', { opacity: 1 }, '-=.45');
+}
+
+/* quick-nav: a tiny known-pages index, not a real search backend —
+   matches by keyword and jumps straight there. */
+(function quicknav() {
+  const routes = [
+    { keys: ['campus', 'landing', 'home', 'binus'], url: '/landing', label: 'the campus page' },
+    { keys: ['about', 'who', 'team', 'story'], url: '/about', label: 'Who We Are' },
+    { keys: ['product', 'what', 'feature', 'features'], url: '/landing#product', label: 'the product section' },
+    { keys: ['faq', 'question', 'questions', 'help'], url: '/landing#faq', label: 'the FAQ' },
+    { keys: ['chat', 'ask', 'ai', 'assistant', 'talk'], url: '/', label: 'the assistant' },
+    { keys: ['admin', 'dashboard'], url: '/admin', label: 'the admin panel' },
+  ];
+  const form = document.getElementById('quicknavForm');
+  const input = document.getElementById('quicknavInput');
+  const hint = document.getElementById('quicknavHint');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = input.value.trim().toLowerCase();
+    if (!q) return;
+    const match = routes.find(r => r.keys.some(k => q.includes(k)));
+    if (match) {
+      hint.textContent = `Taking you to ${match.label}…`;
+      setTimeout(() => { window.location.href = match.url; }, 300);
+    } else {
+      hint.textContent = "Couldn't match that to a page — try \"campus\", \"about\", or \"FAQ\".";
+    }
+  });
+})();
+
+/* Event wiring — inline onclick= attributes are blocked by the
+   Content-Security-Policy, so elements carry data-ai-chat="source" instead. */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-ai-chat]');
+  if (el) openAIChat(el.dataset.aiChat);
+});
+document.addEventListener('keydown', e => {
+  const el = e.target.closest('[data-ai-chat][role="button"]');
+  if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openAIChat(el.dataset.aiChat); }
+});
+</script>
+
+</body>
+</html>

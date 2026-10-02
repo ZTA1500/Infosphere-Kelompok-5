@@ -1,0 +1,52 @@
+Question,Answer,Category,Keywords,Difficulty,Confidence,ID
+Where is LKC?,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+How do I get to LKC?,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+LKC location?,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+LKC在哪里？,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+怎么去LKC？,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+LKC的位置在哪里？,LKC Berada di depan Gedung A samping kanan tulisan Binus,Location,LKC,Easy,0.9,4
+Where is the auditorium?,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+How do I get to the auditorium?,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+Auditorium location?,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+礼堂在哪里？,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+怎么去礼堂？,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+礼堂在几楼？,"Auditorium Berada di lantai 5 gedung B di ruangan ""B0507""",Location,Auditorium,Easy,0.9,5
+Where is the gym?,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+How do I get to the gym?,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+Gym location?,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+Where can I work out?,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+健身房在哪里？,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+怎么去健身房？,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+健身房的位置在哪里？,"Lokasi gym dapat diakses dari area drop-off menuju GOR. Setelah masuk ke dalam GOR, ambil jalur sebelah kiri, kemudian naik tangga.",Location,GYM,Easy,0.9,6
+Where is the first aid room?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+Where is P3K?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+"I need first aid, where do I go?","Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+Where is the infirmary?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+急救室在哪里？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+医务室在哪里？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+怎么去急救室？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+P3K在哪里？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga melewati copy center dan akan sampai ke ruangan P3K.",Location,P3K,Easy,0.9,7
+Where is the copy center?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+Where can I print or photocopy?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+How do I get to the copy center?,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+复印中心在哪里？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+哪里可以打印？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+哪里可以复印？,"Dari drop-off, menuju area antara Blibli dan LKC. Setelah melewati pertengahan, depan kelas Fashion belok ke kiri hingga menemui copy center.",Location,COPYCENTER,Easy,0.9,8
+Where is the sports hall?,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+Where is GOR?,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+Where is the sports field?,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+How do I get to the sports hall?,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+体育馆在哪里？,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+运动场在哪里？,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+怎么去体育馆？,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+GOR在哪里？,"Dari Drop off, ke arah kanan sebelum di depan logo binus, setelah masuk ke dalam GOR belok ke kanan ke pintu sports hall",Location,"GOR,Lapangan,Sport Hall",Easy,0.9,9
+Where is the library in LKC?,Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan,Location,"Perpustakaan,LKC",Easy,0.9,10
+How do I get to the LKC library?,Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan,Location,"Perpustakaan,LKC",Easy,0.9,10
+Where is the main library?,Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan,Location,"Perpustakaan,LKC",Easy,0.9,10
+LKC图书馆在哪里？,Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan,Location,"Perpustakaan,LKC",Easy,0.9,10
+怎么去LKC图书馆？,Perpustakaan dapat ditemukan setelah masuk LKC lurus hingga menemui belokan kiri menuju perpustakaan,Location,"Perpustakaan,LKC",Easy,0.9,10
+Where is Binus Support?,Binus Support terletak di samping eskalator naik atrium,Location,Binus Support,Easy,0.9,11
+How do I get to Binus Support?,Binus Support terletak di samping eskalator naik atrium,Location,Binus Support,Easy,0.9,11
+Binus Support location?,Binus Support terletak di samping eskalator naik atrium,Location,Binus Support,Easy,0.9,11
+Binus Support在哪里？,Binus Support terletak di samping eskalator naik atrium,Location,Binus Support,Easy,0.9,11
+怎么去Binus Support？,Binus Support terletak di samping eskalator naik atrium,Location,Binus Support,Easy,0.9,11

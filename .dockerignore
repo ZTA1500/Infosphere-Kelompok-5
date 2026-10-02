@@ -1,0 +1,21 @@
+.git
+.venv
+venv
+instance
+.env
+.env.*
+!.env.example
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.vscode
+.idea
+.claude
+.agents
+skills-lock.json
+tests
+scripts/source-maps
+data/qa/locations_generated.csv
+Start Infosphere.bat
+*.log

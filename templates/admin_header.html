@@ -1,0 +1,25 @@
+<header>
+  <a href="/" class="logo-wrap">
+    <div class="logo-icon"><img src="/static/brand/logo-icon.png" alt="" aria-hidden="true"></div>
+    <span class="logo-text">info<span>sphere</span></span>
+  </a>
+  <nav class="admin-nav" aria-label="Admin">
+    <a href="/admin" {% if active == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+    <a href="/admin/feedback" {% if active == 'feedback' %}aria-current="page"{% endif %}>
+      Feedback<span class="nav-count" data-unread-badge hidden></span>
+    </a>
+    <a href="/admin/area-status" {% if active == 'area-status' %}aria-current="page"{% endif %}>Area Status</a>
+  </nav>
+  <div class="header-right">
+    {% if active == 'dashboard' %}
+    <div id="refresh-dot" title="Auto-refresh every 30s"></div>
+    <button class="btn-action outline" type="button" id="btn-refresh">↻ Refresh</button>
+    <button class="btn-action outline" type="button" id="btn-export">⬇ Export CSV</button>
+    <button class="btn-action danger"  type="button" id="btn-retrain">⚙ Retrain</button>
+    {% endif %}
+    <form class="logout-form" method="post" action="/admin/logout">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn-action outline" type="submit">Log out</button>
+    </form>
+  </div>
+</header>

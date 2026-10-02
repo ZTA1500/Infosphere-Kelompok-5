@@ -1,0 +1,32 @@
+# Infosphere server — install with:  pip install -r requirements.txt
+# ffmpeg comes bundled via imageio-ffmpeg (a system ffmpeg is used if present).
+# Minimum versions on the web stack include their latest security fixes;
+# check again with:  pip install -r requirements-dev.txt && pip-audit
+
+# --- Web server ---
+Flask>=3.1.1
+Werkzeug>=3.1.4
+Jinja2>=3.1.6
+waitress>=3.0.1          # production WSGI server (app.py uses it automatically)
+
+# --- Data / ML (the chatbot is a local model — no external AI API) ---
+pandas>=2.0
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+openpyxl>=3.1            # reads data/qa/*.xlsx
+jsonschema>=4.20         # validates data/rooms.json
+
+# --- Speech-to-text (server fallback when the browser has none) ---
+faster-whisper>=1.0
+imageio-ffmpeg>=0.5      # bundled ffmpeg binary
+
+# --- Text-to-speech & audio ---
+pyttsx3>=2.90            # offline voice (Windows SAPI5 / espeak-ng on Linux) — optional at runtime
+edge-tts>=7.0            # natural AI voice lines, cached to instance/voice-cache/
+pydub>=0.25
+noisereduce>=3.0
+
+# --- QR codes (/qr) and image processing (scripts/build_maps.py) ---
+qrcode[pil]>=8.0
+Pillow>=10.4

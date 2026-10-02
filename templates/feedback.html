@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Feedback — Infosphere</title>
+<script nonce="{{ csp_nonce() }}">
+/* Opened by double-clicking the .html file? Its styles, images and links are
+   served by the Infosphere server, so explain how to start it instead of
+   showing a broken page. (Browsers block file:// pages from probing localhost,
+   so we can't auto-detect a running server.) */
+(function () {
+  if (location.protocol !== 'file:') return;
+  var url = 'http://127.0.0.1:5000/feedback';
+  function help() {
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:#0b1f3a;color:#fff;font:16px/1.6 system-ui,sans-serif;text-align:center';
+    box.innerHTML = '<div style="max-width:520px"><h1 style="font-size:1.5rem;margin:0 0 12px">Start Infosphere first</h1>'
+      + '<p style="margin:0 0 8px">Do not open the .html files directly. Double-click <b>Start Infosphere.bat</b> in the project folder and wait for the browser to open.</p>'
+      + '<p style="margin:0 0 20px;opacity:.75">Jangan buka file .html langsung. Klik dua kali <b>Start Infosphere.bat</b>, lalu tunggu browser terbuka.</p>'
+      + '<a href="' + url + '" style="display:inline-block;padding:10px 20px;border-radius:8px;background:#f7941d;color:#0b1f3a;font-weight:700;text-decoration:none">Already started? Open Infosphere</a></div>';
+    document.body.appendChild(box);
+  }
+  if (document.body) help(); else document.addEventListener('DOMContentLoaded', help);
+})();
+</script>
+<meta name="description" content="Tell us what's working, what's broken, or what's missing from Infosphere.">
+<meta name="theme-color" content="#0d1b2a">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/js/constellation.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       var(--text);
+    --ink-dim:   var(--text-muted);
+    --ink-faint: var(--text-faint);
+    --panel:     var(--surface);
+    --line:      var(--border);
+    --line-2:    var(--border-strong);
+    --ease:      var(--ease-out);
+  }
+
+  html, body { min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font-family: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-2); outline-offset: 2px; border-radius: 6px;
+  }
+
+  #orbit { position: fixed; inset: 0; z-index: 0; }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: radial-gradient(rgba(238,243,248,.045) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: .4;
+    mask-image: radial-gradient(ellipse 65% 55% at 50% 20%, #000 40%, transparent 90%);
+  }
+
+  .nav {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px clamp(20px, 5vw, 64px) 0;
+  }
+  .nav-mark { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .nav-mark .mark-icon { height: 22px; width: auto; }
+  .nav-back {
+    display: flex; align-items: center; gap: 7px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .04em; color: var(--ink-dim);
+    border: 1px solid var(--line-2); border-radius: 100px; padding: 8px 16px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .nav-back:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  main {
+    position: relative; z-index: 2;
+    max-width: 640px; margin: 0 auto;
+    padding: clamp(40px, 8vh, 80px) clamp(20px, 5vw, 40px) 80px;
+  }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 18px; opacity: 0;
+  }
+  .eyebrow::before { content: ''; width: 22px; height: 1px; background: var(--accent-2); }
+
+  h1 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(2rem, 4.4vw, 2.8rem); line-height: 1.1; letter-spacing: -.01em;
+    margin-bottom: 14px; opacity: 0;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+  .lede { color: var(--ink-dim); font-size: 1rem; line-height: 1.65; max-width: 50ch; margin-bottom: 40px; opacity: 0; }
+
+  form { opacity: 0; }
+
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: block; font-size: .78rem; font-weight: 700; color: var(--ink-dim);
+    margin-bottom: 8px; letter-spacing: .02em;
+  }
+  .field .optional { font-weight: 500; color: var(--ink-faint); text-transform: none; letter-spacing: 0; }
+
+  .input, textarea.input, select.input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: .92rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .input::placeholder { color: var(--ink-faint); }
+  .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--glow); }
+  textarea.input { resize: vertical; min-height: 120px; line-height: 1.6; }
+  select.input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238aa0b5' stroke-width='2.4'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; padding-right: 42px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+
+  .char-count { text-align: right; font-size: .72rem; color: var(--ink-faint); margin-top: 6px; }
+  .char-count.warn { color: var(--warning); }
+
+  .stars { display: flex; gap: 6px; }
+  .star {
+    background: none; border: none; cursor: pointer; padding: 2px;
+    color: var(--line-2); transition: color .2s ease, transform .2s var(--ease);
+  }
+  .star:hover, .star.active { color: var(--accent-2); }
+  .star:hover { transform: scale(1.12); }
+
+  .anon-toggle {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-bottom: 22px; cursor: pointer; user-select: none;
+  }
+  .anon-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .anon-box {
+    flex: none; width: 20px; height: 20px; margin-top: 1px;
+    border-radius: 6px; border: 1px solid var(--line-2); background: var(--panel);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--on-accent);
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .anon-box svg { opacity: 0; transform: scale(.6); transition: opacity .15s ease, transform .2s var(--ease); }
+  .anon-toggle input:checked + .anon-box { background: var(--accent); border-color: var(--accent); }
+  .anon-toggle input:checked + .anon-box svg { opacity: 1; transform: scale(1); }
+  .anon-toggle input:focus-visible + .anon-box { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .anon-text { display: flex; flex-direction: column; gap: 2px; }
+  .anon-text strong { font-size: .88rem; font-weight: 700; color: var(--ink); }
+  .anon-text span { font-size: .8rem; color: var(--ink-faint); }
+
+  .identity {
+    display: grid; grid-template-rows: 0fr; opacity: 0;
+    transition: grid-template-rows .3s var(--ease), opacity .2s ease;
+  }
+  .identity.open { grid-template-rows: 1fr; opacity: 1; }
+  /* padding/negative margin keeps the input focus glow from being clipped */
+  .identity-inner { overflow: hidden; min-height: 0; padding: 4px; margin: -4px; }
+  @media (prefers-reduced-motion: reduce) { .identity { transition: none; } }
+
+  .honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .submit-row { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .btn {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px; border-radius: 100px; border: none; cursor: pointer;
+    font-weight: 700; font-size: .92rem;
+    background: var(--accent); color: var(--on-accent);
+    box-shadow: 0 10px 30px var(--glow);
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease), opacity .2s ease;
+  }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.4) 46%, transparent 62%);
+    transform: translateX(-130%); transition: transform .75s var(--ease);
+  }
+  .btn:hover::after { transform: translateX(130%); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 38px var(--glow); }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn:disabled { opacity: .6; cursor: default; transform: none; }
+
+  .form-error { font-size: .84rem; color: var(--error); min-height: 1.2em; }
+
+  .success {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .success.show { display: block; }
+  .success-icon {
+    width: 56px; height: 56px; margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(63,178,127,.15);
+    border: 1px solid rgba(63,178,127,.35);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--success);
+  }
+  .success h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; margin-bottom: 10px; }
+  .success p { color: var(--ink-dim); font-size: .95rem; }
+
+  footer.site-footer {
+    position: relative; z-index: 2;
+    text-align: center; padding: 24px 20px;
+    color: var(--ink-faint); font-size: .74rem; letter-spacing: .04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #orbit { opacity: .6; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="orbit" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav">
+  <div class="nav-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+  <a class="nav-back" id="navBack" href="/landing">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    <span id="navBackLabel">Back to campus</span>
+  </a>
+</nav>
+
+<main>
+  <div class="eyebrow" id="eyebrow">Feedback</div>
+  <h1 id="heading">Tell us what's <em>actually</em> going on.</h1>
+  <p class="lede" id="lede">
+    Bug, complaint, half-formed idea, or just "this was great" — it goes straight
+    to the team, and every unanswered question you've run into helps teach
+    Infosphere the next answer.
+  </p>
+
+  <form id="feedbackForm" novalidate>
+    <div class="honeypot" aria-hidden="true">
+      <label for="website">Leave this field empty</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="category">Type</label>
+        <select class="input" id="category" name="category">
+          <option value="Bug">Bug</option>
+          <option value="Suggestion">Suggestion</option>
+          <option value="Compliment">Compliment</option>
+          <option value="Complaint">Complaint</option>
+          <option value="Other" selected>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Rating <span class="optional">(optional)</span></label>
+        <div class="stars" id="stars" role="radiogroup" aria-label="Rating">
+          <button type="button" class="star" data-v="1" aria-label="1 star"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg></button>
+          <button type="button" class="star" data-v="2" aria-label="2 stars"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg></button>
+          <button type="button" class="star" data-v="3" aria-label="3 stars"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg></button>
+          <button type="button" class="star" data-v="4" aria-label="4 stars"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg></button>
+          <button type="button" class="star" data-v="5" aria-label="5 stars"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg></button>
+        </div>
+        <input type="hidden" id="ratingValue" name="rating" value="">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="message">What's on your mind</label>
+      <textarea class="input" id="message" name="message" placeholder="Be as specific as you can — what happened, what you expected, where you were." maxlength="1000" required aria-describedby="charCount formError"></textarea>
+      <div class="char-count" id="charCount" aria-live="polite">0 / 1000</div>
+    </div>
+
+    <label class="anon-toggle" for="anonymous">
+      <input type="checkbox" id="anonymous" name="anonymous" checked aria-controls="identity">
+      <span class="anon-box" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="M20 6L9 17l-5-5"/></svg>
+      </span>
+      <span class="anon-text">
+        <strong>Send anonymously</strong>
+        <span>Untick to leave your name or a way to reach you.</span>
+      </span>
+    </label>
+
+    <div class="identity" id="identity" inert>
+      <div class="identity-inner">
+        <div class="row2">
+          <div class="field">
+            <label for="name">Name <span class="optional">(optional)</span></label>
+            <input class="input" id="name" name="name" type="text" placeholder="Your name" maxlength="100" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="email">Email / contact <span class="optional">(optional)</span></label>
+            <input class="input" id="email" name="email" type="text" placeholder="Email, IG, WhatsApp — anything" maxlength="254" autocomplete="email">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn" type="submit" id="submitBtn">
+        Send feedback
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <span class="form-error" id="formError" role="alert"></span>
+    </div>
+  </form>
+
+  <div class="success" id="success">
+    <div class="success-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2>Got it — thank you.</h2>
+    <p>Someone on the team will see this. If you left a way to reach you, expect to hear back.</p>
+  </div>
+</main>
+
+<footer class="site-footer">copyright 2025 @infosphere · BINUS University</footer>
+
+<script nonce="{{ csp_nonce() }}">
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+initConstellation(document.getElementById('orbit'), { galaxy: false });
+
+/* prefill from the link that brought the visitor here:
+   ?category=Bug preselects the type, ?from=chat sends "back" to the chatbot */
+(function prefill() {
+  const params = new URLSearchParams(window.location.search);
+  const select = document.getElementById('category');
+  const category = params.get('category');
+  if (category && [...select.options].some(o => o.value === category)) select.value = category;
+  if (params.get('from') === 'chat') {
+    document.getElementById('navBack').href = '/';
+    document.getElementById('navBackLabel').textContent = 'Back to chat';
+  }
+})();
+
+const heroEls = ['#eyebrow', '#heading', '#lede', '#feedbackForm'];
+if (reduceMotion || typeof gsap === 'undefined') {
+  heroEls.forEach(sel => document.querySelector(sel).style.opacity = 1);
+} else {
+  gsap.timeline({ defaults: { ease: 'power3.out', duration: .8 } })
+    .to('#eyebrow', { opacity: 1 }, 0)
+    .to('#heading', { opacity: 1 }, '-=.55')
+    .to('#lede', { opacity: 1 }, '-=.55')
+    .to('#feedbackForm', { opacity: 1 }, '-=.5');
+}
+
+/* stars */
+(function stars() {
+  const stars = Array.from(document.querySelectorAll('.star'));
+  const hidden = document.getElementById('ratingValue');
+  function paint(upto) {
+    stars.forEach(s => s.classList.toggle('active', Number(s.dataset.v) <= upto));
+  }
+  stars.forEach(s => {
+    s.addEventListener('click', () => {
+      const v = Number(s.dataset.v);
+      const current = Number(hidden.value || 0);
+      hidden.value = current === v ? '' : v; // click again to clear
+      paint(Number(hidden.value || 0));
+    });
+    s.addEventListener('mouseenter', () => paint(Number(s.dataset.v)));
+  });
+  document.getElementById('stars').addEventListener('mouseleave', () => paint(Number(hidden.value || 0)));
+})();
+
+/* char counter */
+(function charCounter() {
+  const textarea = document.getElementById('message');
+  const count = document.getElementById('charCount');
+  textarea.addEventListener('input', () => {
+    const n = textarea.value.length;
+    count.textContent = `${n} / 1000`;
+    count.classList.toggle('warn', n > 900);
+  });
+})();
+
+/* anonymous toggle */
+(function anonToggle() {
+  const box = document.getElementById('anonymous');
+  const identity = document.getElementById('identity');
+  box.addEventListener('change', () => {
+    const open = !box.checked;
+    identity.classList.toggle('open', open);
+    identity.inert = !open;
+    if (open) document.getElementById('name').focus({ preventScroll: true });
+  });
+})();
+
+/* submit */
+(function submit() {
+  const form = document.getElementById('feedbackForm');
+  const btn = document.getElementById('submitBtn');
+  const errorEl = document.getElementById('formError');
+
+  const MAX_MESSAGE = 1000;
+  let sending = false;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (sending) return;                       // no double submits
+    errorEl.textContent = '';
+
+    // Same rules as the server: plain text only, 3–1000 characters.
+    const message = document.getElementById('message').value.replace(/<[^>]*>/g, '').trim();
+    if (!message) {
+      errorEl.textContent = 'A message is required.';
+      document.getElementById('message').focus();
+      return;
+    }
+    if (message.length < 3) {
+      errorEl.textContent = 'Please write a little more.';
+      document.getElementById('message').focus();
+      return;
+    }
+    if (message.length > MAX_MESSAGE) {
+      errorEl.textContent = `Message is too long (max ${MAX_MESSAGE} characters).`;
+      document.getElementById('message').focus();
+      return;
+    }
+
+    const anonymous = document.getElementById('anonymous').checked;
+
+    const payload = {
+      website:  document.getElementById('website').value, // honeypot
+      category: document.getElementById('category').value,
+      rating:   document.getElementById('ratingValue').value,
+      message,
+      anonymous,
+      name:     anonymous ? '' : document.getElementById('name').value.trim(),
+      email:    anonymous ? '' : document.getElementById('email').value.trim(),
+      page:     window.location.origin + window.location.pathname,
+    };
+
+    sending = true;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch('/feedback/submit', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 429) throw new Error('You have sent a lot of feedback just now — please try again in a few minutes.');
+      if (data.status !== 'ok') throw new Error(data.message || 'Something went wrong — please try again.');
+
+      form.style.display = 'none';
+      document.getElementById('success').classList.add('show');
+      if (!reduceMotion && typeof gsap !== 'undefined') {
+        gsap.fromTo('#success', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .6, ease: 'power3.out' });
+      }
+    } catch (err) {
+      errorEl.textContent = err instanceof TypeError
+        ? 'Could not reach the server — check your connection and try again.'
+        : (err.message || 'Could not send — try again in a moment.');
+      sending = false;
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      btn.innerHTML = 'Send feedback <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

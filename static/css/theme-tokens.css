@@ -1,0 +1,127 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Infosphere design tokens — navy / azure system.
+   Single source of truth for color, radius, shadow, motion across every
+   page. Dark is the default identity for the marketing pages (landing,
+   about); pages that default light (index, admin) override at the top of
+   their own stylesheet by setting color-scheme: light and re-pointing the
+   handful of tokens that flip (see each page's THEME OVERRIDE block).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ---- navy scale (structural / primary) ---- */
+  --navy-50:  #eef4fb;
+  --navy-100: #dbe7f5;
+  --navy-200: #b7cfec;
+  --navy-300: #8fb3df;
+  --navy-400: #5c8bc9;
+  --navy-500: #1f5f99;
+  --navy-600: #1a4d7d;
+  --navy-700: #163f66;
+  --navy-800: #123252;
+  --navy-900: #0e2740;
+  --navy-950: #08192b;
+
+  /* ---- azure scale (accent / call-to-action) ---- */
+  --azure-50:  #eaf4fd;
+  --azure-100: #d3e9fb;
+  --azure-200: #a8d2f6;
+  --azure-300: #78b8ef;
+  --azure-400: #4a9ee6;
+  --azure-500: #2183d9;
+  --azure-600: #1a6bb3;
+  --azure-700: #15568f;
+  --azure-800: #114571;
+  --azure-900: #0d3559;
+  --azure-950: #08233c;
+
+  /* ---- cool blue-tinted neutrals (no pure grays) ---- */
+  --neutral-0:   #0a1420;
+  --neutral-50:  #0d1b2a;
+  --neutral-100: #112232;
+  --neutral-150: #16293c;
+  --neutral-200: #1c3247;
+  --neutral-300: #2a4258;
+  --neutral-600: #55697d;
+  --neutral-700: #8aa0b5;
+  --neutral-800: #c3d1de;
+  --neutral-900: #eef3f8;
+  --neutral-950: #f7fafd;
+
+  /* ---- semantic tokens (dark, default) ---- */
+  --bg:               var(--neutral-50);
+  --bg-alt:            var(--neutral-100);
+  --surface:           var(--neutral-100);
+  --surface-elevated:  var(--neutral-150);
+  --border:            rgba(199, 220, 240, 0.10);
+  --border-strong:     rgba(199, 220, 240, 0.20);
+  --text:              var(--neutral-900);
+  --text-muted:        var(--neutral-700);
+  --text-faint:        var(--neutral-600);
+  --primary:           var(--navy-500);
+  --accent:            var(--azure-500);
+  --accent-2:          var(--azure-300);
+  --glow:              rgba(33, 131, 217, 0.35);
+  --on-accent:         #071522;
+
+  --success: #3fb27f;
+  --warning: #e0a63e;
+  --error:   #e2596b;
+
+  /* Glass-over-photo overlays (captions, badges, slide scrims). These composite
+     against photographic imagery, not the page surface, so they intentionally
+     do NOT flip with light/dark mode — always a dark scrim with light text,
+     for legibility over any photo. */
+  --scrim:        rgba(8, 15, 24, .55);
+  --scrim-strong: rgba(8, 15, 24, .72);
+  --on-scrim:     #eef3f8;
+
+  --shadow-color:  222deg 55% 4%;
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / .4);
+  --shadow-md: 0 10px 30px hsl(var(--shadow-color) / .35);
+  --shadow-lg: 0 20px 60px hsl(var(--shadow-color) / .45);
+  --shadow-glow: 0 8px 28px var(--glow);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 100px;
+
+  /* ---- motion tokens ---- */
+  --ease-out:      cubic-bezier(.16,.84,.44,1);
+  --ease-spring:   cubic-bezier(.22,1,.36,1);
+  --ease-in-out:   cubic-bezier(.65,0,.35,1);
+  --dur-fast:   150ms;
+  --dur-base:  250ms;
+  --dur-slow:  400ms;
+  --dur-reveal: 700ms;
+
+  --font-display: 'Fraunces', serif;
+  --font-body:    'Manrope', sans-serif;
+}
+
+/* Marketing pages stay dark-identity by design, but honor an explicit
+   light OS preference rather than forcing dark on everyone. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:               var(--neutral-950);
+    --bg-alt:            #eef5fb;
+    --surface:           #ffffff;
+    --surface-elevated:  #ffffff;
+    --border:            rgba(14, 39, 64, 0.10);
+    --border-strong:     rgba(14, 39, 64, 0.18);
+    --text:              var(--navy-900);
+    --text-muted:        #4f6478;
+    --text-faint:        #74889a;
+    --primary:           var(--navy-600);
+    --accent:            var(--azure-600);
+    --accent-2:          var(--azure-700);
+    --glow:              rgba(26, 107, 179, 0.22);
+    --on-accent:         #ffffff;
+    --shadow-color: 210deg 40% 60%;
+  }
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
+:root:not([data-theme="dark"]) { color-scheme: dark light; }
+
+::selection { background: var(--accent); color: var(--on-accent); }

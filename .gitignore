@@ -1,0 +1,62 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Virtual environments ----
+venv/
+env/
+.venv/
+ENV/
+
+# ---- Runtime state: database, logs, model cache, voice cache ----
+# (contains visitor feedback incl. contact details — never commit)
+instance/
+*.db
+*.db-wal
+*.db-shm
+*.pkl
+server.log
+*.log
+
+# ---- Generated from data/rooms.json on startup ----
+data/qa/locations_generated.csv
+
+# ---- Excel backups / lock files ----
+*.backup.xlsx
+~$*.xlsx
+
+# ---- Secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Editor / OS / tooling ----
+.vscode/
+.idea/
+.claude/
+.agents/
+skills-lock.json
+.dist/
+.sixth/
+*.swp
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# ---- Scratch output ----
+*.tmp
+temp/
+tmp/
+.playwright-cli/
