@@ -264,7 +264,7 @@ header {
 /* right gutter keeps the floating mic button off the map and its controls */
 .right-panel {
   flex: 1; display: flex; flex-direction: column;
-  padding: 10px 96px 10px 6px;
+  padding: 10px 96px 46px 6px;          /* bottom strip = READY / IP badges */
   gap: 10px; overflow: hidden; min-width: 0;
 }
 
@@ -355,13 +355,16 @@ header {
   gap: 10px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 4px;
+  padding: 2px 6px 8px 0;
+  scroll-padding-bottom: 8px;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(33,150,243,.25) transparent;
+  scrollbar-color: rgba(21,101,192,.45) transparent;
   min-height: 0;
 }
-.qa-pane::-webkit-scrollbar { width: 4px; }
-.qa-pane::-webkit-scrollbar-thumb { background: rgba(33,150,243,.25); border-radius: 2px; }
+.qa-pane::-webkit-scrollbar { width: 8px; }
+.qa-pane::-webkit-scrollbar-thumb { background: rgba(21,101,192,.45); border-radius: 4px; }
+.qa-pane::-webkit-scrollbar-thumb:hover { background: rgba(21,101,192,.7); }
 
 .user-question {
   align-self: flex-end; max-width: 78%;
@@ -982,7 +985,7 @@ function initMap() {
     text: MAP_TEXT[currentLang] || MAP_TEXT.IND,
     initialFloor: KIOSK ? KIOSK.floor : 1,
     // tapping a room = same as picking it in search, but the map stays on that floor
-    onRoomClick: room => { showRoomCard(room); routeTo(room, { viewFloor: room.floor }); },
+    onRoomClick: room => { showRoomCard(room); routeTo(room, { viewFloor: room.floor }); speakRoom(room); },
   });
   const kRoom = KIOSK && roomById(KIOSK.room);
   if (kRoom && kRoom.poly) floorMap.setKiosk(kRoom.floor, Routing.roomCentre(kRoom));
@@ -1239,6 +1242,25 @@ function pickRoom(room) {
   searchInput.value = '';
   showRoomCard(room);
   routeTo(room);
+  speakRoom(room);
+}
+
+/** Say the room's answer (same words and voice as the assistant), unless Quiet is on. */
+async function speakRoom(room) {
+  if (quietMode || !room) return;
+  try {
+    const res = await fetch(`/api/room-answer/${encodeURIComponent(room.id)}?lang=${currentLang}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    await playResponse({ answer: data.answer, has_audio_file: false });
+  } catch (e) {
+    console.warn('[Voice] room answer failed:', e);
+  }
+}
+
+function scrollAnswerIntoView() {
+  const pane = document.getElementById('pane-qa');
+  setTimeout(() => { if (pane) pane.scrollTop = pane.scrollHeight; }, 60);
 }
 
 /** Answer card for a room: name, floor, location and closure status, in the UI language. */
@@ -1254,6 +1276,7 @@ function showRoomCard(room) {
   div.textContent = text;
   answerText.appendChild(div);
   botCard.classList.add('visible');
+  scrollAnswerIntoView();
 }
 
 function handleSearchKey(e) {
@@ -1616,12 +1639,16 @@ async function playResponse(data) {
   }
 }
 
+let currentAudio = null;
 function playAudioUrl(url) {
+  if (currentAudio) { currentAudio.pause(); currentAudio.onended && currentAudio.onended(); }
   return new Promise(resolve => {
     const a = new Audio(url);
-    a.onended = resolve;
-    a.onerror = resolve;
-    a.play().catch(resolve);
+    currentAudio = a;
+    const done = () => { if (currentAudio === a) currentAudio = null; resolve(); };
+    a.onended = done;
+    a.onerror = done;
+    a.play().catch(done);
   });
 }
 

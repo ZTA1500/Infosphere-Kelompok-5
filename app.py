@@ -69,7 +69,7 @@ if FFMPEG_EXE:
 else:
     print('[Audio] WARNING: ffmpeg not found — voice input will not work. Run: pip install imageio-ffmpeg')
 
-from server import voice_ai
+from server import offline_tts, voice_ai
 
 # TLS certificate checks stay ON by default. Only for a network whose proxy
 # breaks HTTPS (e.g. to download the Whisper model once) set INSECURE_SSL=1.
@@ -116,12 +116,6 @@ READY_AUDIO_NAME = 'siap mendengar.mpeg'
 
 LANG_MAP = {'IND': 'id', 'ENG': 'en', 'ZH': 'zh'}
 
-LANG_VOICE_KEYWORDS = {
-    'id': ['indonesian', 'indonesia', 'id_', 'id-'],
-    'en': ['english', 'en_us', 'en_gb', 'en-us', 'en-gb'],
-    'zh': ['chinese', 'mandarin', 'zh_', 'zh-'],
-}
-
 LANG_CODE_NORMALIZE = {
     'ind': 'id', 'eng': 'en', 'zh': 'zh',
     'id':  'id', 'en':  'en',
@@ -130,7 +124,7 @@ LANG_CODE_NORMALIZE = {
 whisper_model = None
 chatbot       = None
 audio_mapping = {}
-tts_engine    = None
+TTS_AVAILABLE = False
 tts_lock      = threading.Lock()
 
 # ── Answer thresholds ───────────────────────────────────────────────────────────
@@ -534,38 +528,15 @@ def load_audio_mapping():
     print(f"[Audio] {len(audio_mapping)} files → IDs {sorted(audio_mapping.keys())}")
 
 
-def set_tts_voice(lang_code='id'):
-    voices = tts_engine.getProperty('voices')
-    if not voices:
-        return None
-    keywords = LANG_VOICE_KEYWORDS.get(lang_code, LANG_VOICE_KEYWORDS['en'])
-    for v in voices:
-        name_id = (v.name + v.id).lower()
-        if any(kw in name_id for kw in keywords):
-            tts_engine.setProperty('voice', v.id)
-            return v.name
-    return None
-
-
 def init_tts():
-    """Offline fallback voice (Windows SAPI5 / espeak on Linux). Optional: when
-    no engine is installed — common on Linux servers — /speak serves only the
-    pre-generated AI voice lines and the page stays silent otherwise."""
-    global tts_engine
-    try:
-        import pyttsx3
-        try:
-            tts_engine = pyttsx3.init('sapi5')
-        except Exception:
-            tts_engine = pyttsx3.init()
-        tts_engine.setProperty('rate', 150)
-        tts_engine.setProperty('volume', 1.0)
-        if not set_tts_voice('id'):
-            set_tts_voice('en')          # fallback: first English voice
-        print("[TTS] Ready.")
-    except Exception as e:
-        tts_engine = None
-        print(f"[TTS] Offline voice not available ({e}) — only pre-generated voice lines will play.")
+    """Offline fallback voice (Windows SAPI5 / espeak-ng on Linux), run per
+    request in a child process (server/offline_tts.py) so a stuck engine can
+    never block the server. Optional: without it, /speak serves only the
+    pre-generated AI voice lines."""
+    global TTS_AVAILABLE
+    TTS_AVAILABLE = offline_tts.available()
+    print("[TTS] Offline fallback voice ready." if TTS_AVAILABLE
+          else "[TTS] Offline voice not available — only pre-generated voice lines will play.")
 
 
 with app.app_context():
@@ -616,16 +587,31 @@ def trim_wav_silence(wav_in, wav_out, silence_thresh=-38, padding_ms=100):
     audio.export(wav_out, format='wav')
 
 
+TTS_TIMEOUT_SEC = 20
+
+
 def tts_to_file(text, lang='id'):
-    if tts_engine is None:
+    if not TTS_AVAILABLE:
         raise RuntimeError('offline TTS not available')
-    tmp = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
-    tmp.close()
-    with tts_lock:
-        set_tts_voice(lang)
-        tts_engine.save_to_file(text, tmp.name)
-        tts_engine.runAndWait()
-    return tmp.name
+    # One request at a time; a request that can't get its turn soon gives up.
+    if not tts_lock.acquire(timeout=TTS_TIMEOUT_SEC):
+        raise RuntimeError('offline TTS busy')
+    path = _temp_path('.wav')
+    try:
+        proc = subprocess.run(
+            [sys.executable, '-m', 'server.offline_tts', path, lang],
+            input=text.encode('utf-8'), cwd=os.path.dirname(os.path.abspath(__file__)),
+            timeout=TTS_TIMEOUT_SEC, capture_output=True,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        if proc.returncode != 0 or not os.path.exists(path) or os.path.getsize(path) < 1000:
+            raise RuntimeError(f'offline TTS failed (exit {proc.returncode})')
+        return path
+    except Exception:
+        if os.path.exists(path):
+            os.remove(path)
+        raise
+    finally:
+        tts_lock.release()
 
 
 def deferred_remove(path, delay=3):
@@ -866,6 +852,21 @@ def chat():
     except Exception:
         import traceback; traceback.print_exc()
         return jsonify({'error': 'internal', 'message': 'The assistant is unavailable right now — please try again.'}), 500
+
+
+@app.route('/api/room-answer/<room_id>')
+@rate_limited('room-answer', limit=120, window_seconds=60)
+def room_answer(room_id):
+    """The chatbot's answer for one map room in the visitor's language (spoken
+    when someone taps the room on the map)."""
+    lang = str(request.args.get('lang') or 'IND').upper()
+    from server.qa_locations import room_entries
+    for _i, room, _display, answer in room_entries():
+        if room['id'] == room_id:
+            translated = i18n.translate(answer, lang)
+            return jsonify({'room_id': room_id, 'answer': translated or answer,
+                            'answer_lang': i18n.UI_LANG.get(lang, 'id') if translated else 'id'})
+    return jsonify({'status': 'error', 'message': 'Room not found.'}), 404
 
 
 @app.route('/status')
