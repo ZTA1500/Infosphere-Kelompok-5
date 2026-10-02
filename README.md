@@ -92,8 +92,8 @@ static/
   img/ audio/ brand/   images, recorded answers, logos
 data/
   rooms.json           floors and rooms (validated by rooms.schema.json)
-  qa/                  chatbot Q&A datasets (.xlsx/.csv)
-scripts/               validate_data, build_maps, set_admin_password, generate_location_dataset
+  qa/                  chatbot Q&A (Dataset Jarvis.xlsx: Answer / Answer_EN / Answer_ZH)
+scripts/               validate_data, build_maps, set_admin_password, sync_spreadsheet, …
 tests/                 pytest: dataset validation, closures API auth & validation, security
 instance/              runtime data — git-ignored (database, logs, model cache)
 ```

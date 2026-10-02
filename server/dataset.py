@@ -38,6 +38,7 @@ MAP_INVENTORY = {
 # gap is visible, never given made-up coordinates.
 NOT_ON_MAPS = ['C0202', 'C0208', 'C0211', 'C0308', 'C0402', 'C0404', 'C0405', 'C0409 (only as C0408-09)']
 
+GENERATED = 'locations_generated.csv'
 ROOM_CODE_RE = re.compile(r'\b([a-zA-Z])-?0?(\d)(\d{2})\b')
 
 _cache = {'mtime': None, 'data': None}
@@ -224,7 +225,9 @@ def validate_qa(paths=None):
             if pd.isna(question) or not question:
                 continue
             key = question.casefold()
-            if key in seen and seen[key][1] != a[i]:
+            # Generated rows repeat on purpose ("toilet on floor 2" fits both toilets there).
+            both_generated = key in seen and name == GENERATED and seen[key][0].startswith(GENERATED)
+            if key in seen and seen[key][1] != a[i] and not both_generated:
                 warnings.append(f'{name} row {i + 2}: question "{question}" also appears in {seen[key][0]} '
                                 f'with a different answer')
             seen.setdefault(key, (f'{name} row {i + 2}', a[i]))

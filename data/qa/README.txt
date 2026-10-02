@@ -25,3 +25,14 @@ Notes:
   • locations_generated.csv is created from data/rooms.json — edit rooms.json,
     not this file. Check everything with: python scripts/validate_data.py
   • Temporary Excel lock files (~$*.xlsx) are ignored.
+
+English and Mandarin:
+  • Add the columns Answer_EN and Answer_ZH next to Answer (see the main sheet of
+    "Dataset Jarvis.xlsx"). ENG / 汉 visitors get those answers and an English /
+    Mandarin voice; a row without them is answered in Indonesian.
+  • Questions can be written in any of the three languages — add English or
+    Mandarin phrasings as extra rows with the same Answer and ID.
+  • The "Ruangan (peta)" sheet lists every room on the maps in all three
+    languages. It is generated from data/rooms.json — refresh it with:
+        python scripts/sync_spreadsheet.py
+    Only the FIRST sheet of a workbook is used for training.
