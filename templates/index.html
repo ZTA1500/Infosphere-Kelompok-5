@@ -981,7 +981,8 @@ function initMap() {
     mode: 'user',
     text: MAP_TEXT[currentLang] || MAP_TEXT.IND,
     initialFloor: KIOSK ? KIOSK.floor : 1,
-    onRoomClick: room => { routeTo(room); },
+    // tapping a room = same as picking it in search, but the map stays on that floor
+    onRoomClick: room => { showRoomCard(room); routeTo(room, { viewFloor: room.floor }); },
   });
   const kRoom = KIOSK && roomById(KIOSK.room);
   if (kRoom && kRoom.poly) floorMap.setKiosk(kRoom.floor, Routing.roomCentre(kRoom));
@@ -1030,7 +1031,7 @@ function updateClosureBanner(dest, legs) {
   banner.hidden = !lines.length;
 }
 
-async function routeTo(dest) {
+async function routeTo(dest, { viewFloor } = {}) {
   if (!MAP_DATA || !dest) return;
   initMap();
   expandMap();
@@ -1075,7 +1076,7 @@ async function routeTo(dest) {
         steps.push(dest.location ? `${dest.name} — ${dest.location}` : T.noMap(dest.name, floorName(dest.floor)));
       }
     }
-    floorMap.showFloor(kRoom.floor);
+    floorMap.showFloor(viewFloor && legs[viewFloor] ? viewFloor : kRoom.floor);
     floorMap.setRoute(legs);
     showDirections(dest, metres, steps, legs);
   }
@@ -1236,6 +1237,12 @@ function pickRoom(room) {
   if (!room) return;
   closeSearchResults();
   searchInput.value = '';
+  showRoomCard(room);
+  routeTo(room);
+}
+
+/** Answer card for a room: name, floor, location and closure status, in the UI language. */
+function showRoomCard(room) {
   showQuestion(roomName(room));
   const c = closureFor(room);
   const place = roomPlace(room);
@@ -1247,7 +1254,6 @@ function pickRoom(room) {
   div.textContent = text;
   answerText.appendChild(div);
   botCard.classList.add('visible');
-  routeTo(room);
 }
 
 function handleSearchKey(e) {

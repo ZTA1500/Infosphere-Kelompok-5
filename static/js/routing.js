@@ -213,17 +213,41 @@
   }
 
   /** Turn a polyline into short Indonesian/English walking steps (plain text). */
+  function distToSegment(p, a, b) {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const len2 = dx * dx + dy * dy;
+    const u = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
+    return Math.hypot(p[0] - (a[0] + u * dx), p[1] - (a[1] + u * dy));
+  }
+
+  /** Douglas-Peucker: drop points that bend the line by less than `tol`. */
+  function simplify(pts, tol) {
+    if (pts.length < 3) return pts;
+    let maxD = 0, idx = 0;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const d = distToSegment(pts[i], pts[0], pts[pts.length - 1]);
+      if (d > maxD) { maxD = d; idx = i; }
+    }
+    if (maxD <= tol) return [pts[0], pts[pts.length - 1]];
+    return [...simplify(pts.slice(0, idx + 1), tol).slice(0, -1), ...simplify(pts.slice(idx), tol)];
+  }
+
+  const TURN_MIN = 0.55;          // ~30 degrees: smaller bends are "keep going straight"
+  const MIN_LEG_M = 1.5;          // legs shorter than this are folded into the next one
+
+  /** Turn a polyline into short walking steps (plain text, in the UI language). */
   function steps(pts, rooms, floor, destName, t) {
     if (!pts || pts.length < 2) return [];
     const k = mPerUnit(floor);
-    const keep = [pts[0]];
-    for (let i = 1; i < pts.length - 1; i++) {
-      const a = keep[keep.length - 1], b = pts[i], c = pts[i + 1];
-      const v1 = [b[0] - a[0], b[1] - a[1]], v2 = [c[0] - b[0], c[1] - b[1]];
-      const ang = Math.abs(Math.atan2(v1[0] * v2[1] - v1[1] * v2[0], v1[0] * v2[0] + v1[1] * v2[1]));
-      if (ang > 0.35) keep.push(b);
+    // The grid path zig-zags a little around corners; people only care about
+    // real turns, so simplify the line (≈1.2 m tolerance) and fold tiny legs.
+    const simple = simplify(pts, 1.2 / k);
+    const keep = [simple[0]];
+    for (let i = 1; i < simple.length - 1; i++) {
+      const a = keep[keep.length - 1], b = simple[i];
+      if (Math.hypot(b[0] - a[0], b[1] - a[1]) * k >= MIN_LEG_M) keep.push(b);
     }
-    keep.push(pts[pts.length - 1]);
+    keep.push(simple[simple.length - 1]);
     const out = [];
     let run = 0;
     for (let i = 0; i < keep.length - 1; i++) {
@@ -233,15 +257,15 @@
         const c = keep[i + 2];
         const v1 = [b[0] - a[0], b[1] - a[1]], v2 = [c[0] - b[0], c[1] - b[1]];
         const cross = v1[0] * v2[1] - v1[1] * v2[0];
-        if (Math.abs(Math.atan2(cross, v1[0] * v2[0] + v1[1] * v2[1])) > 0.35) {
+        if (Math.abs(Math.atan2(cross, v1[0] * v2[0] + v1[1] * v2[1])) > TURN_MIN) {
           const near = nearestRoomName(rooms, floor.floor, b[0], b[1]);
-          out.push(t.straight(Math.max(1, Math.round(run))));
+          if (run >= 1) out.push(t.straight(Math.round(run)));
           out.push(t.turn(cross > 0 ? 'right' : 'left', near));
           run = 0;
         }
       }
     }
-    if (run > 0.5) out.push(t.straight(Math.max(1, Math.round(run))));
+    if (run >= 1) out.push(t.straight(Math.round(run)));
     out.push(t.arrive(destName));
     return out;
   }
