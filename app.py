@@ -824,7 +824,7 @@ def chat():
         # Room answers carry the room id (Keywords column) — the page routes to it directly.
         room_id = str(matched_room).strip() if matched_room is not None else None
         if room_id not in dataset.rooms_by_id(dataset.load_rooms()):
-            room_id = None
+            room_id = room_for_qa_id(audio_id) if found else None   # e.g. "Dimana LKC?" → route to the LKC
         log_query(question, result.get('answer', ''), conf, lang, ms,
                   matched_room=matched_room, found=found)
 
@@ -863,10 +863,41 @@ def room_answer(room_id):
     from server.qa_locations import room_entries
     for _i, room, _display, answer in room_entries():
         if room['id'] == room_id:
+            # A room linked to a spreadsheet row (qa_id) answers like typing
+            # the question: that row's answer, with its human recording.
+            audio_id = None
+            sheet_answer = qa_answer_by_id(room.get('qa_id'))
+            if sheet_answer:
+                answer, audio_id = sheet_answer, room['qa_id']
             translated = i18n.translate(answer, lang)
-            return jsonify({'room_id': room_id, 'answer': translated or answer,
-                            'answer_lang': i18n.UI_LANG.get(lang, 'id') if translated else 'id'})
+            if translated:
+                answer, audio_id = translated, None
+            return jsonify({'room_id': room_id, 'answer': answer,
+                            'answer_lang': i18n.UI_LANG.get(lang, 'id') if translated else 'id',
+                            'audio_id': audio_id,
+                            'has_audio_file': (audio_id in audio_mapping) if audio_id else False})
     return jsonify({'status': 'error', 'message': 'Room not found.'}), 404
+
+
+def qa_answer_by_id(qa_id):
+    """The chatbot's answer for a spreadsheet ID (first row with that ID), or None."""
+    if qa_id is None or chatbot is None:
+        return None
+    ids = chatbot.metadata.get('ids') or []
+    for i, row_id in enumerate(ids):
+        try:
+            if int(row_id) == int(qa_id):
+                return str(chatbot.answers[i]).strip() or None
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def room_for_qa_id(qa_id):
+    """Id of the map room linked to a spreadsheet ID (rooms.json qa_id), or None."""
+    if qa_id is None:
+        return None
+    return next((r['id'] for r in dataset.load_rooms()['rooms'] if r.get('qa_id') == qa_id), None)
 
 
 @app.route('/status')
@@ -894,7 +925,9 @@ def speak():
     if len(text) > 1000:
         return jsonify({'error': 'Text too long'}), 400
     if text in known_answer_texts():
-        ai_path = voice_ai.cached(text, lang)
+        # Not made yet (new or edited answer): make it now rather than fall
+        # back to the robotic offline voice.
+        ai_path = voice_ai.cached(text, lang) or (AI_VOICE_LIVE and voice_ai.generate_now(text, lang))
         if ai_path:
             return send_file(ai_path, mimetype='audio/mpeg', max_age=86400)
         if AI_VOICE_LIVE:

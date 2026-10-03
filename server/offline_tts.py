@@ -8,13 +8,26 @@ short-lived child process — with a timeout in app.py — means a stuck engine
 can never block the server. The natural AI voice lines (server/voice_ai.py)
 cover all known answers, so this is only a last resort.
 """
+import re
 import sys
 
 LANG_VOICE_KEYWORDS = {
-    'id': ['indonesian', 'indonesia', 'id_', 'id-'],
-    'en': ['english', 'en_us', 'en_gb', 'en-us', 'en-gb'],
-    'zh': ['chinese', 'mandarin', 'zh_', 'zh-'],
+    'id': ['indonesian', 'indonesia'],
+    'en': ['english'],
+    'zh': ['chinese', 'mandarin'],
 }
+
+
+def _speaks(v, code):
+    """Does this voice speak `code`? By name, by its language list, or by a
+    language code inside its id ("TTS_MS_ID-ID_ANDIKA") — a whole code, so
+    "DAVID_11" doesn't count as Indonesian."""
+    if any(kw in v.name.lower() for kw in LANG_VOICE_KEYWORDS.get(code, [])):
+        return True
+    langs = [str(x).lower() for x in (getattr(v, 'languages', None) or [])]
+    if any(x == code or x.startswith(code + '-') or x.startswith(code + '_') for x in langs):
+        return True
+    return re.search(rf'(?<![a-z]){code}[-_]', v.id.lower()) is not None
 
 
 def available():
@@ -25,11 +38,19 @@ def available():
         return False
 
 
+FEMALE_NAMES = ('zira', 'hazel', 'susan', 'aria', 'jenny', 'huihui', 'yaoyao', 'hanhan', 'gadis', 'female')
+
+
+def _is_female(v):
+    return (getattr(v, 'gender', None) or '').lower() == 'female' or any(n in v.name.lower() for n in FEMALE_NAMES)
+
+
 def _pick_voice(engine, lang):
-    voices = engine.getProperty('voices') or []
+    # Female voices first, to match the natural AI voices (Gadis / Ava / Xiaoxiao).
+    voices = sorted(engine.getProperty('voices') or [], key=lambda v: not _is_female(v))
     for code in (lang, 'en'):
         for v in voices:
-            if any(kw in (v.name + v.id).lower() for kw in LANG_VOICE_KEYWORDS.get(code, [])):
+            if _speaks(v, code):
                 engine.setProperty('voice', v.id)
                 return code
     return None

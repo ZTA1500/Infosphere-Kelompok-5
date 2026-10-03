@@ -29,12 +29,16 @@ _lock = threading.Lock()
 
 
 def _room_translation(room, lang):
+    from server.qa_locations import access_note
     floor = room['floor']
     name = room.get(f'name_{lang}') or room['name']
     loc = (room.get(f'location_{lang}') or '').strip()
+    note = access_note(floor, lang)
     if lang == 'zh':
-        return f"{name}位于{floor}楼，{loc}。" if loc else f"{name}位于{floor}楼。"
-    return f"{name} is on Floor {floor}, {loc}." if loc else f"{name} is on Floor {floor}."
+        text = f"{name}位于{floor}楼，{loc}。" if loc else f"{name}位于{floor}楼。"
+        return f"{text}{note}。" if note else text
+    text = f"{name} is on Floor {floor}, {loc}." if loc else f"{name} is on Floor {floor}."
+    return f"{text} {note}." if note else text
 
 
 def _read_sheet(path):

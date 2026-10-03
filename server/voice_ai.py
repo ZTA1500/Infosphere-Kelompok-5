@@ -8,7 +8,8 @@ exists (no internet yet, package missing), the old offline TTS is used.
 
 Generation runs in a separate worker process (this file run as a script), so
 network hiccups or slow responses never touch the web server. The server only
-reads the finished MP3s.
+reads the finished MP3s — and, for an answer a visitor is waiting for that has
+no MP3 yet, waits a few seconds for the worker (generate_now).
 
     python -m server.voice_ai "Teks yang mau dibacakan"   # one line, by hand
 
@@ -120,6 +121,34 @@ def generate_in_background(texts, lang='id'):
             _queue_thread = threading.Thread(target=_run_queue, daemon=True)
             _queue_thread.start()
     _queue_wakeup.set()
+
+
+_offline_until = 0.0
+
+
+def generate_now(text, lang='id', timeout=10):
+    """Make the MP3 for one line while a visitor waits for it, so they hear the
+    natural voice instead of the robotic offline one. Runs in a worker process
+    like the queue below. Returns the MP3 path, or None after `timeout`
+    seconds; after a failure (probably offline) it doesn't retry for 5 minutes,
+    so later visitors aren't kept waiting."""
+    global _offline_until
+    text = (text or '').strip()
+    if not text or not available():
+        return None
+    path = cached(text, lang)
+    if path or time.monotonic() < _offline_until:
+        return path
+    try:
+        subprocess.run([sys.executable, '-m', 'server.voice_ai', '--worker', '--lang', lang],
+                       input=json.dumps([text]).encode('utf-8'), cwd=ROOT, timeout=timeout,
+                       capture_output=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    except (subprocess.TimeoutExpired, OSError) as e:
+        print(f'[AI voice] no voice line in time ({type(e).__name__}) — offline TTS used.', flush=True)
+    path = cached(text, lang)
+    if not path:
+        _offline_until = time.monotonic() + 300
+    return path
 
 
 def _run_queue():

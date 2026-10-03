@@ -893,6 +893,7 @@ const ROUTE_TEXT = {
     arrive: name => `Tujuan: ${name} ada di depan Anda`,
     takeTo: (via, floor) => `Naik ${via} ke ${floor}`,
     exit: (via, floor) => `Keluar dari ${via} di ${floor}`,
+    stairsTo: (from, to) => `Di ${from}, gunakan tangga darurat ke ${to}`,
     heading: (name, m) => `Menuju ${name} — ±${m} m (~${Math.round(m / 0.75)} langkah)`,
     here: name => `Anda sudah berada di ${name}`,
     noMap: (name, floor) => `${name} ada di ${floor}.`,
@@ -910,6 +911,7 @@ const ROUTE_TEXT = {
     arrive: name => `${name} is in front of you`,
     takeTo: (via, floor) => `Take the ${via} to ${floor}`,
     exit: (via, floor) => `Leave the ${via} on ${floor}`,
+    stairsTo: (from, to) => `On ${from}, take the emergency stairs to ${to}`,
     heading: (name, m) => `To ${name} — ±${m} m (~${Math.round(m / 0.75)} steps)`,
     here: name => `You are already at ${name}`,
     noMap: (name, floor) => `${name} is on ${floor}.`,
@@ -927,6 +929,7 @@ const ROUTE_TEXT = {
     arrive: name => `${name} 就在您面前`,
     takeTo: (via, floor) => `乘坐 ${via} 到 ${floor}`,
     exit: (via, floor) => `在 ${floor} 离开 ${via}`,
+    stairsTo: (from, to) => `在 ${from} 走紧急楼梯到 ${to}`,
     heading: (name, m) => `前往 ${name} — 约 ${m} 米`,
     here: name => `您已在 ${name}`,
     noMap: (name, floor) => `${name} 位于 ${floor}。`,
@@ -957,6 +960,8 @@ const VIA_NAMES = { Eskalator: { ENG: 'escalator', ZH: '扶梯' }, Lift: { ENG: 
 const viaName   = name => (VIA_NAMES[name] && VIA_NAMES[name][currentLang]) || name;
 const floorDef  = n => MAP_DATA && MAP_DATA.floors.find(f => f.floor === n);
 const floorName = n => { const f = floorDef(n); return currentLang === 'IND' && f ? f.label : rt().floorN(n); };
+/** A floor's access rule ("students reach Lantai 3 only by the emergency stairs…") in the UI language, or ''. */
+const floorAccessNote = n => { const a = floorDef(n) && floorDef(n).access; return a ? (LANG_KEY() && a[`note_${LANG_KEY()}`]) || a.note : ''; };
 
 async function loadRooms() {
   try {
@@ -1063,20 +1068,29 @@ async function routeTo(dest, { viewFloor } = {}) {
     } else {
       const dFloor = floorDef(dest.floor);
       const via = kFloor.connector;
+      // A floor reached only by the emergency stairs: connector to the nearest allowed floor, then the stairs.
+      // (The stairs have no map position yet, so that floor gets no route line.)
+      const access = dFloor && dFloor.access;
+      const viaFloor = access
+        ? access.via_floors.reduce((a, b) => (Math.abs(b - kRoom.floor) < Math.abs(a - kRoom.floor) ? b : a))
+        : dest.floor;
       const p1 = await Routing.route(kFloor, ROOMS, start, via.xy, [kRoom.id]);
       legs[kFloor.floor] = { points: p1, start: { kind: 'you', label: MAP_TEXT[currentLang].you }, end: { kind: 'connector', label: viaName(via.name) } };
       steps = Routing.steps(p1, ROOMS, kFloor, viaName(via.name), T);
       steps.pop();
-      steps.push(T.takeTo(viaName(via.name), floorName(dest.floor)));
+      steps.push(T.takeTo(viaName(via.name), floorName(viaFloor)));
       metres = Routing.metres(p1, kFloor);
-      if (dFloor && dest.poly) {
+      if (access) {
+        steps.push(T.stairsTo(floorName(viaFloor), floorName(dest.floor)));
+        steps.push(roomPlace(dest) ? `${dest.name} — ${roomPlace(dest)}` : T.noMap(dest.name, floorName(dest.floor)));
+      } else if (dFloor && dest.poly) {
         const p2 = await Routing.route(dFloor, ROOMS, dFloor.connector.xy, Routing.roomCentre(dest), [dest.id]);
         legs[dFloor.floor] = { points: p2, start: { kind: 'connector', label: viaName(dFloor.connector.name) }, end: { kind: 'end', label: dest.name } };
         steps.push(T.exit(viaName(dFloor.connector.name), floorName(dest.floor)));
         steps.push(...Routing.steps(p2, ROOMS, dFloor, dest.name, T));
         metres += Routing.metres(p2, dFloor);
       } else {
-        steps.push(dest.location ? `${dest.name} — ${dest.location}` : T.noMap(dest.name, floorName(dest.floor)));
+        steps.push(roomPlace(dest) ? `${dest.name} — ${roomPlace(dest)}` : T.noMap(dest.name, floorName(dest.floor)));
       }
     }
     floorMap.showFloor(viewFloor && legs[viewFloor] ? viewFloor : kRoom.floor);
@@ -1252,7 +1266,7 @@ async function speakRoom(room) {
     const res = await fetch(`/api/room-answer/${encodeURIComponent(room.id)}?lang=${currentLang}`);
     if (!res.ok) return;
     const data = await res.json();
-    await playResponse({ answer: data.answer, has_audio_file: false });
+    await playResponse(data);       // human recording when the room has one, like a typed question
   } catch (e) {
     console.warn('[Voice] room answer failed:', e);
   }
@@ -1269,6 +1283,8 @@ function showRoomCard(room) {
   const c = closureFor(room);
   const place = roomPlace(room);
   let text = place ? `${roomName(room)} — ${floorName(room.floor)}, ${place}` : `${roomName(room)} — ${floorName(room.floor)}`;
+  const note = floorAccessNote(room.floor);
+  if (note) text += `\nℹ ${note}${currentLang === 'ZH' ? '。' : '.'}`;
   if (c) text += `\n${c.status === 'closed' ? '⛔' : '🚧'} ${statusLabel(c)}${c.note ? ': ' + c.note : ''}`;
   answerText.textContent = '';
   const div = document.createElement('div');

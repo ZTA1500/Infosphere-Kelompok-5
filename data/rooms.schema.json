@@ -44,6 +44,18 @@
               "name": { "type": "string", "minLength": 1 },
               "xy": { "$ref": "#/$defs/point" }
             }
+          },
+          "access": {
+            "description": "A floor visitors can't reach directly by the connector: they go to one of via_floors, then the emergency stairs. note/_en/_zh is added to every room answer on this floor.",
+            "type": "object",
+            "required": ["via_floors", "note"],
+            "additionalProperties": false,
+            "properties": {
+              "via_floors": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "minItems": 1 },
+              "note": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "note_en": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "note_zh": { "type": "string", "minLength": 1, "maxLength": 200 }
+            }
           }
         }
       }
@@ -60,6 +72,11 @@
           "name_en": { "type": "string", "minLength": 1, "maxLength": 80 },
           "name_zh": { "type": "string", "minLength": 1, "maxLength": 80 },
           "floor": { "type": "integer", "minimum": 1 },
+          "qa_id": {
+            "description": "ID of the Dataset Jarvis.xlsx row that answers for this room. Tapping the room on the map then gives that answer — with its human recording (static/audio/Audio<ID>) — exactly like typing the question.",
+            "type": "integer",
+            "minimum": 1
+          },
           "building": { "type": "string", "enum": ["A", "B", "C", "D"] },
           "type": {
             "type": "string",

@@ -125,6 +125,29 @@ def test_every_answer_has_english_and_mandarin():
     errors, warnings = i18n.validate()
     assert errors == []
     assert not any('no English/Mandarin version' in w for w in warnings), warnings
-    assert i18n.translate('C0207 berada di Lantai 2.', 'ENG') == 'C0207 is on Floor 2.'
-    assert i18n.translate('C0207 berada di Lantai 2.', 'ZH') == 'C0207位于2楼。'
-    assert i18n.translate('C0207 berada di Lantai 2.', 'IND') is None
+    answer = 'C0207 berada di Lantai 2, di seberang eskalator, di sebelah kiri Toilet.'
+    assert i18n.translate(answer, 'ENG') == 'C0207 is on Floor 2, across from the escalator, to the left of the toilet.'
+    assert i18n.translate(answer, 'ZH') == 'C0207位于2楼，在扶梯对面，洗手间的左边。'
+    assert i18n.translate(answer, 'IND') is None
+
+
+def test_floor_access_note_is_in_every_answer_on_that_floor():
+    from server import i18n
+    from server.qa_locations import room_entries
+    answers = {room['id']: answer for _i, room, _d, answer in room_entries()}
+    assert answers['rektorat'].endswith('hanya bisa diakses lewat tangga darurat dari Lantai 2 atau Lantai 4.')
+    assert i18n.translate(answers['rektorat'], 'ENG').endswith('by the emergency stairs from Floor 2 or Floor 4.')
+    assert i18n.translate(answers['rektorat'], 'ZH').endswith('学生只能从2楼或4楼走紧急楼梯到3楼。')
+    assert 'tangga darurat' not in answers['c0207']
+
+
+def test_room_qa_ids_exist_in_the_main_spreadsheet():
+    import pandas as pd
+
+    from server.dataset import load_rooms
+    from server.paths import MAIN_DATASET
+    sheet_ids = set(pd.read_excel(MAIN_DATASET)['ID'].dropna().astype(int))
+    linked = {r['id']: r['qa_id'] for r in load_rooms()['rooms'] if 'qa_id' in r}
+    assert linked, 'expected rooms linked to spreadsheet answers (LSC, SSC, LKC)'
+    assert {rid: q for rid, q in linked.items() if q not in sheet_ids} == {}
+    assert len(set(linked.values())) == len(linked), 'two rooms share one spreadsheet answer'

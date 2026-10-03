@@ -28,7 +28,7 @@
       "width": 1547,
       "height": 1011,
       "metres_per_unit": 0.05,
-      "alt": "Denah Lantai 2: B0201, Library, Toilet (dekat Library), Studio Fotografi, Greenscreen, Binus TV, Binus Radio, Amphitheatre, C0207, Toilet (dekat C0207), C0201, C0212, C0209, C0206, C0203, C0210, C0205, C0204.",
+      "alt": "Denah Lantai 2: B0201, Library (LKC), Toilet (dekat Library), Studio Fotografi, Greenscreen, Binus TV, Binus Radio, Amphitheatre, C0207, Toilet (dekat C0207), C0201, C0212, C0209, C0206, C0203, C0210, C0205, C0204.",
       "connector": {
         "name": "Eskalator",
         "xy": [ 648, 516 ]
@@ -46,6 +46,12 @@
       "connector": {
         "name": "Eskalator",
         "xy": [ 606, 552 ]
+      },
+      "access": {
+        "via_floors": [ 2, 4 ],
+        "note": "Untuk mahasiswa, Lantai 3 hanya bisa diakses lewat tangga darurat dari Lantai 2 atau Lantai 4",
+        "note_en": "Students can only reach Floor 3 by the emergency stairs from Floor 2 or Floor 4",
+        "note_zh": "学生只能从2楼或4楼走紧急楼梯到3楼"
       },
       "voids": [ [323, 715, 600, 882], [403, 580, 520, 677], [523, 567, 695, 677], [860, 709, 1113, 757], [835, 857, 1113, 912] ]
     },
@@ -75,9 +81,9 @@
       "type": "facility",
       "aliases": [ "r baca", "ruang baca", "reading", "baca" ],
       "poly": [ [400, 40], [525, 40], [525, 120], [400, 120] ],
-      "location": "di bagian atas gedung, di sebelah kanan Library",
-      "location_en": "at the top of the building, to the right of the Library",
-      "location_zh": "在大楼上方，图书馆的右边"
+      "location": "di samping Klinik, dekat Library (Kanan)",
+      "location_en": "next to the Clinic, near the Library (Right)",
+      "location_zh": "在诊所旁边，靠近图书馆（右）"
     },
     {
       "id": "library_left",
@@ -88,9 +94,9 @@
       "type": "library",
       "aliases": [ "library kiri", "library", "perpustakaan kampus", "pustaka" ],
       "poly": [ [175, 55], [320, 55], [320, 165], [175, 165] ],
-      "location": "di sisi kiri atas gedung, tepat di atas ruang APPLE",
-      "location_en": "on the upper left side of the building, just above the APPLE room",
-      "location_zh": "在大楼左上方，APPLE 教室正上方"
+      "location": "di seberang ruang APPLE, di sebelah kiri Klinik",
+      "location_en": "across from the APPLE room, to the left of the Clinic",
+      "location_zh": "在 APPLE 教室对面，诊所的左边"
     },
     {
       "id": "klinik",
@@ -101,9 +107,9 @@
       "type": "facility",
       "aliases": [ "klinik", "kesehatan", "dokter", "sakit", "medis" ],
       "poly": [ [330, 95], [398, 95], [398, 165], [330, 165] ],
-      "location": "di bagian tengah atas, di antara Library dan R Baca",
-      "location_en": "in the upper middle, between the Library and R Baca",
-      "location_zh": "在中间偏上，图书馆和阅览室之间"
+      "location": "di antara Library (Kiri) dan R Baca",
+      "location_en": "between the Library (Left) and the Reading Room",
+      "location_zh": "在图书馆（左）和阅览室之间"
     },
     {
       "id": "library_right",
@@ -114,9 +120,9 @@
       "type": "library",
       "aliases": [ "library kanan" ],
       "poly": [ [400, 150], [545, 150], [545, 235], [400, 235] ],
-      "location": "di sisi kanan tengah, tepat di bawah R Baca",
-      "location_en": "on the middle right side, just below R Baca",
-      "location_zh": "在右侧中间，阅览室正下方"
+      "location": "di sebelah kanan eskalator, di samping R Baca",
+      "location_en": "to the right of the escalator, next to the Reading Room",
+      "location_zh": "在扶梯右边，阅览室旁边"
     },
     {
       "id": "apple",
@@ -125,9 +131,9 @@
       "type": "lab",
       "aliases": [ "apple", "lab apple", "ruang apple" ],
       "poly": [ [130, 150], [290, 150], [290, 250], [130, 250] ],
-      "location": "di sisi kiri gedung, di bawah Library",
-      "location_en": "on the left side of the building, below the Library",
-      "location_zh": "在大楼左侧，图书馆下方"
+      "location": "di seberang Library (Kiri), di sebelah kiri eskalator",
+      "location_en": "across from the Library (Left), to the left of the escalator",
+      "location_zh": "在图书馆（左）对面，扶梯的左边"
     },
     {
       "id": "gallery",
@@ -136,9 +142,9 @@
       "type": "hall",
       "aliases": [ "gallery", "galeri", "lobby", "gallery bersama" ],
       "poly": [ [130, 255], [398, 255], [398, 345], [130, 345] ],
-      "location": "di tengah gedung (lokasi kiosk ini)",
-      "location_en": "in the middle of the building (where this kiosk is)",
-      "location_zh": "在大楼中间（就是本服务台所在的位置）"
+      "location": "di samping eskalator (lokasi kiosk ini)",
+      "location_en": "next to the escalator (where this kiosk is)",
+      "location_zh": "在扶梯旁边（就是本服务台所在的位置）"
     },
     {
       "id": "admisi",
@@ -149,9 +155,9 @@
       "type": "office",
       "aliases": [ "admisi", "admission", "pendaftaran", "daftar" ],
       "poly": [ [408, 290], [520, 290], [520, 362], [408, 362] ],
-      "location": "di sebelah kanan Gallery Bersama, dekat ruang Drop Out",
-      "location_en": "to the right of Gallery Bersama, near Drop Out",
-      "location_zh": "在 Gallery Bersama 右边，靠近 Drop Out"
+      "location": "di sebelah kanan Gallery Bersama, di samping Drop Out",
+      "location_en": "to the right of Gallery Bersama, next to Drop Out",
+      "location_zh": "在 Gallery Bersama 右边，Drop Out 旁边"
     },
     {
       "id": "dropout",
@@ -162,9 +168,9 @@
       "type": "facility",
       "aliases": [ "drop out", "dropout", "droop out" ],
       "poly": [ [525, 250], [700, 250], [700, 360], [525, 360] ],
-      "location": "di sisi kanan gedung, di sebelah kanan Admisi",
-      "location_en": "on the right side of the building, to the right of Admisi",
-      "location_zh": "在大楼右侧，招生处的右边"
+      "location": "di ujung kanan gedung, di sebelah kanan Admisi",
+      "location_en": "at the far right of the building, to the right of Admissions",
+      "location_zh": "在大楼最右侧，招生处的右边"
     },
     {
       "id": "bca",
@@ -174,20 +180,21 @@
       "building": "C",
       "aliases": [ "bca", "bank", "atm bca", "c0111", "c0112" ],
       "poly": [ [110, 330], [212, 330], [212, 402], [110, 402] ],
-      "location": "di sisi kiri bawah gedung, di bawah ruang APPLE",
-      "location_en": "on the lower left side of the building, below the APPLE room",
-      "location_zh": "在大楼左下方，APPLE 教室下方"
+      "location": "di sisi kiri gedung, di ujung kiri Gallery Bersama",
+      "location_en": "on the left side of the building, at the left end of Gallery Bersama",
+      "location_zh": "在大楼左侧，Gallery Bersama 的左端"
     },
     {
       "id": "ssc",
       "name": "SSC",
+      "qa_id": 3,
       "floor": 1,
       "type": "office",
       "aliases": [ "ssc", "student service", "layanan mahasiswa" ],
       "poly": [ [330, 345], [400, 345], [400, 412], [330, 412] ],
-      "location": "di bagian tengah bawah, di bawah Gallery Bersama",
-      "location_en": "in the lower middle, below Gallery Bersama",
-      "location_zh": "在中间偏下，Gallery Bersama 下方"
+      "location": "di seberang Gallery Bersama, di sebelah kiri Marketing",
+      "location_en": "across from Gallery Bersama, to the left of Marketing",
+      "location_zh": "在 Gallery Bersama 对面，Marketing 的左边"
     },
     {
       "id": "marketing",
@@ -196,9 +203,9 @@
       "type": "office",
       "aliases": [ "marketing", "pemasaran", "promosi" ],
       "poly": [ [410, 365], [512, 365], [512, 420], [410, 420] ],
-      "location": "di bagian tengah bawah, tepat di bawah Admisi",
-      "location_en": "in the lower middle, just below Admisi",
-      "location_zh": "在中间偏下，招生处正下方"
+      "location": "di samping Admisi, di sebelah kanan SSC",
+      "location_en": "next to Admissions, to the right of SSC",
+      "location_zh": "在招生处旁边，SSC 的右边"
     },
     {
       "id": "sdc",
@@ -207,9 +214,9 @@
       "type": "office",
       "aliases": [ "sdc", "student development", "pengembangan" ],
       "poly": [ [238, 415], [308, 415], [308, 488], [238, 488] ],
-      "location": "di bagian bawah gedung, di sebelah kiri SADC",
-      "location_en": "at the bottom of the building, to the left of SADC",
-      "location_zh": "在大楼下方，SADC 的左边"
+      "location": "di sebelah kiri SADC, dekat SSC",
+      "location_en": "to the left of SADC, near SSC",
+      "location_zh": "在 SADC 的左边，靠近 SSC"
     },
     {
       "id": "sadc",
@@ -219,9 +226,9 @@
       "building": "C",
       "aliases": [ "sadc", "c0105" ],
       "poly": [ [305, 415], [388, 415], [388, 488], [305, 488] ],
-      "location": "di bagian bawah gedung, di antara SDC dan UKM",
-      "location_en": "at the bottom of the building, between SDC and UKM",
-      "location_zh": "在大楼下方，SDC 和 UKM 之间"
+      "location": "di antara SDC dan UKM, dekat SSC",
+      "location_en": "between SDC and UKM, near SSC",
+      "location_zh": "在 SDC 和 UKM 之间，靠近 SSC"
     },
     {
       "id": "ukm",
@@ -231,9 +238,9 @@
       "building": "C",
       "aliases": [ "ukm", "c0104", "unit kegiatan", "organisasi" ],
       "poly": [ [390, 415], [470, 415], [470, 488], [390, 488] ],
-      "location": "di bagian bawah gedung, di sebelah kanan SADC",
-      "location_en": "at the bottom of the building, to the right of SADC",
-      "location_zh": "在大楼下方，SADC 的右边"
+      "location": "di sebelah kanan SADC, dekat Marketing",
+      "location_en": "to the right of SADC, near Marketing",
+      "location_zh": "在 SADC 的右边，靠近 Marketing"
     },
     {
       "id": "b0201",
@@ -242,17 +249,24 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0201" ],
-      "poly": [ [241, 119], [462, 119], [462, 297], [241, 297] ]
+      "poly": [ [241, 119], [462, 119], [462, 297], [241, 297] ],
+      "location": "di sisi kiri gedung, di seberang Studio Fotografi",
+      "location_en": "on the left side of the building, across from the Photography Studio",
+      "location_zh": "在大楼左侧，摄影工作室对面"
     },
     {
       "id": "library-2",
-      "name": "Library",
-      "name_en": "Library",
-      "name_zh": "图书馆",
+      "name": "Library (LKC)",
+      "qa_id": 4,
+      "name_en": "Library (LKC)",
+      "name_zh": "图书馆（LKC）",
       "floor": 2,
       "type": "library",
-      "aliases": [ "library lantai 2", "perpustakaan lantai 2" ],
-      "poly": [ [504, 83], [1052, 83], [1052, 410], [504, 410] ]
+      "aliases": [ "library lantai 2", "perpustakaan lantai 2", "lkc", "library and knowledge center" ],
+      "poly": [ [504, 83], [1052, 83], [1052, 410], [504, 410] ],
+      "location": "di seberang eskalator, di sisi kanan gedung",
+      "location_en": "across from the escalator, on the right side of the building",
+      "location_zh": "在扶梯对面，大楼右侧"
     },
     {
       "id": "toilet-2a",
@@ -262,7 +276,10 @@
       "floor": 2,
       "type": "toilet",
       "aliases": [ "toilet lantai 2", "wc lantai 2" ],
-      "poly": [ [508, 270], [616, 270], [616, 329], [508, 329] ]
+      "poly": [ [508, 270], [616, 270], [616, 329], [508, 329] ],
+      "location": "di dalam area Library (LKC), di sudut kirinya, dekat Greenscreen",
+      "location_en": "inside the Library (LKC) area, in its left corner, near the Green Screen Studio",
+      "location_zh": "在图书馆（LKC）内的左侧角落，靠近绿幕工作室"
     },
     {
       "id": "studio-fotografi",
@@ -272,7 +289,10 @@
       "floor": 2,
       "type": "studio",
       "aliases": [ "studio fotografi", "studio foto", "fotografi", "photography" ],
-      "poly": [ [187, 352], [308, 352], [308, 447], [187, 447] ]
+      "poly": [ [187, 352], [308, 352], [308, 447], [187, 447] ],
+      "location": "di sebelah kiri Greenscreen, di seberang B0201",
+      "location_en": "to the left of the Green Screen Studio, across from B0201",
+      "location_zh": "在绿幕工作室左边，B0201 对面"
     },
     {
       "id": "greenscreen",
@@ -282,7 +302,10 @@
       "floor": 2,
       "type": "studio",
       "aliases": [ "greenscreen", "green screen" ],
-      "poly": [ [398, 352], [520, 352], [520, 447], [398, 447] ]
+      "poly": [ [398, 352], [520, 352], [520, 447], [398, 447] ],
+      "location": "di sebelah kiri eskalator, di samping Studio Fotografi",
+      "location_en": "to the left of the escalator, next to the Photography Studio",
+      "location_zh": "在扶梯左边，摄影工作室旁边"
     },
     {
       "id": "binus-tv",
@@ -290,7 +313,10 @@
       "floor": 2,
       "type": "studio",
       "aliases": [ "binus tv" ],
-      "poly": [ [76, 472], [223, 472], [223, 556], [76, 556] ]
+      "poly": [ [76, 472], [223, 472], [223, 556], [76, 556] ],
+      "location": "di ujung kiri gedung, di sebelah kiri area lift",
+      "location_en": "at the far left of the building, to the left of the lifts",
+      "location_zh": "在大楼最左侧，电梯区的左边"
     },
     {
       "id": "binus-radio",
@@ -298,7 +324,10 @@
       "floor": 2,
       "type": "studio",
       "aliases": [ "binus radio" ],
-      "poly": [ [168, 583], [308, 583], [308, 661], [168, 661] ]
+      "poly": [ [168, 583], [308, 583], [308, 661], [168, 661] ],
+      "location": "di seberang area lift, di sebelah kiri Amphitheatre",
+      "location_en": "across from the lifts, to the left of the Amphitheatre",
+      "location_zh": "在电梯区对面，阶梯剧场的左边"
     },
     {
       "id": "amphitheatre",
@@ -308,7 +337,10 @@
       "floor": 2,
       "type": "hall",
       "aliases": [ "amphitheatre", "amphitheater", "amfiteater" ],
-      "poly": [ [399, 560], [520, 560], [520, 674], [399, 674] ]
+      "poly": [ [399, 560], [520, 560], [520, 674], [399, 674] ],
+      "location": "dekat eskalator, di sebelah kanan Binus Radio",
+      "location_en": "near the escalator, to the right of Binus Radio",
+      "location_zh": "在扶梯附近，Binus Radio 的右边"
     },
     {
       "id": "c0207",
@@ -317,7 +349,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0207" ],
-      "poly": [ [563, 618], [708, 618], [708, 702], [563, 702] ]
+      "poly": [ [563, 618], [708, 618], [708, 702], [563, 702] ],
+      "location": "di seberang eskalator, di sebelah kiri Toilet",
+      "location_en": "across from the escalator, to the left of the toilet",
+      "location_zh": "在扶梯对面，洗手间的左边"
     },
     {
       "id": "toilet-2b",
@@ -328,7 +363,10 @@
       "type": "toilet",
       "building": "C",
       "aliases": [],
-      "poly": [ [714, 618], [828, 618], [828, 713], [714, 713] ]
+      "poly": [ [714, 618], [828, 618], [828, 713], [714, 713] ],
+      "location": "dekat eskalator, di antara C0207 dan C0201",
+      "location_en": "near the escalator, between C0207 and C0201",
+      "location_zh": "在扶梯附近，C0207 和 C0201 之间"
     },
     {
       "id": "c0201",
@@ -337,7 +375,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0201" ],
-      "poly": [ [874, 618], [989, 618], [989, 697], [874, 697] ]
+      "poly": [ [874, 618], [989, 618], [989, 697], [874, 697] ],
+      "location": "di sebelah kanan Toilet, di seberang C0203",
+      "location_en": "to the right of the toilet, across from C0203",
+      "location_zh": "在洗手间右边，C0203 对面"
     },
     {
       "id": "c0212",
@@ -346,7 +387,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0212" ],
-      "poly": [ [50, 689], [200, 689], [200, 757], [50, 757] ]
+      "poly": [ [50, 689], [200, 689], [200, 757], [50, 757] ],
+      "location": "di ujung kiri gedung, dekat Binus TV",
+      "location_en": "at the far left of the building, near Binus TV",
+      "location_zh": "在大楼最左侧，Binus TV 附近"
     },
     {
       "id": "c0209",
@@ -355,7 +399,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0209" ],
-      "poly": [ [504, 722], [625, 722], [625, 831], [504, 831] ]
+      "poly": [ [504, 722], [625, 722], [625, 831], [504, 831] ],
+      "location": "di samping C0207, di sebelah kiri C0206",
+      "location_en": "next to C0207, to the left of C0206",
+      "location_zh": "在 C0207 旁边，C0206 的左边"
     },
     {
       "id": "c0206",
@@ -364,7 +411,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0206" ],
-      "poly": [ [714, 762], [826, 762], [826, 839], [714, 839] ]
+      "poly": [ [714, 762], [826, 762], [826, 839], [714, 839] ],
+      "location": "di seberang Toilet, di antara C0209 dan C0203",
+      "location_en": "across from the toilet, between C0209 and C0203",
+      "location_zh": "在洗手间对面，C0209 和 C0203 之间"
     },
     {
       "id": "c0203",
@@ -373,7 +423,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0203" ],
-      "poly": [ [874, 764], [986, 764], [986, 839], [874, 839] ]
+      "poly": [ [874, 764], [986, 764], [986, 839], [874, 839] ],
+      "location": "di seberang C0201, di sebelah kanan C0206",
+      "location_en": "across from C0201, to the right of C0206",
+      "location_zh": "在 C0201 对面，C0206 的右边"
     },
     {
       "id": "c0210",
@@ -382,7 +435,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0210" ],
-      "poly": [ [504, 904], [619, 904], [619, 983], [504, 983] ]
+      "poly": [ [504, 904], [619, 904], [619, 983], [504, 983] ],
+      "location": "di seberang C0209, di sebelah kiri C0205",
+      "location_en": "across from C0209, to the left of C0205",
+      "location_zh": "在 C0209 对面，C0205 的左边"
     },
     {
       "id": "c0205",
@@ -391,7 +447,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0205" ],
-      "poly": [ [714, 904], [826, 904], [826, 983], [714, 983] ]
+      "poly": [ [714, 904], [826, 904], [826, 983], [714, 983] ],
+      "location": "di seberang C0206, di antara C0210 dan C0204",
+      "location_en": "across from C0206, between C0210 and C0204",
+      "location_zh": "在 C0206 对面，C0210 和 C0204 之间"
     },
     {
       "id": "c0204",
@@ -400,7 +459,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0204" ],
-      "poly": [ [871, 903], [990, 903], [990, 983], [871, 983] ]
+      "poly": [ [871, 903], [990, 903], [990, 983], [871, 983] ],
+      "location": "di seberang C0203, di sebelah kanan C0205",
+      "location_en": "across from C0203, to the right of C0205",
+      "location_zh": "在 C0203 对面，C0205 的右边"
     },
     {
       "id": "b0301",
@@ -411,7 +473,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0301", "kelas besar" ],
-      "poly": [ [311, 68], [611, 68], [611, 260], [311, 260] ]
+      "poly": [ [311, 68], [611, 68], [611, 260], [311, 260] ],
+      "location": "di sisi kiri gedung, di sebelah kiri B0302",
+      "location_en": "on the left side of the building, to the left of B0302",
+      "location_zh": "在大楼左侧，B0302 的左边"
     },
     {
       "id": "b0302",
@@ -420,7 +485,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0302" ],
-      "poly": [ [672, 152], [859, 152], [859, 228], [672, 228] ]
+      "poly": [ [672, 152], [859, 152], [859, 228], [672, 228] ],
+      "location": "di sebelah kanan Kelas Besar B0301, di samping Toilet",
+      "location_en": "to the right of Large Classroom B0301, next to the toilet",
+      "location_zh": "在大教室 B0301 右边，洗手间旁边"
     },
     {
       "id": "toilet-3a",
@@ -431,7 +499,10 @@
       "type": "toilet",
       "building": "B",
       "aliases": [ "toilet lantai 3", "wc lantai 3" ],
-      "poly": [ [672, 229], [824, 229], [824, 293], [672, 293] ]
+      "poly": [ [672, 229], [824, 229], [824, 293], [672, 293] ],
+      "location": "di samping B0302, di sebelah kiri Library",
+      "location_en": "next to B0302, to the left of the Library",
+      "location_zh": "在 B0302 旁边，图书馆的左边"
     },
     {
       "id": "library-3",
@@ -441,7 +512,10 @@
       "floor": 3,
       "type": "library",
       "aliases": [ "library lantai 3", "perpustakaan lantai 3" ],
-      "poly": [ [917, 143], [1422, 143], [1422, 381], [917, 381] ]
+      "poly": [ [917, 143], [1422, 143], [1422, 381], [917, 381] ],
+      "location": "di sisi kanan gedung, di sebelah kanan B0302 dan Toilet",
+      "location_en": "on the right side of the building, to the right of B0302 and the toilet",
+      "location_zh": "在大楼右侧，B0302 和洗手间的右边"
     },
     {
       "id": "finance",
@@ -451,7 +525,10 @@
       "floor": 3,
       "type": "office",
       "aliases": [ "finance", "keuangan" ],
-      "poly": [ [760, 450], [814, 450], [814, 490], [760, 490] ]
+      "poly": [ [760, 450], [814, 450], [814, 490], [760, 490] ],
+      "location": "di sebelah kanan area lift, di samping Rektorat",
+      "location_en": "to the right of the lifts, next to the Rectorate",
+      "location_zh": "在电梯区右边，校长办公室旁边"
     },
     {
       "id": "rektorat",
@@ -461,7 +538,10 @@
       "floor": 3,
       "type": "office",
       "aliases": [ "rektorat", "rektor", "rectorate" ],
-      "poly": [ [703, 498], [818, 498], [818, 537], [703, 537] ]
+      "poly": [ [703, 498], [818, 498], [818, 537], [703, 537] ],
+      "location": "di sebelah kanan eskalator, di samping Finance",
+      "location_en": "to the right of the escalator, next to Finance",
+      "location_zh": "在扶梯右边，财务处旁边"
     },
     {
       "id": "sadc-3",
@@ -469,7 +549,10 @@
       "floor": 3,
       "type": "office",
       "aliases": [ "sadc lantai 3" ],
-      "poly": [ [210, 565], [401, 565], [401, 652], [210, 652] ]
+      "poly": [ [210, 565], [401, 565], [401, 652], [210, 652] ],
+      "location": "di sebelah kiri eskalator, di seberang area lift",
+      "location_en": "to the left of the escalator, across from the lifts",
+      "location_zh": "在扶梯左边，电梯区对面"
     },
     {
       "id": "c0301",
@@ -478,7 +561,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0301" ],
-      "poly": [ [1172, 605], [1331, 605], [1331, 689], [1172, 689] ]
+      "poly": [ [1172, 605], [1331, 605], [1331, 689], [1172, 689] ],
+      "location": "di sisi kanan gedung, di sebelah kanan Toilet",
+      "location_en": "on the right side of the building, to the right of the toilet",
+      "location_zh": "在大楼右侧，洗手间的右边"
     },
     {
       "id": "c0307",
@@ -487,7 +573,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0307" ],
-      "poly": [ [815, 605], [950, 605], [950, 689], [815, 689] ]
+      "poly": [ [815, 605], [950, 605], [950, 689], [815, 689] ],
+      "location": "dekat eskalator, di sebelah kiri Toilet",
+      "location_en": "near the escalator, to the left of the toilet",
+      "location_zh": "在扶梯附近，洗手间的左边"
     },
     {
       "id": "toilet-3b",
@@ -498,7 +587,10 @@
       "type": "toilet",
       "building": "C",
       "aliases": [],
-      "poly": [ [955, 605], [1111, 605], [1111, 706], [955, 706] ]
+      "poly": [ [955, 605], [1111, 605], [1111, 706], [955, 706] ],
+      "location": "di antara C0307 dan C0301",
+      "location_en": "between C0307 and C0301",
+      "location_zh": "在 C0307 和 C0301 之间"
     },
     {
       "id": "c0302",
@@ -507,7 +599,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0302" ],
-      "poly": [ [1228, 693], [1367, 693], [1367, 766], [1228, 766] ]
+      "poly": [ [1228, 693], [1367, 693], [1367, 766], [1228, 766] ],
+      "location": "di ujung kanan gedung, di samping C0301 dan C0303",
+      "location_en": "at the far right of the building, next to C0301 and C0303",
+      "location_zh": "在大楼最右侧，C0301 和 C0303 旁边"
     },
     {
       "id": "c0312",
@@ -516,7 +611,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0312" ],
-      "poly": [ [49, 681], [254, 681], [254, 757], [49, 757] ]
+      "poly": [ [49, 681], [254, 681], [254, 757], [49, 757] ],
+      "location": "di ujung kiri gedung, dekat SADC",
+      "location_en": "at the far left of the building, near SADC",
+      "location_zh": "在大楼最左侧，靠近 SADC"
     },
     {
       "id": "c0309",
@@ -525,7 +623,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0309" ],
-      "poly": [ [684, 762], [828, 762], [828, 833], [684, 833] ]
+      "poly": [ [684, 762], [828, 762], [828, 833], [684, 833] ],
+      "location": "di seberang C0307, di sebelah kiri C0306",
+      "location_en": "across from C0307, to the left of C0306",
+      "location_zh": "在 C0307 对面，C0306 的左边"
     },
     {
       "id": "c0306",
@@ -534,7 +635,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0306" ],
-      "poly": [ [955, 758], [1118, 758], [1118, 843], [955, 843] ]
+      "poly": [ [955, 758], [1118, 758], [1118, 843], [955, 843] ],
+      "location": "di seberang Toilet, di antara C0309 dan C0303",
+      "location_en": "across from the toilet, between C0309 and C0303",
+      "location_zh": "在洗手间对面，C0309 和 C0303 之间"
     },
     {
       "id": "c0303",
@@ -543,7 +647,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0303" ],
-      "poly": [ [1172, 759], [1331, 759], [1331, 843], [1172, 843] ]
+      "poly": [ [1172, 759], [1331, 759], [1331, 843], [1172, 843] ],
+      "location": "di sisi kanan gedung, di samping C0302, di sebelah kanan C0306",
+      "location_en": "on the right side of the building, next to C0302, to the right of C0306",
+      "location_zh": "在大楼右侧，C0302 旁边，C0306 的右边"
     },
     {
       "id": "c0311",
@@ -552,7 +659,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0311" ],
-      "poly": [ [98, 758], [254, 758], [254, 843], [98, 843] ]
+      "poly": [ [98, 758], [254, 758], [254, 843], [98, 843] ],
+      "location": "di ujung kiri gedung, di samping C0312",
+      "location_en": "at the far left of the building, next to C0312",
+      "location_zh": "在大楼最左侧，C0312 旁边"
     },
     {
       "id": "c0304",
@@ -561,7 +671,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0304" ],
-      "poly": [ [1171, 910], [1333, 910], [1333, 997], [1171, 997] ]
+      "poly": [ [1171, 910], [1333, 910], [1333, 997], [1171, 997] ],
+      "location": "di seberang C0303, di sebelah kanan C0305",
+      "location_en": "across from C0303, to the right of C0305",
+      "location_zh": "在 C0303 对面，C0305 的右边"
     },
     {
       "id": "c0305",
@@ -570,7 +683,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0305" ],
-      "poly": [ [955, 912], [1111, 912], [1111, 997], [955, 997] ]
+      "poly": [ [955, 912], [1111, 912], [1111, 997], [955, 997] ],
+      "location": "di seberang C0306, di antara C0310 dan C0304",
+      "location_en": "across from C0306, between C0310 and C0304",
+      "location_zh": "在 C0306 对面，C0310 和 C0304 之间"
     },
     {
       "id": "c0310",
@@ -579,7 +695,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0310" ],
-      "poly": [ [669, 912], [828, 912], [828, 997], [669, 997] ]
+      "poly": [ [669, 912], [828, 912], [828, 997], [669, 997] ],
+      "location": "di seberang C0309, di sebelah kiri C0305",
+      "location_en": "across from C0309, to the left of C0305",
+      "location_zh": "在 C0309 对面，C0305 的左边"
     },
     {
       "id": "b0401",
@@ -590,7 +709,10 @@
       "type": "hall",
       "building": "B",
       "aliases": [ "b0401", "auditorium b0401", "auditorium lantai 4" ],
-      "poly": [ [271, 27], [543, 27], [543, 219], [271, 219] ]
+      "poly": [ [271, 27], [543, 27], [543, 219], [271, 219] ],
+      "location": "dekat eskalator, di sebelah kiri B0402",
+      "location_en": "near the escalator, to the left of B0402",
+      "location_zh": "在扶梯附近，B0402 的左边"
     },
     {
       "id": "b0402",
@@ -599,7 +721,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0402" ],
-      "poly": [ [599, 102], [765, 102], [765, 188], [599, 188] ]
+      "poly": [ [599, 102], [765, 102], [765, 188], [599, 188] ],
+      "location": "di sebelah kanan Auditorium B0401, di samping Toilet",
+      "location_en": "to the right of Auditorium B0401, next to the toilet",
+      "location_zh": "在礼堂 B0401 右边，洗手间旁边"
     },
     {
       "id": "toilet-4a",
@@ -610,7 +735,10 @@
       "type": "toilet",
       "building": "B",
       "aliases": [ "toilet lantai 4", "wc lantai 4" ],
-      "poly": [ [599, 189], [734, 189], [734, 241], [599, 241] ]
+      "poly": [ [599, 189], [734, 189], [734, 241], [599, 241] ],
+      "location": "di samping B0402, dekat B0403",
+      "location_en": "next to B0402, near B0403",
+      "location_zh": "在 B0402 旁边，靠近 B0403"
     },
     {
       "id": "b0403",
@@ -619,7 +747,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0403" ],
-      "poly": [ [661, 244], [851, 244], [851, 341], [661, 341] ]
+      "poly": [ [661, 244], [851, 244], [851, 341], [661, 341] ],
+      "location": "di sebelah kanan Toilet (dekat B0402), di samping B0404",
+      "location_en": "to the right of the toilet near B0402, next to B0404",
+      "location_zh": "在 B0402 旁洗手间的右边，B0404 旁边"
     },
     {
       "id": "b0404",
@@ -628,7 +759,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0404" ],
-      "poly": [ [858, 258], [980, 258], [980, 341], [858, 341] ]
+      "poly": [ [858, 258], [980, 258], [980, 341], [858, 341] ],
+      "location": "di antara B0403 dan B0405",
+      "location_en": "between B0403 and B0405",
+      "location_zh": "在 B0403 和 B0405 之间"
     },
     {
       "id": "b0405",
@@ -637,7 +771,10 @@
       "type": "classroom",
       "building": "B",
       "aliases": [ "b0405" ],
-      "poly": [ [985, 240], [1127, 240], [1127, 307], [985, 307] ]
+      "poly": [ [985, 240], [1127, 240], [1127, 307], [985, 307] ],
+      "location": "di sebelah kanan B0404, ruang terakhir di deretan B0403–B0405",
+      "location_en": "to the right of B0404, the last room of the B0403–B0405 row",
+      "location_zh": "在 B0404 的右边，B0403–B0405 一排的最后一间"
     },
     {
       "id": "lsc-c0407",
@@ -645,8 +782,11 @@
       "floor": 4,
       "type": "office",
       "building": "C",
-      "aliases": [ "lsc", "learning support", "learning support center", "c0407" ],
-      "poly": [ [729, 564], [847, 564], [847, 650], [729, 650] ]
+      "aliases": [ "c0407" ],
+      "poly": [ [729, 564], [847, 564], [847, 650], [729, 650] ],
+      "location": "di sebelah kanan area lift, di sebelah kiri Toilet (dekat LSC)",
+      "location_en": "to the right of the lifts, to the left of the toilet near LSC",
+      "location_zh": "在电梯区右边，LSC 旁洗手间的左边"
     },
     {
       "id": "toilet-4b",
@@ -656,7 +796,10 @@
       "floor": 4,
       "type": "toilet",
       "aliases": [],
-      "poly": [ [852, 564], [1000, 564], [1000, 651], [852, 651] ]
+      "poly": [ [852, 564], [1000, 564], [1000, 651], [852, 651] ],
+      "location": "di sebelah kanan LSC C0407, di seberang C0406",
+      "location_en": "to the right of LSC C0407, across from C0406",
+      "location_zh": "在 LSC C0407 右边，C0406 对面"
     },
     {
       "id": "c0401",
@@ -665,16 +808,23 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0401" ],
-      "poly": [ [1049, 564], [1202, 564], [1202, 651], [1049, 651] ]
+      "poly": [ [1049, 564], [1202, 564], [1202, 651], [1049, 651] ],
+      "location": "di sisi kanan gedung, di samping ruang IT",
+      "location_en": "on the right side of the building, next to the IT room",
+      "location_zh": "在大楼右侧，IT 部门旁边"
     },
     {
       "id": "lsc-c0408-09",
       "name": "LSC C0408-09",
+      "qa_id": 2,
       "floor": 4,
       "type": "office",
       "building": "C",
-      "aliases": [ "c0408", "c0409", "c0408-09" ],
-      "poly": [ [596, 641], [772, 641], [772, 794], [596, 794] ]
+      "aliases": [ "lsc", "learning support", "learning support center", "c0408", "c0409", "c0408-09" ],
+      "poly": [ [596, 641], [772, 641], [772, 794], [596, 794] ],
+      "location": "di samping LSC C0407, di sebelah kiri C0406",
+      "location_en": "next to LSC C0407, to the left of C0406",
+      "location_zh": "在 LSC C0407 旁边，C0406 的左边"
     },
     {
       "id": "it",
@@ -684,7 +834,10 @@
       "floor": 4,
       "type": "office",
       "aliases": [ "ruang it", "it support" ],
-      "poly": [ [1103, 653], [1229, 653], [1229, 727], [1103, 727] ]
+      "poly": [ [1103, 653], [1229, 653], [1229, 727], [1103, 727] ],
+      "location": "di ujung kanan gedung, di antara C0401 dan C0403",
+      "location_en": "at the far right of the building, between C0401 and C0403",
+      "location_zh": "在大楼最右侧，C0401 和 C0403 之间"
     },
     {
       "id": "c0412",
@@ -693,7 +846,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0412" ],
-      "poly": [ [27, 641], [220, 641], [220, 716], [27, 716] ]
+      "poly": [ [27, 641], [220, 641], [220, 716], [27, 716] ],
+      "location": "di ujung kiri gedung, di samping C0411",
+      "location_en": "at the far left of the building, next to C0411",
+      "location_zh": "在大楼最左侧，C0411 旁边"
     },
     {
       "id": "c0411",
@@ -702,7 +858,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0411" ],
-      "poly": [ [73, 720], [219, 720], [219, 803], [73, 803] ]
+      "poly": [ [73, 720], [219, 720], [219, 803], [73, 803] ],
+      "location": "di ujung kiri gedung, di samping C0412",
+      "location_en": "at the far left of the building, next to C0412",
+      "location_zh": "在大楼最左侧，C0412 旁边"
     },
     {
       "id": "c0406",
@@ -711,7 +870,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0406" ],
-      "poly": [ [855, 720], [997, 720], [997, 803], [855, 803] ]
+      "poly": [ [855, 720], [997, 720], [997, 803], [855, 803] ],
+      "location": "di seberang Toilet (dekat LSC), di sebelah kanan LSC C0408-09",
+      "location_en": "across from the toilet near LSC, to the right of LSC C0408-09",
+      "location_zh": "在 LSC 旁洗手间对面，LSC C0408-09 的右边"
     },
     {
       "id": "c0403",
@@ -720,7 +882,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0403" ],
-      "poly": [ [1054, 721], [1195, 721], [1195, 803], [1054, 803] ]
+      "poly": [ [1054, 721], [1195, 721], [1195, 803], [1054, 803] ],
+      "location": "di sisi kanan gedung, di samping ruang IT, di sebelah kanan C0406",
+      "location_en": "on the right side of the building, next to the IT room, to the right of C0406",
+      "location_zh": "在大楼右侧，IT 部门旁边，C0406 的右边"
     },
     {
       "id": "c0410",
@@ -729,7 +894,10 @@
       "type": "classroom",
       "building": "C",
       "aliases": [ "c0410" ],
-      "poly": [ [596, 874], [738, 874], [738, 957], [596, 957] ]
+      "poly": [ [596, 874], [738, 874], [738, 957], [596, 957] ],
+      "location": "di seberang LSC C0408-09",
+      "location_en": "across from LSC C0408-09",
+      "location_zh": "在 LSC C0408-09 对面"
     }
   ]
 }

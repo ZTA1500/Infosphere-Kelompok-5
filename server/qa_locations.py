@@ -52,9 +52,18 @@ HEADER = ['Question', 'Answer', 'Category', 'Keywords', 'Difficulty', 'Confidenc
 FIRST_ID = 200
 
 
+def access_note(floor, lang='id'):
+    """The floor's access rule from rooms.json ("students reach Floor 3 only by
+    the emergency stairs…"), without the final full stop, or ''."""
+    access = next((f.get('access') or {} for f in load_rooms()['floors'] if f['floor'] == floor), {})
+    return (access.get('note' if lang == 'id' else f'note_{lang}') or '').strip()
+
+
 def answer_for(room, display):
     loc = (room.get('location') or '').strip()
-    return f"{display} berada di Lantai {room['floor']}, {loc}." if loc else f"{display} berada di Lantai {room['floor']}."
+    answer = f"{display} berada di Lantai {room['floor']}, {loc}." if loc else f"{display} berada di Lantai {room['floor']}."
+    note = access_note(room['floor'])
+    return f"{answer} {note}." if note else answer
 
 
 def _base(name):
