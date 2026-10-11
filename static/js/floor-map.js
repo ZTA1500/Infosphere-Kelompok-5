@@ -206,6 +206,7 @@
         if (this.img.complete && this.img.naturalWidth) this._setState('ready');
         this.pz.setContentSize(f.width, f.height);
       }
+      if (changed && this.legs[n]) this._animateNext = true;   // a floor switch redraws its leg
       this._drawRooms();
       this._drawClosures();
       this._drawHighlight();
@@ -293,10 +294,19 @@
     /* ── route ──────────────────────────────────────────────────────────── */
 
     /** legs: { [floor]: { points:[[x,y]...], start:{label,kind}, end:{label,kind} } } */
-    setRoute(legs, { focus = true } = {}) {
+    setRoute(legs, { focus = true, animate = true } = {}) {
       this.legs = legs || {};
+      this._animateNext = animate;
       this.showFloor(this.current);
       if (focus) this.focusLeg();
+    }
+
+    /** Bring the "you are here" marker into view on its floor. */
+    locate() {
+      if (!this.kiosk) return;
+      if (this.current !== this.kiosk.floor) this.showFloor(this.kiosk.floor);
+      const [x, y] = this.kiosk.xy;
+      this.pz.focusRect(x - 140, y - 100, x + 140, y + 100, 48);
     }
 
     clearRoute() {
@@ -325,10 +335,50 @@
       }
       if (!leg || !leg.points || leg.points.length < 2) return;
       const pts = leg.points.map(p => p.join(',')).join(' ');
-      svg('polyline', { points: pts, class: 'fm-route-casing' }, this.gRoute);
-      svg('polyline', { points: pts, class: 'fm-route-line' }, this.gRoute);
+      const casing = svg('polyline', { points: pts, class: 'fm-route-casing' }, this.gRoute);
+      const line = svg('polyline', { points: pts, class: 'fm-route-line' }, this.gRoute);
       if (leg.start) this._marker(leg.points[0], leg.start.kind, leg.start.label);
-      if (leg.end) this._marker(leg.points[leg.points.length - 1], leg.end.kind, leg.end.label);
+      let endPin = null;
+      if (leg.end) endPin = this._marker(leg.points[leg.points.length - 1], leg.end.kind, leg.end.label);
+      // A new route draws itself from the start; redraws (zoom, language) don't.
+      const animate = this._animateNext && !(global.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+      this._animateNext = false;
+      if (animate) this._drawOn(leg.points, [casing, line], endPin);
+    }
+
+    /** Grow the route polyline along its length, then pop the end pin. */
+    _drawOn(points, lines, endPin) {
+      cancelAnimationFrame(this._drawRaf);
+      const seg = [];
+      let total = 0;
+      for (let i = 1; i < points.length; i++) {
+        const d = Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+        seg.push(d); total += d;
+      }
+      if (!total) return;
+      const dur = Math.min(1400, 500 + total * 1.6);
+      const t0 = performance.now();
+      if (endPin) endPin.classList.add('fm-pin-wait');
+      this.root.classList.add('fm-drawing');
+      const ease = t => 1 - Math.pow(1 - t, 3);
+      const step = now => {
+        const t = Math.min(1, (now - t0) / dur);
+        let left = ease(t) * total;
+        const out = [points[0]];
+        for (let i = 0; i < seg.length; i++) {
+          if (left >= seg[i]) { out.push(points[i + 1]); left -= seg[i]; continue; }
+          const f = seg[i] ? left / seg[i] : 0;
+          const a = points[i], b = points[i + 1];
+          out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);
+          break;
+        }
+        const str = out.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+        lines.forEach(l => l.setAttribute('points', str));
+        if (t < 1) { this._drawRaf = requestAnimationFrame(step); return; }
+        this.root.classList.remove('fm-drawing');
+        if (endPin) { endPin.classList.remove('fm-pin-wait'); endPin.classList.add('fm-pin-pop'); }
+      };
+      this._drawRaf = requestAnimationFrame(step);
     }
 
     setKiosk(floor, xy) { this.kiosk = { floor, xy }; this._drawRoute(); }
@@ -337,6 +387,7 @@
       const pin = this._pin(xy[0], xy[1], `fm-pin fm-pin-${kind}`);
       h('span', 'fm-dot', pin);
       if (label) h('span', 'fm-pin-label', pin, label);
+      return pin;
     }
 
     _pin(x, y, cls) {

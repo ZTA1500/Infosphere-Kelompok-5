@@ -72,6 +72,9 @@ MIGRATIONS = {
     );
     CREATE INDEX IF NOT EXISTS idx_closures_floor ON closures(floor);
     """,
+    3: """
+    CREATE INDEX IF NOT EXISTS idx_visits_visitor ON visits(visitor);
+    """,
 }
 
 
@@ -203,6 +206,8 @@ def visit_stats(chart_days=30):
     return {
         'total':           total,
         'unique_visitors': unique,
+        'visitors':        _recent_visitors(limit=50),
+        'recent':          _recent_visits(limit=30),
         'today':           today_n,
         'unique_today':    unique_today,
         'last_7_days':     week_n,
@@ -210,6 +215,35 @@ def visit_stats(chart_days=30):
         'devices':         devices,
         'by_day':          by_day,
     }
+
+
+def _recent_visitors(limit=50):
+    """One row per visitor (most recently active first): when they first and
+    last opened a page, how often, and which pages."""
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT visitor, MIN(ts) AS first_seen, MAX(ts) AS last_seen, COUNT(*) AS n, "
+            "       COUNT(DISTINCT day) AS days, MAX(device) AS device, "
+            "       GROUP_CONCAT(DISTINCT path) AS pages "
+            "FROM visits GROUP BY visitor ORDER BY last_seen DESC LIMIT ?", (limit,)).fetchall()
+    return [{
+        'visitor': r['visitor'], 'first_seen': r['first_seen'], 'last_seen': r['last_seen'],
+        'visits': r['n'], 'days': r['days'], 'device': r['device'] or 'Unknown',
+        'pages': sorted((r['pages'] or '').split(',')) if r['pages'] else [],
+    } for r in rows]
+
+
+def _recent_visits(limit=30):
+    """The latest page views, each flagged as the visitor's first ever or a return."""
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT v.ts, v.path, v.visitor, v.referrer, v.device, "
+            "       v.id = (SELECT MIN(id) FROM visits WHERE visitor = v.visitor) AS is_first "
+            "FROM visits v ORDER BY v.id DESC LIMIT ?", (limit,)).fetchall()
+    return [{
+        'timestamp': r['ts'], 'path': r['path'], 'visitor': r['visitor'],
+        'referrer': r['referrer'], 'device': r['device'] or 'Unknown', 'first': bool(r['is_first']),
+    } for r in rows]
 
 
 # ── Feedback ───────────────────────────────────────────────────────────────────

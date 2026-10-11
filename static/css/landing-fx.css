@@ -1,0 +1,209 @@
+/* Web portal (/landing) effects layer, on top of the page's own styles:
+   a drifting sky of clouds that parallaxes as you scroll, cloud banks you
+   "pass through" between sections, translucent sections so the moving
+   background shows all the way down, a scroll progress bar, 3D feature
+   squares, plus the shared header actions (theme, kiosk, feedback). */
+
+:root {
+  --fx-amber: #1b74c4;        /* white text on it: 4.8:1 (WCAG AA) */
+  --fx-on-amber: #ffffff;
+  --cloud: rgba(214, 228, 245, .2);
+  --cloud-core: rgba(232, 240, 250, .3);
+  --cloud-bank: rgba(170, 195, 230, .18);
+  --sky-glow: rgba(33, 131, 217, .16);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --cloud: rgba(255, 255, 255, .78);
+    --cloud-core: rgba(255, 255, 255, .95);
+    --cloud-bank: rgba(255, 255, 255, .72);
+    --sky-glow: rgba(120, 184, 239, .28);
+  }
+}
+:root[data-theme="light"] {
+  --cloud: rgba(255, 255, 255, .78);
+  --cloud-core: rgba(255, 255, 255, .95);
+  --cloud-bank: rgba(255, 255, 255, .72);
+  --sky-glow: rgba(120, 184, 239, .28);
+}
+
+/* ── Sky: three depths of clouds behind everything ──────────────────── */
+.sky { position: absolute; inset: 0; pointer-events: none; }
+.sky::before {
+  /* a slow aurora sweep behind the clouds */
+  content: ''; position: absolute; inset: -30%;
+  background: conic-gradient(from 0deg at 50% 50%, transparent 0 20%, var(--sky-glow) 30%, transparent 42% 62%, rgba(63, 178, 127, .10) 72%, transparent 84%);
+  opacity: .8;
+}
+@keyframes aurora { to { transform: rotate(1turn); } }
+.sky-layer { position: absolute; left: 0; right: 0; top: 0; height: 160vh; will-change: transform; }
+.cloud {
+  position: absolute; display: block; width: var(--w, 360px); height: calc(var(--w, 360px) * .42);
+  background:
+    radial-gradient(closest-side at 30% 65%, var(--cloud-core), color-mix(in srgb, var(--cloud-core) 40%, transparent) 55%, transparent),
+    radial-gradient(closest-side at 52% 42%, var(--cloud-core), color-mix(in srgb, var(--cloud-core) 40%, transparent) 55%, transparent),
+    radial-gradient(closest-side at 72% 60%, var(--cloud), transparent),
+    radial-gradient(closest-side at 50% 78%, var(--cloud), transparent 90%);
+  background-size: 55% 90%, 50% 100%, 48% 85%, 100% 55%;
+  background-position: 0 100%, 40% 0, 100% 100%, 50% 100%;
+  background-repeat: no-repeat;
+  opacity: var(--o, 1);
+  animation: drift var(--t, 120s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+@keyframes drift { from { transform: translateX(-40vw); } to { transform: translateX(140vw); } }
+
+/* ── Cloud banks: wide puffy bands sitting across section edges ─────── */
+.cloud-bank {
+  position: relative; z-index: 2; height: 0; pointer-events: none;
+}
+.cloud-bank-inner {
+  position: absolute; left: -10vw; right: -10vw; top: -110px; height: 220px;
+  will-change: transform;
+}
+.cloud-bank .puff {
+  position: absolute; bottom: 0; width: var(--w, 280px); aspect-ratio: 1.6; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--cloud-bank), transparent);
+}
+
+/* ── Translucent sections so the moving sky shows through ──────────── */
+.product, .campus, .faq { background: color-mix(in srgb, var(--bg-alt) 74%, transparent) !important; }
+.proof, .demo, .give-feedback, .final-cta { background: color-mix(in srgb, var(--bg) 58%, transparent) !important; }
+
+/* ── Scroll progress ────────────────────────────────────────────────── */
+.scroll-progress {
+  position: fixed; left: 0; top: 0; right: 0; height: 3px; z-index: 60; pointer-events: none;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--accent), var(--fx-amber));
+}
+
+/* ── Header actions: theme, kiosk, feedback ─────────────────────────── */
+.nav-actions { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.nav-actions .nav-tag { margin-right: 6px; }
+@media (max-width: 1100px) { .nav-actions .nav-tag { display: none; } }
+.icon-btn, .theme-toggle {
+  display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink); cursor: pointer;
+  transition: background-color .2s, transform .15s cubic-bezier(.16, 1, .3, 1);
+}
+.icon-btn:hover, .theme-toggle:hover { background: var(--panel-2); }
+.icon-btn:active, .theme-toggle:active { transform: scale(.92); }
+.theme-toggle svg { width: 21px; height: 21px; overflow: visible; }
+.theme-toggle .tt-disc { transition: r .3s cubic-bezier(.16, 1, .3, 1); }
+.theme-toggle .tt-shade { transition: transform .3s cubic-bezier(.16, 1, .3, 1); transform: translate(12px, -12px); }
+.theme-toggle .tt-rays { transform-origin: 12px 12px; transition: transform .3s cubic-bezier(.34, 1.4, .5, 1), opacity .2s; }
+.is-dark .theme-toggle .tt-disc { r: 8px; }
+.is-dark .theme-toggle .tt-shade { transform: translate(5px, -4px); }
+.is-dark .theme-toggle .tt-rays { transform: rotate(-60deg) scale(.4); opacity: 0; }
+.nav-pill {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 16px; border-radius: 999px;
+  font-size: .85rem; font-weight: 700; text-decoration: none; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink);
+  transition: background-color .2s, transform .15s cubic-bezier(.16, 1, .3, 1), box-shadow .2s;
+}
+.nav-pill svg { width: 17px; height: 17px; }
+.nav-pill:hover { background: var(--panel-2); transform: translateY(-1px); }
+.nav-pill:active { transform: scale(.96); }
+.nav-pill.amber { background: var(--fx-amber); color: var(--fx-on-amber); border-color: transparent; }
+.nav-pill.amber:hover { box-shadow: 0 6px 20px rgba(33, 131, 217, .4); }
+@media (max-width: 640px) { .nav-pill .lbl { display: none; } .nav-pill { width: 42px; padding: 0; justify-content: center; } .nav-actions .kiosk-link { display: none; } }
+
+/* ── Feature squares: 3D entrance and pointer tilt ──────────────────── */
+.features { perspective: 900px; }
+.feature { transform-style: preserve-3d; transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s; }
+.feature.tilting { transition: transform .08s linear, box-shadow .35s; }
+.feature .feature-ico { transform: translateZ(28px); }
+
+/* ── Floating feedback tab + dialog (built by sphere.js) ────────────── */
+.fb-tab {
+  position: fixed; right: 0; top: 50%; z-index: 45;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 12px 14px;
+  border: 0; border-radius: 12px 0 0 12px; background: var(--fx-amber); color: var(--fx-on-amber);
+  font: 800 .85rem/1 var(--font-body); writing-mode: vertical-rl; cursor: pointer;
+  transform: translate(4px, -50%) rotate(180deg); box-shadow: -6px 0 24px rgba(33, 131, 217, .3);
+  transition: transform .22s cubic-bezier(.16, 1, .3, 1);
+}
+.fb-tab svg { width: 18px; height: 18px; transform: rotate(90deg); }
+.fb-tab:hover { transform: translate(0, -50%) rotate(180deg); }
+@media (max-width: 860px) {
+  .fb-tab { top: auto; bottom: 16px; right: 16px; writing-mode: horizontal-tb; transform: none; border-radius: 999px; padding: 0 16px; box-shadow: 0 8px 24px rgba(33, 131, 217, .35); }
+  .fb-tab svg { transform: none; }
+  .fb-tab:hover { transform: translateY(-1px); }
+}
+.fb-dialog {
+  width: min(460px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--line); border-radius: 22px;
+  background: var(--panel); color: var(--ink); box-shadow: var(--shadow-lg); font-family: var(--font-body);
+}
+.fb-dialog::backdrop { background: rgba(6, 10, 20, .6); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.fb-dialog[open] { animation: fxDlg .3s cubic-bezier(.16, 1, .3, 1); }
+@keyframes fxDlg { from { opacity: 0; transform: translateY(16px) scale(.97); } }
+.fb-dialog form { display: grid; gap: 18px; padding: 24px; }
+.fb-dialog h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; line-height: 1.15; }
+.fb-dialog .fb-sub { color: var(--ink-dim); margin-top: 6px; }
+.fb-dialog .label { font-size: .85rem; font-weight: 700; color: var(--ink-dim); }
+.fb-dialog .fb-stars { display: flex; gap: 6px; border: 0; margin: 0; padding: 0; }
+.fb-dialog .fb-stars legend { margin-bottom: 8px; padding: 0; }
+.fb-dialog .fb-stars input { position: absolute; opacity: 0; pointer-events: none; }
+.fb-dialog .fb-stars label {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; cursor: pointer;
+  color: var(--line-2); background: var(--panel-2); border: 1px solid var(--line);
+  transition: transform .15s cubic-bezier(.34, 1.4, .5, 1), color .2s, background-color .2s;
+}
+.fb-dialog .fb-stars label svg { width: 26px; height: 26px; }
+.fb-dialog .fb-stars label:hover { transform: translateY(-2px) scale(1.06); }
+/* Chosen stars turn gold and hop one after another (same as sphere.css). */
+.fb-dialog .fb-stars label.on { color: #f5b301; background: rgba(245, 179, 1, .14); border-color: rgba(245, 179, 1, .55); }
+.fb-dialog .fb-stars label.hop { animation: starHop .5s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--k, 0) * 60ms); }
+.fb-dialog .fb-stars label.hop svg { filter: drop-shadow(0 0 6px rgba(245, 179, 1, .6)); }
+@keyframes starHop {
+  0%   { transform: none; }
+  35%  { transform: translateY(-12px) scale(1.18) rotate(-8deg); }
+  65%  { transform: translateY(2px) scale(.95, 1.05); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .fb-dialog .fb-stars label.hop { animation: none; } }
+.fb-dialog .fb-stars input:focus-visible + label { outline: 3px solid var(--fx-amber); outline-offset: 2px; }
+.fb-dialog .fb-field { display: grid; gap: 8px; }
+.fb-dialog textarea { width: 100%; min-height: 104px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); font: inherit; font-size: 1rem; }
+.fb-dialog textarea:focus-visible { outline: 3px solid var(--fx-amber); outline-offset: 1px; }
+.fb-dialog .fb-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.fb-dialog .btn { min-height: 44px; }
+.fb-dialog .btn-amber { background: var(--fx-amber); color: var(--fx-on-amber); border: 0; }
+.fb-dialog .btn-quiet { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+.fb-dialog .fb-msg { min-height: 1.4em; font-weight: 600; }
+.fb-dialog .fb-msg.err { color: var(--error); }
+.fb-dialog .fb-msg.ok { color: var(--success); }
+.fb-dialog .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sky::before, .cloud { animation: none; }
+  .scroll-progress { display: none; }
+  .feature, .feature.tilting { transition: none; transform: none !important; }
+}
+
+/* fixes on top of the original page */
+/* clip, not hidden: hidden on <body> makes it a scroll container and breaks position: sticky.
+   <html> clips too: with html visible, the browser moves body's value to the window and body
+   stops clipping, so on a phone the clouds widen the page and it slides sideways. */
+html { overflow-x: clip; }
+body { overflow-x: clip !important; }
+.nav-links a, .btn, .link-about, .fb-option, .footer-links a, .nav-pill { text-decoration: none; }
+@media (min-width: 861px) { .fb-tab { top: 74%; } }
+
+/* section labels: no decorative dash in front */
+.eyebrow::before, .eyebrow::after { display: none !important; content: none !important; }
+.eyebrow { gap: 0 !important; }
+
+/* ═══ Performance ═══
+   - no blended full-screen grain, no 80px blur on the moving blobs
+   - no backdrop blur on the sticky nav over the animated background
+   - anything off screen stops animating (.fx-paused, set by landing-fx.js) */
+.grain { display: none !important; }
+.blob { filter: none !important; }
+.blob-1 { background: radial-gradient(circle closest-side, var(--accent), transparent) !important; }
+.blob-2 { background: radial-gradient(circle closest-side, var(--success), transparent) !important; }
+.blob-3 { background: radial-gradient(circle closest-side, var(--accent-2), transparent) !important; }
+.nav.scrolled { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: color-mix(in srgb, var(--bg) 94%, transparent) !important; }
+.fx-paused, .fx-paused * { animation-play-state: paused !important; }

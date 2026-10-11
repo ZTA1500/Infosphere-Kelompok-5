@@ -46,11 +46,12 @@
             }
           },
           "access": {
-            "description": "A floor visitors can't reach directly by the connector: they go to one of via_floors, then the emergency stairs. note/_en/_zh is added to every room answer on this floor.",
+            "description": "A floor (or, with building, one building on that floor) visitors can't reach directly by the connector: they go to one of via_floors, then the stairs. note/_en/_zh is added to every room answer it covers.",
             "type": "object",
             "required": ["via_floors", "note"],
             "additionalProperties": false,
             "properties": {
+              "building": { "type": "string", "enum": ["A", "B", "C", "D"] },
               "via_floors": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "minItems": 1 },
               "note": { "type": "string", "minLength": 1, "maxLength": 200 },
               "note_en": { "type": "string", "minLength": 1, "maxLength": 200 },
@@ -78,6 +79,21 @@
             "minimum": 1
           },
           "building": { "type": "string", "enum": ["A", "B", "C", "D"] },
+          "access": {
+            "description": "A room reached only through another room (via_room), e.g. R Baca and the Floor 2 library through the LKC. note/_en/_zh is added to the room's answer; step/_en/_zh is the walking step after reaching via_room.",
+            "type": "object",
+            "required": ["via_room", "note", "step"],
+            "additionalProperties": false,
+            "properties": {
+              "via_room": { "$ref": "#/$defs/id" },
+              "note": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "note_en": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "note_zh": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "step": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "step_en": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "step_zh": { "type": "string", "minLength": 1, "maxLength": 120 }
+            }
+          },
           "type": {
             "type": "string",
             "enum": ["classroom", "office", "library", "toilet", "studio", "hall", "lab", "facility"]

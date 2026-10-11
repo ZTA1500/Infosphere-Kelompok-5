@@ -92,7 +92,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 # Static files aren't fingerprinted, so keep browser caching short.
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
 
-from server import db, security, dataset, i18n
+from server import db, security, dataset, i18n, smalltalk
 from server.closures import bp as closures_bp
 from server.qa_locations import needs_update as locations_need_update, write_locations_csv
 from server.security import (
@@ -103,6 +103,28 @@ from server.security import (
 )
 from server.validation import ValidationError, clean_text
 security.init_security(app)
+# Appended to CSS/JS links (?v=...): the newest modification time of the
+# stylesheets and scripts, so an edit or a redeploy never serves stale files.
+_asset_v = {'at': 0.0, 'v': '0'}
+
+
+def _asset_version():
+    now = time.time()
+    if now - _asset_v['at'] > 2:
+        newest = 0.0
+        for sub in ('css', 'js'):
+            folder = os.path.join(STATIC_DIR, sub)
+            try:
+                newest = max([newest] + [os.path.getmtime(os.path.join(folder, f)) for f in os.listdir(folder)])
+            except OSError:
+                pass
+        _asset_v.update(at=now, v=format(int(newest), 'x'))
+    return _asset_v['v']
+
+
+@app.context_processor
+def _inject_asset_version():
+    return {'asset_v': _asset_version()}
 db.init_db()
 app.register_blueprint(closures_bp)
 
@@ -645,6 +667,43 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/privacy')
+def privacy():
+    return render_template('legal.html', page='privacy')
+
+
+@app.route('/terms')
+def terms():
+    return render_template('legal.html', page='terms')
+
+
+PUBLIC_PAGES = ['/', '/landing', '/about', '/feedback', '/privacy', '/terms']
+
+
+@app.route('/robots.txt')
+def robots_txt():
+    # The admin area is deliberately not listed: naming its secret path here would advertise it.
+    body = ('User-agent: *\n'
+            'Disallow: /api/\nDisallow: /chat\nDisallow: /transcribe\nDisallow: /speak\n'
+            'Disallow: /audio/\nDisallow: /qr\n'
+            f'Sitemap: {request.url_root}sitemap.xml\n')
+    return app.response_class(body, mimetype='text/plain')
+
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    root = request.url_root.rstrip('/')
+    urls = ''.join(f'<url><loc>{root}{p}</loc></url>' for p in PUBLIC_PAGES)
+    body = ('<?xml version="1.0" encoding="UTF-8"?>'
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
+    return app.response_class(body, mimetype='application/xml')
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_file(os.path.join(app.static_folder, 'brand', 'favicon-256.png'), mimetype='image/png', max_age=86400)
+
+
 @app.route('/healthz')
 def healthz():
     """Liveness/readiness probe for the hosting platform."""
@@ -804,7 +863,8 @@ def chat():
     try:
         t0     = time.time()
         threshold = MATCH_THRESHOLD_ZH if _CJK_RE.search(question) and not _LATIN_RE.search(question) else MATCH_THRESHOLD
-        result = _chat_executor.submit(chatbot.get_answer, question, threshold).result(timeout=CHAT_TIMEOUT_SEC)
+        asked  = smalltalk.strip_greeting(question)          # "Halo, LSC dimana?" → "LSC dimana?"
+        result = _chat_executor.submit(chatbot.get_answer, asked, threshold).result(timeout=CHAT_TIMEOUT_SEC)
         ms     = int((time.time() - t0) * 1000)
 
         conf  = float(result.get('confidence', 0))
@@ -812,7 +872,7 @@ def chat():
 
         # Auto-learn: a close paraphrase of a known question → remember this phrasing
         if found and LEARN_THRESHOLD <= conf < 0.999:
-            learn_question(question, result.get('answer', ''), result.get('metadata'))
+            learn_question(asked, result.get('answer', ''), result.get('metadata'))
 
         audio_id = result.get('metadata', {}).get('id') if (found and result.get('metadata')) else None
         try:
@@ -834,6 +894,12 @@ def chat():
         translated = i18n.translate(answer, lang)
         if translated:
             answer, audio_id = translated, None
+        # Small talk with live data ("@weather", "@time"): a fresh answer in the
+        # visitor's language replaces the stored fallback text.
+        if found and str(matched_room or '').startswith('@'):
+            live = smalltalk.live_answer(matched_room, i18n.UI_LANG.get(lang, 'id'))
+            if live:
+                answer, audio_id, translated = live, None, lang != 'IND'
 
         # The answer is plain text from our own dataset; the page still renders
         # it with textContent, never as HTML.
@@ -898,6 +964,31 @@ def room_for_qa_id(qa_id):
     if qa_id is None:
         return None
     return next((r['id'] for r in dataset.load_rooms()['rooms'] if r.get('qa_id') == qa_id), None)
+
+
+@app.route('/api/facts')
+def api_facts():
+    """Real numbers for the public pages (never invented): rooms and floors
+    on the map, questions the assistant can answer, languages it speaks."""
+    try:
+        data = dataset.load_rooms()
+        rooms, floors = len(data.get('rooms', [])), len(data.get('floors', []))
+    except Exception:
+        rooms = floors = None
+    answers = len(chatbot.questions) if chatbot is not None else None
+    resp = jsonify({'rooms': rooms, 'floors': floors, 'answers': answers, 'languages': 3})
+    resp.headers['Cache-Control'] = 'public, max-age=300'
+    return resp
+
+
+@app.route('/api/weather')
+@rate_limited('weather', limit=30, window_seconds=60)
+def api_weather():
+    from server import weather
+    data = weather.current()
+    resp = jsonify(data or {})
+    resp.headers['Cache-Control'] = 'public, max-age=300'
+    return resp
 
 
 @app.route('/status')
@@ -994,7 +1085,13 @@ def submit_site_feedback():
         return jsonify({'status': 'ok'})
 
     try:
-        message = clean_text(data.get('message'), FEEDBACK_MAX, field='Message', required=True, min_len=3)
+        # A star rating on its own is enough; a comment is optional then.
+        try:
+            has_rating = 1 <= int(data.get('rating')) <= 5
+        except (TypeError, ValueError):
+            has_rating = False
+        message = clean_text(data.get('message'), FEEDBACK_MAX, field='Message',
+                             required=not has_rating, min_len=0 if has_rating else 3)
         name    = clean_text(data.get('name'), 100, field='Name', multiline=False)
         email   = clean_text(data.get('email'), 254, field='Contact', multiline=False)
         page    = clean_text(data.get('page'), 300, field='Page', multiline=False)
@@ -1262,12 +1359,16 @@ if __name__ == "__main__":
     print("║  Infosphere running!                     ║")
     print(f"║  Local :  http://127.0.0.1:{port}          ║")
     print(f"║  Network: http://{local_ip}:{port}{' ' * max(0, 17-len(local_ip))}║")
-    print("║  Admin :  /admin/login                   ║")
+    print(f"║  Admin :  {security.admin_base() + '/login':<31}║")
     print("╚══════════════════════════════════════════╝\n")
     try:
         # Production-grade WSGI server (pure Python, works on Windows and Linux).
         from waitress import serve
-        serve(app, host=host, port=port, threads=int(os.environ.get('THREADS', 8)))
+        # Behind a proxy, waitress would strip X-Forwarded-* before ProxyFix
+        # (server/security.py) reads them, and every https request would look
+        # like http and redirect forever. Pass them through; ProxyFix trusts one hop.
+        serve(app, host=host, port=port, threads=int(os.environ.get('THREADS', 8)),
+              clear_untrusted_proxy_headers=not security._env_flag('TRUST_PROXY'))
     except ImportError:
         if app.config.get('IS_PRODUCTION'):
             raise SystemExit('waitress is required in production: pip install waitress')

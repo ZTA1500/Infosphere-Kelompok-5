@@ -1,0 +1,121 @@
+/* Language switch flourish (static/js/lang-fx.js).
+   One short scene per language, played inside the pressed language button
+   for ~1.3 s and never blocking taps:
+     ID  Merah Putih: red and white halves close in, batik kawung motif
+     EN  Union Jack: navy wipes in, the crosses draw out from the centre
+     ZH  moon gate: a red circle opens, xiangyun clouds, two lanterns swing
+   Only transform / opacity / clip-path animate. Reduced motion: the greeting
+   card fades, nothing moves. */
+
+.lang-fx {
+  position: fixed; inset: 0; z-index: 9000;
+  pointer-events: none; overflow: hidden;
+  display: grid; place-items: center;
+  --lfx-in: .38s; --lfx-ease: cubic-bezier(.7, 0, .2, 1);
+}
+.lang-fx.is-local { position: absolute; border-radius: inherit; z-index: 5; }
+.lang-fx > * { grid-area: 1 / 1; }
+
+/* ── greeting card (shared) ─────────────────────────────────────────── */
+.lfx-card {
+  position: relative; z-index: 2;
+  display: grid; justify-items: center; gap: 4px;
+  padding: 18px 34px 16px;
+  border-radius: 22px;
+  font-family: inherit;
+  opacity: 0; transform: scale(.86);
+  transition: opacity .26s ease, transform .4s cubic-bezier(.2, 1.4, .4, 1);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+}
+.lfx-word { font-size: clamp(2.2rem, 5.6vw, 4.2rem); font-weight: 800; line-height: 1; letter-spacing: -.01em; }
+.lfx-sub  { font-size: clamp(.68rem, 1.1vw, .8rem); font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .8; }
+.is-local .lfx-word { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+.is-local .lfx-card { padding: 12px 22px 10px; border-radius: 16px; }
+.lang-fx.is-in  .lfx-card { opacity: 1; transform: none; transition-delay: .16s; }
+.lang-fx.is-out .lfx-card { opacity: 0; transform: scale(.96); transition-delay: 0s; transition-duration: .2s; }
+
+/* ── ID: Merah Putih + kawung ───────────────────────────────────────── */
+.lfx-half {
+  position: absolute; left: 0; right: 0; height: 50.5%;
+  transition: transform var(--lfx-in) var(--lfx-ease);
+  background-size: 64px 64px;
+}
+.lfx-top {
+  top: 0; transform: translateY(-101%);
+  background-color: #c8102e;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.3' stroke-width='1.6'%3E%3Cellipse cx='15' cy='15' rx='10' ry='5.5' transform='rotate(45 15 15)'/%3E%3Cellipse cx='33' cy='33' rx='10' ry='5.5' transform='rotate(45 33 33)'/%3E%3Cellipse cx='33' cy='15' rx='10' ry='5.5' transform='rotate(-45 33 15)'/%3E%3Cellipse cx='15' cy='33' rx='10' ry='5.5' transform='rotate(-45 15 33)'/%3E%3Ccircle cx='24' cy='24' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+.lfx-bot {
+  bottom: 0; transform: translateY(101%);
+  background-color: #f7f5f0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='%23c8102e' stroke-opacity='.18' stroke-width='1.6'%3E%3Cellipse cx='15' cy='15' rx='10' ry='5.5' transform='rotate(45 15 15)'/%3E%3Cellipse cx='33' cy='33' rx='10' ry='5.5' transform='rotate(45 33 33)'/%3E%3Cellipse cx='33' cy='15' rx='10' ry='5.5' transform='rotate(-45 33 15)'/%3E%3Cellipse cx='15' cy='33' rx='10' ry='5.5' transform='rotate(-45 15 33)'/%3E%3Ccircle cx='24' cy='24' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+.lang-fx.is-in .lfx-half { transform: none; }
+.lang-fx.is-out .lfx-top { transform: translateY(-101%); }
+.lang-fx.is-out .lfx-bot { transform: translateY(101%); }
+.lfx-id .lfx-card { background: #fff; color: #c8102e; border: 3px solid #c8102e; }
+
+/* ── EN: Union Jack ─────────────────────────────────────────────────── */
+.lfx-flag {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--lfx-in) var(--lfx-ease);
+}
+.lfx-flag .lfx-x {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset .5s cubic-bezier(.3, .7, .3, 1) .2s;
+}
+.lang-fx.is-in  .lfx-flag { clip-path: inset(0 0 0 0); }
+.lang-fx.is-in  .lfx-flag .lfx-x { stroke-dashoffset: 0; }
+.lang-fx.is-out .lfx-flag { clip-path: inset(0 0 0 100%); }
+.lfx-en .lfx-card { background: #fff; color: #012169; border: 3px solid #012169; }
+
+/* ── ZH: moon gate, xiangyun, lanterns ──────────────────────────────── */
+.lfx-gate {
+  position: absolute; inset: 0;
+  background-color: #b8141f;
+  background-size: 150px 105px;
+  background-position: 0 0, 75px 52px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='70'%3E%3Cg fill='none' stroke='%23f6ead2' stroke-opacity='.2' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M18 36A12 12 0 0 1 42 36A8.4 8.4 0 0 1 25.2 36A5.4 5.4 0 0 1 36 36'/%3E%3Cpath d='M38 30A14 14 0 0 1 66 30A9.8 9.8 0 0 1 46.4 30A6.3 6.3 0 0 1 59 30'/%3E%3Cpath d='M64 38A10 10 0 0 1 84 38A7 7 0 0 1 70 38A4.5 4.5 0 0 1 79 38'/%3E%3Cpath d='M12 52H90'/%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='70'%3E%3Cg fill='none' stroke='%23f6ead2' stroke-opacity='.2' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M18 36A12 12 0 0 1 42 36A8.4 8.4 0 0 1 25.2 36A5.4 5.4 0 0 1 36 36'/%3E%3Cpath d='M38 30A14 14 0 0 1 66 30A9.8 9.8 0 0 1 46.4 30A6.3 6.3 0 0 1 59 30'/%3E%3Cpath d='M64 38A10 10 0 0 1 84 38A7 7 0 0 1 70 38A4.5 4.5 0 0 1 79 38'/%3E%3Cpath d='M12 52H90'/%3E%3C/g%3E%3C/svg%3E");
+  clip-path: circle(0% at 50% 50%);
+  transition: clip-path .46s var(--lfx-ease);
+}
+.lang-fx.is-in  .lfx-gate { clip-path: circle(72% at 50% 50%); }
+.lang-fx.is-out .lfx-gate { clip-path: circle(0% at 50% 50%); transition-duration: .38s; }
+.lfx-zh .lfx-card {
+  width: clamp(150px, 20vw, 230px); aspect-ratio: 1; padding: 0;
+  align-content: center; border-radius: 50%;
+  background: #f6ead2; color: #b8141f;
+  box-shadow: 0 0 0 6px #b8141f, 0 0 0 9px #f6ead2, 0 18px 50px rgba(0, 0, 0, .3);
+}
+.is-local.lfx-zh .lfx-card { width: 120px; }
+.lfx-lantern {
+  position: absolute; top: 0; width: clamp(64px, 8vw, 112px);
+  transform-origin: 50% 0;
+  transform: translateY(-110%);
+  transition: transform .5s cubic-bezier(.2, 1.3, .4, 1) .12s;
+}
+.lfx-lantern.l { left: 12%; }
+.lfx-lantern.r { right: 12%; transition-delay: .2s; }
+.is-local .lfx-lantern { width: 44px; }
+.lfx-lantern svg { display: block; width: 100%; height: auto; animation: lfx-swing 1.4s ease-in-out infinite alternate; transform-origin: 50% 0; }
+.lfx-lantern.r svg { animation-delay: -.7s; }
+.lang-fx.is-in  .lfx-lantern { transform: none; }
+.lang-fx.is-out .lfx-lantern { transform: translateY(-110%); transition: transform .3s ease-in; }
+@keyframes lfx-swing { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+
+/* ── mini: inside one language button ───────────────────────────────── */
+.is-mini .lfx-card { padding: 0 7px; border-radius: 999px; border-width: 2px; box-shadow: 0 2px 8px rgba(0, 0, 0, .25); gap: 0; }
+.is-mini .lfx-word { font-size: .8rem; }
+.is-tiny .lfx-card { display: none; }      /* a 38 px button: the scene alone */
+.is-mini .lfx-sub { display: none; }
+.is-mini .lfx-half { background-size: 18px 18px; }
+.is-mini .lfx-gate { background-size: 48px 34px; background-position: 0 0, 24px 17px; }
+.is-mini.lfx-zh .lfx-card { width: auto; aspect-ratio: auto; padding: 0 7px; border-radius: 999px; box-shadow: 0 0 0 2px #f6ead2; }
+.is-mini .lfx-lantern { display: none; }
+
+/* ── reduced motion: only the card, fading ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lfx-half, .lfx-flag, .lfx-gate, .lfx-lantern { display: none; }
+  .lfx-card { transform: none !important; transition: opacity .2s ease !important; }
+}

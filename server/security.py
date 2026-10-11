@@ -8,10 +8,13 @@ Configuration (environment variables or the .env file next to App.py):
   ADMIN_PASSWORD_HASH  scrypt/pbkdf2 hash — create it with scripts/set_admin_password.py
   TRUST_PROXY          '1' when running behind nginx/Caddy/a load balancer
   ADMIN_IDLE_MINUTES   idle timeout for admin sessions (default 30)
+  ADMIN_PATH           secret URL prefix for the admin area, e.g. "ops-x7k2q9m4"
+                       (then /ops-x7k2q9m4/login works and /admin returns 404)
 """
 import hashlib
 import hmac
 import os
+import re
 import secrets
 import threading
 import time
@@ -233,8 +236,47 @@ def require_admin(view):
     return wrapper
 
 
+# ── Secret admin path ──────────────────────────────────────────────────────────
+# Internally the admin routes always live under /admin. When ADMIN_PATH is set,
+# a thin WSGI layer renames /<ADMIN_PATH>/... to /admin/... before Flask routes
+# it, and /admin/... itself answers 404. Obscurity is not the security here
+# (the password, lockout and CSRF are) - it just keeps bots and curious people
+# from finding the login form.
+
+_ADMIN_PATH_RE = re.compile(r'^[A-Za-z0-9_-]{8,64}$')
+_admin_base = '/admin'
+
+
+def admin_base():
+    """The public URL prefix of the admin area ('/admin' unless ADMIN_PATH is set)."""
+    return _admin_base
+
+
+def _to_public_admin_url(path):
+    """Internal '/admin/x' -> public '<admin_base>/x'; anything else unchanged."""
+    if _admin_base != '/admin' and (path == '/admin' or path.startswith(('/admin/', '/admin?'))):
+        return _admin_base + path[len('/admin'):]
+    return path
+
+
+class _AdminPathMiddleware:
+    def __init__(self, wsgi_app, secret):
+        self.app = wsgi_app
+        self.secret = '/' + secret
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path == self.secret or path.startswith(self.secret + '/'):
+            environ['PATH_INFO'] = '/admin' + path[len(self.secret):]
+        elif path == '/admin' or path.startswith('/admin/'):
+            environ['PATH_INFO'] = '/_not_found' + path      # the real /admin is hidden
+        return self.app(environ, start_response)
+
+
 def safe_next_url(target):
     """Only allow redirects back into the admin area of this site."""
+    if target and _admin_base != '/admin' and (target == _admin_base or target.startswith(_admin_base + '/')):
+        target = '/admin' + target[len(_admin_base):]       # browser sent the public form
     if not target or not target.startswith('/admin') or target.startswith('//') or '\\' in target:
         return '/admin'
     return target
@@ -390,8 +432,27 @@ def init_security(app):
         if client_ip() not in own_addresses:
             abort(404)      # look like the page doesn't exist
 
+    global _admin_base
+    secret_path = os.environ.get('ADMIN_PATH', '').strip().strip('/')
+    if secret_path and not _ADMIN_PATH_RE.match(secret_path):
+        raise RuntimeError('ADMIN_PATH must be 8-64 letters, digits, "-" or "_" (e.g. ops-x7k2q9m4).')
+    _admin_base = ('/' + secret_path) if secret_path else '/admin'
+    if secret_path:
+        app.wsgi_app = _AdminPathMiddleware(app.wsgi_app, secret_path)
+        print('[Security] Admin area moved to the secret path; /admin now returns 404.')
+    elif production:
+        print('[Security] TIP: set ADMIN_PATH to a secret value so /admin is not guessable.')
+
+    @app.after_request
+    def _public_admin_redirects(response):
+        loc = response.headers.get('Location')
+        if loc:
+            response.headers['Location'] = _to_public_admin_url(loc)
+        return response
+
     app.before_request(check_csrf)
     app.after_request(apply_security_headers)
+    app.jinja_env.globals['admin_base'] = admin_base
     app.jinja_env.globals['csrf_token'] = csrf_token
     app.jinja_env.globals['csp_nonce'] = csp_nonce
     if not admin_remote_ok:

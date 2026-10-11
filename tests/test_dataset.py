@@ -131,14 +131,27 @@ def test_every_answer_has_english_and_mandarin():
     assert i18n.translate(answer, 'IND') is None
 
 
-def test_floor_access_note_is_in_every_answer_on_that_floor():
+def test_access_note_is_in_every_answer_it_covers():
     from server import i18n
     from server.qa_locations import room_entries
     answers = {room['id']: answer for _i, room, _d, answer in room_entries()}
-    assert answers['rektorat'].endswith('hanya bisa diakses lewat tangga darurat dari Lantai 2 atau Lantai 4.')
-    assert i18n.translate(answers['rektorat'], 'ENG').endswith('by the emergency stairs from Floor 2 or Floor 4.')
-    assert i18n.translate(answers['rektorat'], 'ZH').endswith('学生只能从2楼或4楼走紧急楼梯到3楼。')
-    assert 'tangga darurat' not in answers['c0207']
+    # Floor 4, Building B: stairs from Floor 3 / 5, or the lift.
+    assert answers['b0401'].endswith('lewat tangga darurat dari Lantai 3 atau Lantai 5, atau naik lift.')
+    assert i18n.translate(answers['b0401'], 'ENG').endswith('by the emergency stairs from Floor 3 or Floor 5, or by the lift.')
+    assert i18n.translate(answers['b0401'], 'ZH').endswith('B栋4楼只能从3楼或5楼走紧急楼梯上去，或乘坐电梯。')
+    # Building C on the same floor, and Floor 3, are reached normally.
+    assert 'tangga' not in answers['lsc-c0407']
+    assert 'tangga' not in answers['rektorat']
+
+
+def test_rooms_reached_through_the_lkc():
+    from server import i18n
+    from server.qa_locations import room_entries
+    answers = {room['id']: answer for _i, room, _d, answer in room_entries()}
+    assert answers['library-2'].endswith('hanya bisa diakses dari dalam LKC di Lantai 1.')
+    assert i18n.translate(answers['library-2'], 'ENG').endswith('from inside the LKC on Floor 1.')
+    assert answers['rbaca'].endswith('masuk LKC lalu jalan lurus.')
+    assert 'LKC' not in answers['library_left']
 
 
 def test_room_qa_ids_exist_in_the_main_spreadsheet():

@@ -3,30 +3,41 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0e1626">
 <meta name="robots" content="noindex, nofollow">
 <title>Infosphere · Admin Sign In</title>
 <link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/theme-tokens.css">
-<link rel="stylesheet" href="/static/css/admin.css">
+<script src="/static/js/theme-init.js?v={{ asset_v }}"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Geist:wght@400..800&family=Geist+Mono:wght@500..700&display=swap">
+<link rel="stylesheet" href="/static/css/sphere.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/admin.css?v={{ asset_v }}">
+<script src="/static/js/sphere.js?v={{ asset_v }}" defer></script>
 </head>
 <body>
-<div class="bg"></div>
+<div class="mesh" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="shell">
 
-<header>
-  <a href="/" class="logo-wrap">
-    <div class="logo-icon"><img src="/static/brand/logo-icon.png" alt="" aria-hidden="true"></div>
-    <span class="logo-text">info<span>sphere</span></span>
+<header class="deck on-band admin-deck">
+  <a class="brand" href="/" aria-label="Infosphere">
+    <img src="/static/brand/logo-icon.png" alt="" width="29" height="34">
+    <span class="brand-word">info<b>sphere</b></span>
+    <span class="brand-tag">ADMIN</span>
   </a>
-  <span class="header-title">ADMIN</span>
-  <span></span>
+  <div class="header-right">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <defs><mask id="tt-mask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="tt-shade" cx="12" cy="12" r="8" fill="#000"/></mask></defs>
+        <circle class="tt-disc" cx="12" cy="12" r="5" fill="currentColor" mask="url(#tt-mask)"/>
+        <g class="tt-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+      </svg>
+    </button>
+  </div>
 </header>
 
 <main class="login-wrap">
-  <form class="login-card" method="post" action="/admin/login" autocomplete="on">
+  <form class="login-card panel" method="post" action="{{ admin_base() }}/login" autocomplete="on">
     <h1>Admin sign in</h1>
     <p class="sub">Visits, feedback and chatbot analytics.</p>
 
@@ -54,7 +65,7 @@
   </form>
 </main>
 
-<footer>Infosphere Admin · copyright 2025 @infosphere</footer>
+<footer class="admin-foot">Infosphere admin · &copy; 2025 Infosphere, BINUS University</footer>
 </div>
 </body>
 </html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+{#- Privacy policy (page='privacy') and terms of use (page='terms'). Every
+    statement here describes what the code actually does; update the text when
+    that changes (what is stored: server/db.py, server/analytics.py). -#}
+{%- set is_privacy = page == 'privacy' %}
+{%- set title = 'Privacy policy' if is_privacy else 'Terms of use' %}
+{%- set description = 'What Infosphere stores when you use the campus guide, why, and who can see it.' if is_privacy else 'The ground rules for using Infosphere, the campus guide kiosk and website.' %}
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ title }} · Infosphere</title>
+<meta name="description" content="{{ description }}">
+{% include '_social.html' %}
+<meta name="theme-color" content="#0e1626">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="/static/js/theme-init.js?v={{ asset_v }}"></script>
+<link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Geist:wght@400..800&family=Geist+Mono:wght@500..700&display=swap">
+<link rel="stylesheet" href="/static/css/sphere.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/site.css?v={{ asset_v }}">
+<script src="/static/js/sphere.js?v={{ asset_v }}" defer></script>
+</head>
+<body class="site">
+<a class="skip-link" href="#main">Skip to the text</a>
+<div class="mesh" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="deck on-band">
+  <a class="brand" href="/landing" aria-label="Infosphere home">
+    <img src="/static/brand/logo-icon.png" alt="" width="29" height="34">
+    <span class="brand-word">info<b>sphere</b></span>
+  </a>
+  <nav class="deck-nav" aria-label="Pages">
+    <a href="/landing">Portal</a>
+    <a href="/about">About</a>
+    <a href="/feedback">Feedback</a>
+  </nav>
+  <div class="deck-actions">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <defs><mask id="tt-mask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="tt-shade" cx="12" cy="12" r="8" fill="#000"/></mask></defs>
+        <circle class="tt-disc" cx="12" cy="12" r="5" fill="currentColor" mask="url(#tt-mask)"/>
+        <g class="tt-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+      </svg>
+    </button>
+    <a class="btn btn-quiet" href="/landing">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      <span>Back</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <article class="wrap legal">
+    <p class="legal-kicker">Last updated 11 October 2026</p>
+    <h1 class="display">{{ title }}</h1>
+
+    {%- if is_privacy %}
+    <p class="lede">Infosphere is the campus guide on the kiosk and on this website. It only keeps what it needs to answer better, never sells anything, and never knows who you are unless you tell us in a feedback note.</p>
+
+    <h2>What we keep</h2>
+    <dl class="legal-list">
+      <div><dt>The questions you ask</dt><dd>The question, the answer Kaela gave, the language and the time. They are not linked to you. The team reads them to find questions Kaela could not answer and to teach her better ones.</dd></div>
+      <div><dt>Your voice, briefly</dt><dd>When you hold the mic, the recording goes to the Infosphere server, is turned into text there, and is deleted a few seconds later. Only the text is kept, as above.</dd></div>
+      <div><dt>Page visits</dt><dd>Which page was opened, when, the kind of device (phone, tablet or computer) and the site you came from. To count returning visitors we store a short code made from your connection and browser with a secret key. It cannot be turned back into your IP address, and the address itself is never stored.</dd></div>
+      <div><dt>Feedback you send</dt><dd>Your message, your rating and the page you sent it from. Your name and a way to reach you only if you untick "Send anonymously" and fill them in.</dd></div>
+    </dl>
+
+    <h2>Cookies and storage</h2>
+    <p>One cookie keeps the site secure (it protects the forms from being sent by other sites, and keeps staff signed in to the admin pages). Your browser also remembers whether you picked the light or dark theme. There are no advertising or tracking cookies, which is why there is no cookie banner.</p>
+
+    <h2>Services the site uses</h2>
+    <ul>
+      <li><strong>Google Fonts:</strong> your browser downloads the typefaces from Google, so Google sees your IP address, like any website you load.</li>
+      <li><strong>Microsoft text-to-speech:</strong> some spoken answers are made by sending the answer text to Microsoft's voice service. Only Kaela's answer is sent, nothing about you.</li>
+      <li><strong>Open-Meteo:</strong> the weather is fetched by our server, not your browser. Nothing about you is sent.</li>
+    </ul>
+
+    <h2>Who can see it</h2>
+    <p>Only the Infosphere team, through password-protected admin pages. We do not sell, rent or share it with anyone.</p>
+
+    <h2>How long we keep it</h2>
+    <p>Until the team deletes it. If you sent feedback and want it removed, ask us on the <a href="/feedback">feedback page</a>; tell us roughly when you sent it and what it said so we can find it.</p>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>Type instead of talking if you would rather not use your voice.</li>
+      <li>Leave "Send anonymously" ticked when you give feedback.</li>
+      <li>Ask us to delete feedback you sent.</li>
+    </ul>
+
+    <h2>Changes</h2>
+    <p>If what the site keeps changes, this page changes with it and the date at the top moves.</p>
+
+    {%- else %}
+    <p class="lede">Infosphere is a free guide that helps you find rooms, offices and facilities on campus. By using the kiosk or this website you agree to these simple rules.</p>
+
+    <h2>Directions are a guide</h2>
+    <p>Kaela's answers come from the campus floor plans and the team's notes. Rooms move, plans change and an area can close before we hear about it, so always follow the signs and the staff on site. In an emergency, use the marked emergency exits and ask security for help; do not rely on the kiosk.</p>
+
+    <h2>Use it fairly</h2>
+    <ul>
+      <li>Do not try to break, overload or get around the security of the kiosk or the website.</li>
+      <li>Do not send abusive or harmful messages, or other people's personal details, in feedback.</li>
+      <li>The admin pages are for the Infosphere team only.</li>
+    </ul>
+
+    <h2>Your feedback</h2>
+    <p>When you send feedback, you let the team use it to improve Infosphere, for example by teaching Kaela a better answer. See the <a href="/privacy">privacy policy</a> for what is kept.</p>
+
+    <h2>No guarantees</h2>
+    <p>Infosphere is provided as it is. Answers are produced automatically and can be wrong, and the service can be unavailable at times, for example during updates.</p>
+
+    <h2>Changes</h2>
+    <p>These terms can change as Infosphere grows; the date at the top shows the latest version. Questions? Use the <a href="/feedback">feedback page</a>.</p>
+    {%- endif %}
+  </article>
+</main>
+
+{% include '_ticker.html' %}
+</body>
+</html>

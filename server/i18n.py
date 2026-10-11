@@ -33,7 +33,7 @@ def _room_translation(room, lang):
     floor = room['floor']
     name = room.get(f'name_{lang}') or room['name']
     loc = (room.get(f'location_{lang}') or '').strip()
-    note = access_note(floor, lang)
+    note = access_note(room, lang)
     if lang == 'zh':
         text = f"{name}位于{floor}楼，{loc}。" if loc else f"{name}位于{floor}楼。"
         return f"{text}{note}。" if note else text

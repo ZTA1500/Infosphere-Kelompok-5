@@ -19,3 +19,10 @@ scripts/source-maps
 data/qa/locations_generated.csv
 Start Infosphere.bat
 *.log
+.playwright-mcp
+.impeccable
+plans
+.agents
+.claude
+HANDOFF.md
+PRODUCT.md

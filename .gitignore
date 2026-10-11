@@ -60,3 +60,8 @@ $RECYCLE.BIN/
 temp/
 tmp/
 .playwright-cli/
+
+# ---- Local tooling output (browser screenshots, design reviews) ----
+.playwright-mcp/
+.impeccable/
+plans/

@@ -52,17 +52,28 @@ HEADER = ['Question', 'Answer', 'Category', 'Keywords', 'Difficulty', 'Confidenc
 FIRST_ID = 200
 
 
-def access_note(floor, lang='id'):
-    """The floor's access rule from rooms.json ("students reach Floor 3 only by
-    the emergency stairs…"), without the final full stop, or ''."""
-    access = next((f.get('access') or {} for f in load_rooms()['floors'] if f['floor'] == floor), {})
-    return (access.get('note' if lang == 'id' else f'note_{lang}') or '').strip()
+def room_access(room):
+    """The access rule from rooms.json that covers this room: its own "access"
+    (reached through another room), else its floor's, unless that rule names a
+    building and the room is in another."""
+    if room.get('access'):
+        return room['access']
+    access = next((f.get('access') or {} for f in load_rooms()['floors'] if f['floor'] == room['floor']), {})
+    if access.get('building') and access['building'] != room.get('building'):
+        return {}
+    return access
+
+
+def access_note(room, lang='id'):
+    """The room's access rule ("Floor 4 of Building B can only be reached by
+    the stairs…"), without the final full stop, or ''."""
+    return (room_access(room).get('note' if lang == 'id' else f'note_{lang}') or '').strip()
 
 
 def answer_for(room, display):
     loc = (room.get('location') or '').strip()
     answer = f"{display} berada di Lantai {room['floor']}, {loc}." if loc else f"{display} berada di Lantai {room['floor']}."
-    note = access_note(room['floor'])
+    note = access_note(room)
     return f"{answer} {note}." if note else answer
 
 

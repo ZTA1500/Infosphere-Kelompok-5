@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="no-js" data-sphere-ripple="off">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Infosphere — Campus AI Assistant</title>
+<title>Infosphere · Campus AI Assistant</title>
 <script nonce="{{ csp_nonce() }}">
 /* Opened by double-clicking the .html file? Its styles, images and links are
    served by the Infosphere server, so explain how to start it instead of
@@ -24,16 +24,21 @@
   if (document.body) help(); else document.addEventListener('DOMContentLoaded', help);
 })();
 </script>
-<meta name="description" content="Infosphere is BINUS University's voice-and-text campus assistant — wayfinding, schedules, and answers in Indonesian, English, and Mandarin, available 24/7.">
+<meta name="description" content="Infosphere is BINUS University's campus guide: ask Kaela by voice or text, in Indonesian, English or Mandarin, and follow the route on the real floor plan.">
 <meta name="theme-color" content="#0d1b2a">
-<meta property="og:title" content="Infosphere — Campus AI Assistant">
-<meta property="og:description" content="Ask your campus anything, get there faster. Built for BINUS University.">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="/static/js/theme-init.js?v={{ asset_v }}"></script>
+{% include '_social.html' %}
 <link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<link rel="stylesheet" href="/static/css/theme-tokens.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/landing-fx.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/landing-deco.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/lang-fx.css?v={{ asset_v }}">
+<script src="/static/js/sphere.js?v={{ asset_v }}" defer></script>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -310,6 +315,8 @@
     perspective: 1400px;
     background: var(--panel);
   }
+  /* the page never scrolls sideways (landing-fx.css); a sideways swipe here turns the carousel */
+  .carousel-stage { touch-action: pan-y; }
   .carousel-stage {
     position: relative; width: 100%; height: 100%;
     transform-style: preserve-3d;
@@ -723,47 +730,107 @@
   }
 
   /* ————————————————————————— faq ————————————————————————— */
-  .faq-head { max-width: 560px; margin-bottom: clamp(40px, 7vh, 64px); }
-  .faq-body { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(24px, 4vw, 56px); }
-  .faq-list { display: flex; flex-direction: column; gap: 4px; }
+  .faq-head { max-width: 600px; margin-bottom: clamp(36px, 6vh, 56px); }
+  .faq-lead { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; margin-top: 14px; max-width: 48ch; }
+  .faq-body { display: grid; grid-template-columns: .95fr 1.05fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+  .faq-list { display: grid; grid-template-columns: 1fr; gap: 6px; counter-reset: faq; }
   .faq-item {
     text-align: left;
-    background: transparent; border: none; cursor: pointer;
-    padding: 16px 18px;
+    background: transparent; border: 1px solid transparent; cursor: pointer;
+    padding: 13px 16px;
     border-radius: 14px;
-    font-family: inherit; font-weight: 700; font-size: .92rem;
+    font-family: inherit; font-weight: 700; font-size: .92rem; line-height: 1.35;
     color: var(--ink-faint);
-    display: flex; align-items: center; gap: 12px;
-    transition: background .25s ease, color .25s ease;
+    display: flex; align-items: center; gap: 14px;
+    transition: background .25s ease, color .25s ease, border-color .25s ease;
   }
-  .faq-item::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--line-2); flex-shrink: 0;
-    transition: background .25s ease, transform .25s ease;
+  .faq-n {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-family: var(--font-mono, ui-monospace, monospace); font-size: .75rem; font-weight: 700;
+    color: var(--ink-faint); background: var(--panel); border: 1px solid var(--line-2);
+    transition: background .25s ease, color .25s ease, border-color .25s ease, transform .3s var(--ease);
   }
   .faq-item:hover { color: var(--ink); background: var(--panel); }
-  .faq-item.active { color: var(--ink); background: var(--panel); }
-  .faq-item.active::before { background: var(--accent); transform: scale(1.4); }
+  .faq-item.active { color: var(--ink); background: var(--panel); border-color: var(--line-2); }
+  .faq-item.active .faq-n { background: var(--accent); border-color: transparent; color: var(--on-accent); transform: scale(1.06); }
+  .faq-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .faq-answer {
+    position: sticky; top: 100px;
     background: var(--panel);
     border: 1px solid var(--line-2);
-    border-radius: 20px;
-    padding: clamp(24px, 3vw, 34px);
-    min-height: 200px;
-    display: flex; flex-direction: column; justify-content: center;
+    border-radius: 22px;
+    padding: clamp(24px, 3vw, 36px);
+    min-height: 330px;
+    display: grid; grid-template-rows: auto 1fr auto; gap: 18px;
+    box-shadow: 0 24px 60px hsl(var(--shadow-color, 220 40% 5%) / .22);
+    overflow: hidden;
   }
-  .faq-answer p {
-    font-size: 1rem; line-height: 1.75; color: var(--ink-dim);
-    transition: opacity .3s var(--ease), transform .3s var(--ease);
+  .faq-answer::before {        /* a big faint question mark, the card's only decoration */
+    content: '?';
+    position: absolute; right: -6px; bottom: -64px;
+    font-family: var(--font-display); font-size: 15rem; line-height: 1; font-style: italic;
+    color: var(--accent); opacity: .07; pointer-events: none;
   }
-  .faq-answer p.switching { opacity: 0; transform: translateY(6px); }
+  .faq-answer-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .faq-answer-label {
     font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--accent-2); margin-bottom: 14px; display: block;
+    color: var(--accent-2);
+    padding: 6px 12px; border-radius: 999px; background: rgba(33, 131, 217, .12);
   }
-  @media (max-width: 780px) {
+  .faq-count { font-family: var(--font-mono, ui-monospace, monospace); font-size: .8rem; color: var(--ink-faint); }
+  .faq-count b { color: var(--ink); font-weight: 700; }
+  .faq-swap { transition: opacity .3s var(--ease), transform .3s var(--ease); }
+  .faq-swap.switching { opacity: 0; transform: translateY(6px); }
+  .faq-answer-q {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem); line-height: 1.2; color: var(--ink);
+    margin-bottom: 14px; max-width: 24ch;
+  }
+  .faq-answer p { font-size: 1rem; line-height: 1.75; color: var(--ink-dim); max-width: 52ch; }
+  .faq-answer-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding-top: 18px; border-top: 1px solid var(--line);
+  }
+  .faq-nav { display: flex; gap: 8px; }
+  .faq-arrow {
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    display: grid; place-items: center;
+    background: transparent; border: 1px solid var(--line-2); color: var(--ink-dim);
+    transition: border-color .2s ease, color .2s ease, transform .2s var(--ease);
+  }
+  .faq-arrow svg { width: 16px; height: 16px; }
+  .faq-arrow:active { transform: scale(.92); }
+  .faq-arrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .faq-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .faq-ask { padding: 10px 18px; font-size: .85rem; }
+
+  .faq-try {
+    margin-top: clamp(32px, 5vh, 48px);
+    display: flex; align-items: center; gap: 14px 18px; flex-wrap: wrap;
+  }
+  .faq-try-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
+  .faq-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .faq-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px; border-radius: 999px;
+    font-size: .85rem; font-weight: 600; color: var(--ink-dim); text-decoration: none;
+    background: var(--panel); border: 1px solid var(--line-2);
+    transition: border-color .2s ease, color .2s ease, transform .2s var(--ease);
+  }
+  .faq-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .faq-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) {
+    .faq-arrow:hover { border-color: var(--accent-2); color: var(--ink); }
+    .faq-chip:hover { border-color: var(--accent-2); color: var(--ink); transform: translateY(-2px); }
+  }
+  @media (max-width: 860px) {
     .faq-body { grid-template-columns: 1fr; }
+    .faq-answer { position: static; min-height: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq-swap, .faq-n, .faq-chip, .faq-arrow { transition: none; }
   }
 
   /* ————————————————————————— give feedback ————————————————————————— */
@@ -774,9 +841,11 @@
   }
   .give-feedback-head h2 { margin-bottom: 18px; }
   .give-feedback-head p { color: var(--ink-dim); font-size: 1rem; line-height: 1.7; max-width: 46ch; margin-bottom: 30px; }
+  .give-feedback-head .btn-ghost { margin-top: 26px; }
+  .give-feedback-side { display: grid; gap: 22px; }
   .give-feedback-options { display: flex; flex-direction: column; gap: 12px; }
   .fb-option {
-    display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; row-gap: 4px;
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: 16px; row-gap: 4px;
     padding: 20px 22px;
     background: var(--panel);
     border: 1px solid var(--line-2);
@@ -786,20 +855,67 @@
   }
   .fb-option:hover { border-color: var(--accent-2); transform: translateY(-2px); box-shadow: 0 10px 26px hsl(var(--shadow-color) / .25); }
   .fb-option:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .fb-option-ico {
+    grid-column: 1; grid-row: 1 / span 2;
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+    color: var(--accent-2); background: rgba(33, 131, 217, .12);
+    transition: background .25s ease, color .25s ease;
+  }
+  .fb-option-ico svg { width: 22px; height: 22px; }
+  .fb-option:hover .fb-option-ico { background: var(--accent); color: #fff; }
   .fb-option-tag {
-    grid-column: 1;
+    grid-column: 2;
     font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
     color: var(--accent-2);
   }
-  .fb-option-title { grid-column: 1; font-weight: 700; font-size: .95rem; line-height: 1.4; }
+  .fb-option-title { grid-column: 2; font-weight: 700; font-size: .95rem; line-height: 1.4; }
   .fb-option-arrow {
-    grid-column: 2; grid-row: 1 / span 2;
+    grid-column: 3; grid-row: 1 / span 2;
     color: var(--ink-faint); font-size: 1.1rem;
     transition: transform .25s var(--ease), color .25s ease;
   }
   .fb-option:hover .fb-option-arrow { color: var(--accent-2); transform: translateX(4px); }
+  .quick-rate {
+    display: flex; align-items: center; gap: 14px 18px; flex-wrap: wrap;
+    padding: 14px 18px; border-radius: 18px;
+    background: var(--panel); border: 1px solid var(--line-2);
+    max-width: 440px;
+  }
+  .quick-rate-label { font-weight: 700; font-size: .92rem; color: var(--ink); }
+  .quick-rate-stars { display: flex; gap: 4px; }
+  .quick-star {
+    width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+    display: grid; place-items: center;
+    background: transparent; border: 1px solid transparent; color: var(--line-2);
+    transition: color .2s ease, background-color .2s ease;
+  }
+  .quick-star svg { width: 24px; height: 24px; }
+  .quick-star.on { color: #f5b301; background: rgba(245, 179, 1, .12); }
+  .quick-star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .fb-flow {
+    list-style: none; margin: 0; padding: 16px 18px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    border: 1px dashed var(--line-2); border-radius: 18px;
+  }
+  .fb-flow li { display: grid; gap: 8px; align-content: start; font-size: .82rem; line-height: 1.45; color: var(--ink-dim); position: relative; }
+  .fb-flow li + li::before {        /* the dashed connector from the previous step */
+    content: ''; position: absolute; top: 13px; right: calc(100% - 6px); width: calc(100% - 26px);
+    border-top: 1px dashed var(--line-2);
+  }
+  .fb-flow-n {
+    width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    font-size: .75rem; font-weight: 700; color: var(--accent-2);
+    border: 1px solid var(--accent-2); background: var(--bg);
+    position: relative; z-index: 1;
+  }
   @media (max-width: 860px) {
     .give-feedback-inner { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .fb-flow { grid-template-columns: 1fr; }
+    .fb-flow li { grid-template-columns: auto 1fr; align-items: center; }
+    .fb-flow li + li::before { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .fb-option, .fb-option-arrow { transition: none; }
@@ -875,18 +991,40 @@
   .footer-links a { font-weight: 600; font-size: .8rem; color: var(--ink-faint); transition: color .2s ease; }
   .footer-links a:hover { color: var(--accent-2); }
   .footer-copy { font-size: .74rem; letter-spacing: .02em; }
+  .footer-copy a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   @media (max-width: 560px) { .footer-inner { justify-content: center; text-align: center; } }
 </style>
 </head>
+{% from '_art.html' import art, floaters %}
 <body>
 
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <div class="ambient" aria-hidden="true">
   <div class="blob blob-1" id="blob1"></div>
   <div class="blob blob-2" id="blob2"></div>
   <div class="blob blob-3" id="blob3"></div>
   <canvas id="webCanvas"></canvas>
+  <div class="sky" aria-hidden="true">
+    <div class="sky-layer" data-depth="far">
+      <i class="cloud" style="--w:302px;top:40vh;--t:210s;--delay:-166s;--blur:10px;--o:0.55"></i>
+      <i class="cloud" style="--w:313px;top:16vh;--t:224s;--delay:-54s;--blur:10px;--o:0.55"></i>
+      <i class="cloud" style="--w:237px;top:63vh;--t:171s;--delay:-141s;--blur:10px;--o:0.55"></i>
+      <i class="cloud" style="--w:380px;top:17vh;--t:210s;--delay:-12s;--blur:10px;--o:0.55"></i>
+      <i class="cloud" style="--w:327px;top:38vh;--t:229s;--delay:-30s;--blur:10px;--o:0.55"></i>
+    </div>
+    <div class="sky-layer" data-depth="mid">
+      <i class="cloud" style="--w:346px;top:150vh;--t:146s;--delay:-48s;--blur:7px;--o:0.8"></i>
+      <i class="cloud" style="--w:464px;top:17vh;--t:149s;--delay:-52s;--blur:7px;--o:0.8"></i>
+      <i class="cloud" style="--w:439px;top:118vh;--t:133s;--delay:-76s;--blur:7px;--o:0.8"></i>
+    </div>
+    <div class="sky-layer" data-depth="near">
+      <i class="cloud" style="--w:501px;top:149vh;--t:89s;--delay:-67s;--blur:5px;--o:1"></i>
+      <i class="cloud" style="--w:497px;top:32vh;--t:102s;--delay:-53s;--blur:5px;--o:1"></i>
+      <i class="cloud" style="--w:675px;top:12vh;--t:74s;--delay:-71s;--blur:5px;--o:1"></i>
+    </div>
+  </div>
   <div class="grain"></div>
 </div>
 
@@ -903,7 +1041,18 @@
       <a href="#faq" data-section="faq">FAQ</a>
       <a href="#feedback" data-section="feedback">Feedback</a>
     </div>
-    <div class="nav-tag">BINUS University</div>
+    <div class="nav-actions">
+      <span class="nav-tag">BINUS University</span>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <defs><mask id="tt-mask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="tt-shade" cx="12" cy="12" r="8" fill="#000"/></mask></defs>
+          <circle class="tt-disc" cx="12" cy="12" r="5" fill="currentColor" mask="url(#tt-mask)"/>
+          <g class="tt-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+        </svg>
+      </button>
+      <a class="nav-pill kiosk-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="lbl">Ask the AI</span></a>
+      <button type="button" class="nav-pill amber" data-feedback-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="lbl">Feedback</span></button>
+    </div>
   </nav>
 
   <div class="hero-body">
@@ -912,7 +1061,7 @@
       <div class="eyebrow" data-hero-el>Campus AI Assistant</div>
       <h1 data-hero-el>Ask your campus <em>anything</em>, get there faster.</h1>
       <p class="hero-sub" data-hero-el>
-        Infosphere answers questions, gives directions, and talks back — in
+        Infosphere answers questions, gives directions, and talks back in
         Indonesian, English, or Mandarin. Built for the BINUS campus, running
         wherever a screen or a microphone is.
       </p>
@@ -948,7 +1097,7 @@
           <div class="slide slide-live" data-index="1" data-pos="active"
                role="button" tabindex="0" aria-label="Open AI chat"
                data-ai-chat="carousel-live">
-            <img src="/static/img/img2.jpg" alt="Infosphere live — open AI chat" loading="lazy"/>
+            <img src="/static/img/img2.jpg" alt="Infosphere is live at Alsut: open the AI chat" loading="lazy"/>
             <div class="chat-badge"><span class="pip"></span>Chat now</div>
           </div>
 
@@ -988,15 +1137,16 @@
   Ask AI
 </button>
 
+<div class="cloud-bank" aria-hidden="true"><div class="cloud-bank-inner"><span class="puff" style="--w:254px;left:1%;bottom:-32px"></span><span class="puff" style="--w:414px;left:18%;bottom:20px"></span><span class="puff" style="--w:244px;left:36%;bottom:-37px"></span><span class="puff" style="--w:415px;left:57%;bottom:-40px"></span><span class="puff" style="--w:404px;left:75%;bottom:-11px"></span><span class="puff" style="--w:227px;left:87%;bottom:-37px"></span></div></div>
 <!-- ═══════════════════════ PRODUCT ═══════════════════════ -->
 <section class="product" id="product">
   <div class="product-inner">
 
     <div class="product-head">
-      <h2 data-reveal>What Infosphere does <em>on this campus</em>.</h2>
+      <h2 class="mg-title" data-reveal><span class="mg-word">What</span> <span class="mg-word">Infosphere</span> does <em>on this <span class="mg-word">campus</span></em>.<svg class="mg-lens" viewBox="-40 -40 100 100" aria-hidden="true"><circle class="mg-glass" r="30"/><path class="mg-shine" d="M-20-9a22 22 0 0 1 13-13"/><path class="mg-handle" d="M23 23L46 46"/><circle class="mg-ring" r="30"/></svg></h2>
       <div data-reveal>
         <p class="product-desc">
-          Point it at a question and it finds the room, the office, or the answer —
+          Point it at a question and it finds the room, the office, or the answer,
           then walks you there. No app to install, no forms to fill out, just ask.
         </p>
         <div class="product-head-actions">
@@ -1008,6 +1158,7 @@
 
     <div class="features">
       <div class="feature">
+        {{ art('route') }}
         <div class="feature-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6 6-2z"/></svg>
         </div>
@@ -1015,6 +1166,7 @@
         <p>Get turn-by-turn directions to any room, office, or facility on campus.</p>
       </div>
       <div class="feature">
+        {{ art('talk') }}
         <div class="feature-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 20l1-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
         </div>
@@ -1022,13 +1174,15 @@
         <p>Ask in Indonesian, English, or Mandarin and get a clear, direct answer.</p>
       </div>
       <div class="feature">
+        {{ art('voice') }}
         <div class="feature-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6"/></svg>
         </div>
         <h3>Voice-first</h3>
-        <p>Hold the mic and talk — no typing required, powered by real-time speech.</p>
+        <p>Hold the mic and talk. No typing needed, powered by real-time speech.</p>
       </div>
       <div class="feature">
+        {{ art('learn') }}
         <div class="feature-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
         </div>
@@ -1041,12 +1195,12 @@
       <div class="step">
         <div class="step-num">01</div>
         <h4>Talk or type</h4>
-        <p>Press the mic, or just type it in — whichever's faster for you.</p>
+        <p>Press the mic or just type it in, whichever is faster for you.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
         <h4>Ask anything</h4>
-        <p>Rooms, events, schedules, directions — just say what you need.</p>
+        <p>Rooms, events, schedules, directions. Just say what you need.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
@@ -1068,23 +1222,24 @@
 
 <!-- ═══════════════════════ PROOF / STATS ═══════════════════════ -->
 <section class="proof" id="proof">
+  {{ floaters(16, "lantai-2") }}
   <div class="proof-inner">
     <div class="proof-head" data-reveal>
       <div class="eyebrow">In numbers</div>
-      <h2>Infosphere <em>at work</em>, this term.</h2>
+      <h2>Infosphere <em>at work</em>, right now.</h2>
     </div>
     <div class="proof-grid">
       <div class="proof-stat" data-reveal>
-        <strong data-count="12482">0</strong>
-        <span>Conversations answered this term</span>
+        <strong data-count="0" data-fact="rooms">0</strong>
+        <span>Rooms mapped on the floor plans</span>
       </div>
       <div class="proof-stat" data-reveal>
-        <strong data-count="94.6" data-suffix="%">0</strong>
-        <span>Resolved without a staff handoff</span>
+        <strong data-count="0" data-fact="floors">0</strong>
+        <span>Floors the guide can route across</span>
       </div>
       <div class="proof-stat" data-reveal>
-        <strong data-count="1.8" data-suffix="s">0</strong>
-        <span>Average time to first answer</span>
+        <strong data-count="0" data-fact="answers">0</strong>
+        <span>Question phrasings it recognises</span>
       </div>
       <div class="proof-stat" data-reveal>
         <strong data-count="3">0</strong>
@@ -1094,6 +1249,7 @@
   </div>
 </section>
 
+<div class="cloud-bank" aria-hidden="true"><div class="cloud-bank-inner"><span class="puff" style="--w:234px;left:-3%;bottom:-30px"></span><span class="puff" style="--w:408px;left:21%;bottom:-1px"></span><span class="puff" style="--w:375px;left:33%;bottom:34px"></span><span class="puff" style="--w:383px;left:54%;bottom:25px"></span><span class="puff" style="--w:348px;left:71%;bottom:-36px"></span><span class="puff" style="--w:301px;left:90%;bottom:14px"></span></div></div>
 <!-- ═══════════════════════ CAMPUS GALLERY ═══════════════════════ -->
 <section class="campus" id="campus">
   <div class="campus-inner">
@@ -1103,15 +1259,17 @@
       <p class="campus-desc">From the front gate to the fourth floor, Infosphere knows the building as well as the people who work in it.</p>
     </div>
     <div class="campus-grid">
-      <figure class="campus-img campus-img-a" data-reveal data-parallax="-40">
-        <img src="/static/img/img1.jpg" alt="BINUS University main entrance with illuminated building signage" loading="lazy">
-        <figcaption>Main gate</figcaption>
+      <figure class="campus-img campus-img-a" data-reveal data-parallax="-9">
+        <img src="/static/img/img1.jpg" alt="BINUS University Kemanggisan (KMG) campus entrance" loading="lazy">
+        <figcaption>KMG Campus</figcaption>
       </figure>
-      <figure class="campus-img campus-img-b" data-reveal data-parallax="36">
-        <img src="/static/img/img2.jpg" alt="BINUS tower and courtyard lit up in the evening" loading="lazy">
-        <figcaption>The central tower, after hours</figcaption>
+      <figure class="campus-img campus-img-b campus-live" data-reveal data-parallax="9">
+        <a class="campus-link" href="/" aria-label="Alsut Campus: open the Infosphere kiosk guide">
+          <img src="/static/img/img2.jpg" alt="" loading="lazy">
+          <figcaption>Alsut Campus <span class="campus-go">Ask Infosphere here <span aria-hidden="true">&rarr;</span></span></figcaption>
+        </a>
       </figure>
-      <figure class="campus-img campus-img-c" data-reveal data-parallax="-28">
+      <figure class="campus-img campus-img-c" data-reveal data-parallax="-8">
         <img src="/static/img/img3.jpg" alt="Architectural rendering of the BINUS ASO School of Engineering building" loading="lazy">
         <figcaption>ASO School of Engineering</figcaption>
       </figure>
@@ -1125,7 +1283,7 @@
     <div class="demo-copy" data-reveal>
       <div class="eyebrow">Try the phrasing</div>
       <h2>Ask it in <em>whichever language</em> feels natural.</h2>
-      <p class="demo-desc">Switch tabs to see how the same kind of question sounds in each language Infosphere understands — then ask it for real.</p>
+      <p class="demo-desc">Switch tabs to see how the same kind of question sounds in each language Infosphere understands, then ask it for real.</p>
       <div class="demo-tabs" role="tablist" id="demoTabs">
         <button class="demo-tab active" data-lang="id" role="tab" aria-selected="true">Indonesian</button>
         <button class="demo-tab" data-lang="en" role="tab" aria-selected="false">English</button>
@@ -1138,7 +1296,7 @@
     </div>
     <div class="demo-panel" data-reveal>
       <div class="demo-window">
-        <div class="demo-window-head"><span class="pip"></span>Infosphere — live preview</div>
+        <div class="demo-window-head"><span class="pip"></span>Infosphere live preview</div>
         <div class="demo-thread" id="demoThread"></div>
       </div>
     </div>
@@ -1147,21 +1305,48 @@
 
 <!-- ═══════════════════════ FAQ ═══════════════════════ -->
 <section class="faq" id="faq">
+  {{ floaters(10, "lantai-3") }}
   <div class="faq-inner">
     <div class="faq-head" data-reveal>
       <div class="eyebrow">Before you ask</div>
       <h2>Questions people <em>already asked</em>.</h2>
+      <p class="faq-lead">Eight things visitors want to know before they try it. Still unsure? Ask Infosphere itself.</p>
     </div>
     <div class="faq-body" data-reveal>
-      <div class="faq-list" id="faqList" role="tablist">
-        <button class="faq-item active" data-i="0">Does it need an app installed?</button>
-        <button class="faq-item" data-i="1">What if it doesn't know the answer?</button>
-        <button class="faq-item" data-i="2">Is my conversation saved anywhere?</button>
-        <button class="faq-item" data-i="3">Can staff fix a wrong answer?</button>
+      <div class="faq-list" id="faqList" role="tablist" aria-label="Frequently asked questions">
+        {%- for q in ["Does it need an app installed?", "Which languages does it understand?", "How do I talk to it?", "How does it show me the way?", "What if it doesn't know the answer?", "Is my conversation saved anywhere?", "What if a room is closed?", "Can I take the directions with me?"] %}
+        <button class="faq-item{% if loop.first %} active{% endif %}" data-i="{{ loop.index0 }}" role="tab" aria-selected="{{ 'true' if loop.first else 'false' }}" aria-controls="faqPanel"><span class="faq-n">{{ '%02d' % loop.index }}</span><span class="faq-q">{{ q }}</span></button>
+        {%- endfor %}
       </div>
-      <div class="faq-answer">
-        <span class="faq-answer-label" id="faqLabel">Does it need an app installed?</span>
-        <p id="faqAnswer">Nothing to install. It runs in the browser on any screen or kiosk around campus — the same interface whether you're on your phone or the lobby display.</p>
+      <div class="faq-answer" id="faqPanel" role="tabpanel" aria-live="polite">
+        <div class="faq-answer-top">
+          <span class="faq-answer-label" id="faqTag">Getting started</span>
+          <span class="faq-count"><b id="faqNum">01</b> / 08</span>
+        </div>
+        <div class="faq-swap" id="faqSwap">
+          <h3 class="faq-answer-q" id="faqLabel">Does it need an app installed?</h3>
+          <p id="faqAnswer">Nothing to install. It runs in the browser on any screen or kiosk around campus, with the same interface on your phone and on the lobby display.</p>
+        </div>
+        <div class="faq-answer-foot">
+          <div class="faq-nav">
+            <button type="button" class="faq-arrow" data-dir="-1" aria-label="Previous question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="faq-arrow" data-dir="1" aria-label="Next question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          </div>
+          <div class="faq-actions">
+            <a class="link-about" href="/feedback?category=Suggestion">Suggest a question</a>
+            <button type="button" class="btn btn-primary faq-ask" data-ai-chat="faq">Ask Infosphere</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="faq-try" data-reveal>
+      <span class="faq-try-label">Try a real question on the kiosk</span>
+      <div class="faq-chips">
+        <a class="faq-chip" href="/?q=Dimana%20Library%3F"><span lang="id">Dimana Library?</span></a>
+        <a class="faq-chip" href="/?q=Where%20is%20LSC%3F">Where is LSC?</a>
+        <a class="faq-chip" href="/?q=SSC%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9F"><span lang="zh">SSC在哪里？</span></a>
+        <a class="faq-chip" href="/?q=Bagaimana%20cuaca%20hari%20ini%3F"><span lang="id">Bagaimana cuaca hari ini?</span></a>
+        <a class="faq-chip" href="/?q=Siapa%20nama%20kamu%3F"><span lang="id">Siapa nama kamu?</span></a>
       </div>
     </div>
   </div>
@@ -1173,38 +1358,57 @@
     <div class="give-feedback-head" data-reveal>
       <div class="eyebrow">Help us improve</div>
       <h2>Tell us what it <em>got wrong</em>.</h2>
-      <p>Wrong room, missing answer, or something that worked better than expected — every note lands with the team that trains Infosphere. No account needed, and you can stay anonymous.</p>
+      <p>Wrong room, missing answer, or something that worked better than expected. Every note lands with the team that trains Infosphere. No account needed, and you can stay anonymous.</p>
+      <div class="quick-rate" role="group" aria-labelledby="quickRateLabel">
+        <span class="quick-rate-label" id="quickRateLabel">How was it today?</span>
+        <div class="quick-rate-stars">
+          {%- for n in range(1, 6) %}
+          <button type="button" class="quick-star" data-feedback-open data-rate="{{ n }}" style="--k:{{ loop.index0 }}" aria-label="{{ n }} of 5 stars"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1 6.3 20.2l1.2-6.3L2.8 9.5l6.4-.8z"/></svg></button>
+          {%- endfor %}
+        </div>
+      </div>
       <a href="/feedback" class="btn btn-ghost">
-        Give feedback
+        Write detailed feedback
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
-    <div class="give-feedback-options" data-reveal>
-      <a class="fb-option" href="/feedback?category=Bug">
-        <span class="fb-option-tag">Bug</span>
-        <span class="fb-option-title">Something broke or answered wrong</span>
-        <span class="fb-option-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="fb-option" href="/feedback?category=Suggestion">
-        <span class="fb-option-tag">Suggestion</span>
-        <span class="fb-option-title">A question it should know, or a feature idea</span>
-        <span class="fb-option-arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="fb-option" href="/feedback?category=Compliment">
-        <span class="fb-option-tag">Compliment</span>
-        <span class="fb-option-title">It helped — tell us what worked</span>
-        <span class="fb-option-arrow" aria-hidden="true">→</span>
-      </a>
+    <div class="give-feedback-side" data-reveal>
+      <div class="give-feedback-options">
+        <a class="fb-option" href="/feedback?category=Bug">
+          <span class="fb-option-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V5M9 5l1.5 2M15 5l-1.5 2M3 13h4M17 13h4M4 8l3 2M20 8l-3 2M4 19l3-2M20 19l-3-2"/></svg></span>
+          <span class="fb-option-tag">Bug</span>
+          <span class="fb-option-title">Something broke or answered wrong</span>
+          <span class="fb-option-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="fb-option" href="/feedback?category=Suggestion">
+          <span class="fb-option-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span>
+          <span class="fb-option-tag">Suggestion</span>
+          <span class="fb-option-title">A question it should know, or a feature idea</span>
+          <span class="fb-option-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="fb-option" href="/feedback?category=Compliment">
+          <span class="fb-option-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg></span>
+          <span class="fb-option-tag">Compliment</span>
+          <span class="fb-option-title">It helped: tell us what worked</span>
+          <span class="fb-option-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+      <ol class="fb-flow" aria-label="What happens to your note">
+        <li><span class="fb-flow-n">1</span><span>You send a note</span></li>
+        <li><span class="fb-flow-n">2</span><span>The team reads it on the dashboard</span></li>
+        <li><span class="fb-flow-n">3</span><span>Infosphere is retrained with the fix</span></li>
+      </ol>
     </div>
   </div>
 </section>
 
+<div class="cloud-bank" aria-hidden="true"><div class="cloud-bank-inner"><span class="puff" style="--w:280px;left:1%;bottom:29px"></span><span class="puff" style="--w:341px;left:20%;bottom:34px"></span><span class="puff" style="--w:340px;left:35%;bottom:30px"></span><span class="puff" style="--w:358px;left:57%;bottom:30px"></span><span class="puff" style="--w:279px;left:74%;bottom:-21px"></span><span class="puff" style="--w:391px;left:93%;bottom:-32px"></span></div></div>
 <!-- ═══════════════════════ FINAL CTA ═══════════════════════ -->
 <section class="final-cta" id="final-cta">
   <div class="final-cta-inner" data-reveal>
     <div class="eyebrow">Ready when you are</div>
     <h2>Stop searching. <em>Just ask.</em></h2>
-    <p>Whether it's a room number, an office hour, or a building you've never found on your own — Infosphere is faster than digging through a campus map.</p>
+    <p>Whether it's a room number, an office hour, or a building you've never found on your own: Infosphere is faster than digging through a campus map.</p>
     <div class="final-cta-actions">
       <button class="btn btn-primary btn-lg" data-ai-chat="final-cta">
         Chat with Infosphere
@@ -1224,15 +1428,22 @@
       <a href="/about">About</a>
       <a href="/feedback">Feedback</a>
     </nav>
-    <span class="footer-copy">copyright 2025 @infosphere · BINUS University</span>
+    <span class="footer-copy">copyright 2025 @infosphere · BINUS University · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
   </div>
 </footer>
 
 <div class="toast" id="toast"></div>
 
+<button type="button" class="fb-tab" data-feedback-open>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1 6.3 20.2l1.2-6.3L2.8 9.5l6.4-.8z"/></svg>
+  <span>Rate us</span>
+</button>
+
 <script src="/static/vendor/gsap.min.js"></script>
 <script src="/static/vendor/ScrollTrigger.min.js"></script>
 <script src="/static/js/constellation.js"></script>
+<script src="/static/js/landing-fx.js?v={{ asset_v }}"></script>
+<script src="/static/js/lang-fx.js?v={{ asset_v }}"></script>
 
 <script nonce="{{ csp_nonce() }}">
 /* ═══════════════════════ AI chat placeholder ═══════════════════════
@@ -1277,6 +1488,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
   window.addEventListener('scroll', () => { sy = window.scrollY; }, { passive: true });
 
   function frame(t) {
+    if (window.scrollY > window.innerHeight * 1.5) { requestAnimationFrame(frame); return; }   // hero only
     tx += (mx - tx) * 0.04;
     ty += (my - ty) * 0.04;
     blobs.forEach(b => {
@@ -1294,7 +1506,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 /* Constellation "web" over the hero — no galaxy rings here, the blobs above
    already carry landing's identity; this just adds the moving particle
    network on top for depth. */
-initConstellation(document.getElementById('webCanvas'), { galaxy: false });
+initConstellation(document.getElementById('webCanvas'), { galaxy: false, isActive: () => window.scrollY < window.innerHeight * 1.2 });
 
 /* ═══════════════════════ carousel ═══════════════════════ */
 (function carousel() {
@@ -1417,7 +1629,16 @@ initConstellation(document.getElementById('webCanvas'), { galaxy: false });
 })();
 
 /* ═══════════════════════ stat counters ═══════════════════════ */
-(function statCounters() {
+(async function statCounters() {
+  // real numbers (rooms, floors, phrasings) come from the server, never invented
+  try {
+    const facts = await (await fetch('/api/facts')).json();
+    document.querySelectorAll('[data-fact]').forEach(el => {
+      const v = facts[el.dataset.fact];
+      if (v == null) el.closest('.proof-stat').hidden = true;
+      else el.dataset.count = v;
+    });
+  } catch (e) { document.querySelectorAll('[data-fact]').forEach(el => { el.closest('.proof-stat').hidden = true; }); }
   function format(value, suffix) {
     if (suffix === '%' || suffix === 's') return value.toFixed(1) + suffix;
     return Math.round(value).toLocaleString('en-US');
@@ -1448,9 +1669,9 @@ initConstellation(document.getElementById('webCanvas'), { galaxy: false });
 /* ═══════════════════════ demo language tabs ═══════════════════════ */
 (function demoTabs() {
   const data = {
-    id: { q: 'Ruang dosen Pak Adi ada di lantai berapa?', a: 'Lantai 3, sayap timur — dekat tangga utama. Mau saya tunjukkan arahnya?' },
-    en: { q: "Where's the nearest printer that still has paper?", a: 'Level 2, right by the library entrance — it was refilled this morning.' },
-    zh: { q: '今天工程学院大厅有活动吗?', a: '有,下午两点在中庭举行迎新会,从主入口进去就能看到指示牌。' },
+    id: { q: 'Dimana Admisi?', a: 'Admisi ada di Lantai 1, di sebelah kanan Gallery Bersama, di samping Drop Out.' },
+    en: { q: 'Where is the Library?', a: 'Library (LKC) is on Floor 2, across from the escalator, on the right side of the building.' },
+    zh: { q: '图书馆在哪里？', a: '图书馆（LKC）在 2 楼，扶梯对面，大楼右侧。' },
   };
   const tabs = Array.from(document.querySelectorAll('.demo-tab'));
   const thread = document.getElementById('demoThread');
@@ -1481,7 +1702,10 @@ initConstellation(document.getElementById('webCanvas'), { galaxy: false });
     }
   }
 
-  tabs.forEach(t => t.addEventListener('click', () => { setLang(t.dataset.lang, true); resetAutoplay(); }));
+  tabs.forEach(t => t.addEventListener('click', () => {
+    if (window.LangFx && !t.classList.contains('active')) LangFx.play(t.dataset.lang, { within: t });
+    setLang(t.dataset.lang, true); resetAutoplay();
+  }));
   setLang('id', false);
 
   let autoplayTimer = null;
@@ -1504,29 +1728,67 @@ initConstellation(document.getElementById('webCanvas'), { galaxy: false });
 
 /* ═══════════════════════ faq list ═══════════════════════ */
 (function faq() {
-  const answers = [
-    "Nothing to install. It runs in the browser on any screen or kiosk around campus — the same interface whether you're on your phone or the lobby display.",
-    "It says so, instead of guessing. That question gets logged, a staff member reviews and teaches it the right answer, and the next student who asks gets it right.",
-    "Only the question and the answer are logged, to make the assistant sharper — not who asked it.",
-    "Yes — every logged question can be reviewed on the admin dashboard, corrected, and retrained into the model directly.",
+  const data = [
+    ['Getting started', "Nothing to install. It runs in the browser on any screen or kiosk around campus, with the same interface on your phone and on the lobby display."],
+    ['Languages', "Indonesian, English and Mandarin. Pick ID, EN or 中文, or just start talking: when you speak one of the other two, the kiosk switches language and answers in it, out loud."],
+    ['Voice', "Hold the mic button, ask, and let go. Your voice is turned into text on Infosphere's own server, not by a paid cloud service, and the answer is read back to you."],
+    ['Directions', "It draws the route on the real floor plan, starting at the kiosk, and lists every turn. For another floor it takes you to the escalator first, and when a place is only reached by the emergency stairs or the lift, like Floor 4 of Building B, it tells you."],
+    ['Learning', "It says so, instead of guessing. That question gets logged, a staff member reviews and teaches it the right answer, and the next student who asks gets it right."],
+    ['Privacy', "Only the question and the answer are logged, to make the assistant sharper. Never who asked it."],
+    ['Closures', "Staff can mark a room or a whole floor as closed or under renovation. The route still shows the way, and the kiosk warns you before you walk there."],
+    ['On your phone', "Yes. Once a route appears on the kiosk, scan the QR code next to it to carry the directions with you."],
   ];
   const items = Array.from(document.querySelectorAll('.faq-item'));
+  const swapEl = document.getElementById('faqSwap');
   const answerEl = document.getElementById('faqAnswer');
   const labelEl = document.getElementById('faqLabel');
+  const tagEl = document.getElementById('faqTag');
+  const numEl = document.getElementById('faqNum');
   if (!items.length || !answerEl) return;
+  let current = 0;
 
-  items.forEach(item => {
-    item.addEventListener('click', () => {
-      const i = Number(item.dataset.i);
-      items.forEach(it => it.classList.remove('active'));
-      item.classList.add('active');
-      const swap = () => {
-        answerEl.textContent = answers[i];
-        labelEl.textContent = item.textContent;
-      };
-      if (prefersReducedMotion) { swap(); return; }
-      answerEl.classList.add('switching');
-      setTimeout(() => { swap(); answerEl.classList.remove('switching'); }, 180);
+  function show(i, focus) {
+    i = (i + items.length) % items.length;
+    if (i === current && !focus) return;
+    current = i;
+    items.forEach((it, k) => { it.classList.toggle('active', k === i); it.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+    if (focus) items[i].focus();
+    const swap = () => {
+      answerEl.textContent = data[i][1];
+      labelEl.textContent = items[i].querySelector('.faq-q').textContent;
+      tagEl.textContent = data[i][0];
+      numEl.textContent = String(i + 1).padStart(2, '0');
+    };
+    if (prefersReducedMotion) { swap(); return; }
+    swapEl.classList.add('switching');
+    setTimeout(() => { swap(); swapEl.classList.remove('switching'); }, 180);
+  }
+
+  items.forEach((item, k) => item.addEventListener('click', () => show(k)));
+  document.getElementById('faqList').addEventListener('keydown', e => {
+    const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    if (step) { e.preventDefault(); show(current + step, true); }
+  });
+  document.querySelectorAll('.faq-arrow').forEach(b => b.addEventListener('click', () => show(current + Number(b.dataset.dir))));
+})();
+
+/* ═══════════════════════ quick rating ═══════════════════════
+   The five stars in "Help us improve" open the feedback dialog (sphere.js)
+   with that rating already chosen; the dialog's stars then hop. */
+(function quickRate() {
+  const stars = Array.from(document.querySelectorAll('.quick-star'));
+  if (!stars.length) return;
+  const paint = v => stars.forEach((s, i) => s.classList.toggle('on', i < v));
+  stars.forEach((star, i) => {
+    star.addEventListener('pointerenter', () => paint(i + 1));
+    star.addEventListener('pointerleave', () => paint(0));
+    star.addEventListener('click', () => {
+      setTimeout(() => {          // after sphere.js has built and opened the dialog
+        const dlg = document.querySelector('dialog.fb-dialog');
+        const radio = dlg && dlg.querySelector('#fb-r' + (i + 1));
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true })); }
+        paint(0);
+      }, 0);
     });
   });
 })();

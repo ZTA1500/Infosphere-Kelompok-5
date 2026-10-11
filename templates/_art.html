@@ -1,0 +1,74 @@
+{#- Small animated illustrations for cards (portal features, About story).
+    Pure SVG: motion along paths uses SMIL <animateMotion>, everything else is
+    CSS in landing-fx.css, and prefers-reduced-motion hides the moving parts. -#}
+{% macro art(kind) -%}
+<div class="feature-art art-{{ kind }}" aria-hidden="true">
+{%- if kind == 'route' %}
+  <svg viewBox="0 0 240 140">
+    <g class="fa-room">
+      <rect x="18" y="16" width="58" height="36" rx="7"/><rect x="90" y="16" width="64" height="36" rx="7"/>
+      <rect x="168" y="16" width="54" height="62" rx="7"/><rect x="18" y="88" width="84" height="36" rx="7"/>
+      <rect x="116" y="92" width="40" height="32" rx="7"/>
+    </g>
+    <path class="fa-track" d="M42 70 H150 V104 H192"/>
+    <path class="fa-path" d="M42 70 H150 V104 H192"/>
+    <circle class="fa-you-ring" cx="42" cy="70" r="7"/>
+    <circle class="fa-you" cx="42" cy="70" r="6"/>
+    <g transform="translate(192 104)"><g class="fa-pin"><path d="M0-22a10 10 0 0 1 10 10c0 8-10 17-10 17s-10-9-10-17a10 10 0 0 1 10-10z"/><circle cx="0" cy="-12" r="3.5"/></g></g>
+    <circle class="fa-dot" r="4.5"><animateMotion dur="3.4s" repeatCount="indefinite" path="M42 70 H150 V104 H192" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".65 0 .35 1"/></circle>
+  </svg>
+{%- elif kind == 'talk' %}
+  <svg viewBox="0 0 240 140">
+    <g class="fa-bubble fa-b1"><rect x="20" y="16" width="120" height="34" rx="12"/><rect class="fa-line" x="34" y="27" width="70" height="5" rx="2.5"/><rect class="fa-line" x="34" y="37" width="46" height="5" rx="2.5"/></g>
+    <g class="fa-bubble fa-b2 me"><rect x="112" y="58" width="108" height="30" rx="12"/><rect class="fa-line" x="126" y="70" width="62" height="5" rx="2.5"/></g>
+    <g class="fa-bubble fa-b3"><rect x="20" y="96" width="74" height="30" rx="12"/><circle class="fa-type" cx="40" cy="111" r="3.5"/><circle class="fa-type" cx="54" cy="111" r="3.5"/><circle class="fa-type" cx="68" cy="111" r="3.5"/></g>
+    <g class="fa-langs"><g class="fa-lang"><circle cx="160" cy="111" r="12"/><text x="160" y="115">ID</text></g><g class="fa-lang"><circle cx="188" cy="111" r="12"/><text x="188" y="115">EN</text></g><g class="fa-lang"><circle cx="216" cy="111" r="12"/><text x="216" y="115">中</text></g></g>
+  </svg>
+{%- elif kind == 'voice' %}
+  <svg viewBox="0 0 240 140">
+    <circle class="fa-ring" cx="62" cy="70" r="26"/><circle class="fa-ring r2" cx="62" cy="70" r="26"/>
+    <circle class="fa-mic-bg" cx="62" cy="70" r="26"/>
+    <g class="fa-mic"><rect x="56" y="56" width="12" height="20" rx="6"/><path d="M50 70a12 12 0 0 0 24 0M62 82v6"/></g>
+    <g class="fa-bars">{% for i in range(14) %}<rect class="fa-bar" x="{{ 108 + i * 8 }}" y="46" width="4" height="48" rx="2" style="--i:{{ i }};--h:{{ [0.35, 0.8, 0.5, 1, 0.45, 0.7, 0.9, 0.4, 0.75, 0.55, 1, 0.5, 0.65, 0.35][i] }}"/>{% endfor %}</g>
+  </svg>
+{%- elif kind == 'learn' %}
+  <svg viewBox="0 0 240 140">
+    <g class="fl-q"><rect x="16" y="40" width="64" height="58" rx="14"/>
+      <text class="fl-mark" x="48" y="80">?</text>
+      <path class="fl-check" d="M34 70l9 9 18-20"/></g>
+    <path class="fa-track fl-arrow" d="M88 69 H120"/><path class="fl-head" d="M114 63l7 6-7 6"/>
+    <g class="fl-rows">
+      {%- for i in range(4) %}
+      <g class="fl-row" style="--r:{{ i }}"><rect x="130" y="{{ 18 + i * 27 }}" width="94" height="20" rx="7"/><circle cx="142" cy="{{ 28 + i * 27 }}" r="4.5"/><rect class="fa-line" x="152" y="{{ 25 + i * 27 }}" width="{{ [56, 44, 60, 38][i] }}" height="5" rx="2.5"/></g>
+      {%- endfor %}
+    </g>
+  </svg>
+{%- else %}
+  <svg viewBox="0 0 240 140">
+    <path class="fa-track" d="M36 70 H66 M118 70 H134 M166 70 H178 V40 H190 M178 70 V100 H190"/>
+    <circle class="fa-node" cx="26" cy="70" r="10"/>
+    <g class="fa-box hot"><rect x="66" y="52" width="52" height="36" rx="8"/><rect class="fa-line" x="76" y="63" width="30" height="5" rx="2.5"/><rect class="fa-line" x="76" y="73" width="20" height="5" rx="2.5"/></g>
+    <g class="fa-gate"><path d="M150 54 L166 70 L150 86 L134 70 Z"/><path d="M150 63v14M143 70h14"/></g>
+    <g class="fa-box"><rect x="190" y="24" width="42" height="32" rx="8"/><rect class="fa-line" x="198" y="34" width="26" height="5" rx="2.5"/><rect class="fa-line" x="198" y="43" width="16" height="5" rx="2.5"/></g>
+    <g class="fa-box"><rect x="190" y="84" width="42" height="32" rx="8"/><rect class="fa-line" x="198" y="94" width="26" height="5" rx="2.5"/><rect class="fa-line" x="198" y="103" width="16" height="5" rx="2.5"/></g>
+    <circle class="fa-dot" r="4.5"><animateMotion dur="4s" repeatCount="indefinite" path="M36 70 H150 H178 V40 H190" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".65 0 .35 1"/></circle>
+    <circle class="fa-dot alt" r="4.5"><animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M36 70 H150 H178 V100 H190" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".65 0 .35 1"/></circle>
+  </svg>
+{%- endif %}
+</div>
+{%- endmacro %}
+
+{#- Floating map pins and logo marks drifting up behind a section. -#}
+{% macro floaters(n=14, map=None) -%}
+<div class="floaters" aria-hidden="true">
+  {%- if map %}<img class="float-map" src="/static/maps/{{ map }}.webp" alt="" loading="lazy">{% endif %}
+  {%- for i in range(n) %}
+  {%- set left = (i * 37 + 7) % 96 %}{% set size = [22, 34, 18, 28, 40, 24, 30][i % 7] %}{% set dur = [26, 34, 22, 30, 38, 28, 24][i % 7] %}
+  {%- if i % 3 == 1 %}
+  <img class="float-item" src="/static/brand/logo-icon.png" alt="" style="left:{{ left }}%;--s:{{ size }}px;--t:{{ dur }}s;--d:-{{ (i * 5) % dur }}s;--r:{{ [-14, 10, -6, 16][i % 4] }}deg">
+  {%- else %}
+  <svg class="float-item pin" viewBox="0 0 24 32" style="left:{{ left }}%;--s:{{ size }}px;--t:{{ dur }}s;--d:-{{ (i * 5) % dur }}s;--r:{{ [-14, 10, -6, 16][i % 4] }}deg"><path d="M12 1a11 11 0 0 1 11 11c0 9-11 19-11 19S1 21 1 12A11 11 0 0 1 12 1z"/><circle cx="12" cy="12" r="4"/></svg>
+  {%- endif %}
+  {%- endfor %}
+</div>
+{%- endmacro %}

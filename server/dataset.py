@@ -152,6 +152,14 @@ def validate_rooms(data, check_images=True):
                 warnings.append(f'alias "{a}" is used by both {alias_owner[a]} and {rid} (search shows both)')
             alias_owner.setdefault(a, rid)
 
+    by_id = {r['id']: r for r in data['rooms']}
+    for r in data['rooms']:
+        via = (r.get('access') or {}).get('via_room')
+        if via and (via not in by_id or 'poly' not in by_id[via]):
+            errors.append(f'{r["id"]}: access via_room "{via}" is not a room with a polygon')
+        elif via == r['id']:
+            errors.append(f'{r["id"]}: access via_room points at itself')
+
     kiosk = data['kiosk']
     kroom = next((r for r in data['rooms'] if r['id'] == kiosk['room']), None)
     if not kroom:

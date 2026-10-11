@@ -2,6 +2,18 @@
 
 let charts = {};
 
+/* Charts take their text, grid and slice-border colours from the theme. */
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function chartTheme() {
+  if (typeof Chart === 'undefined') return;
+  Chart.defaults.color = css('--text-2');
+  Chart.defaults.borderColor = css('--line');
+  Chart.defaults.font.family = "Geist, 'Segoe UI', system-ui, sans-serif";
+}
+chartTheme();
+document.addEventListener('sphere:theme', () => { chartTheme(); loadStats(); loadVisits(); });
+const PALETTE = ['#3360f0', '#14b8a6', '#ffb020', '#8b98ad', '#5b84ff', '#c42b3d'];
+
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
@@ -34,7 +46,7 @@ async function loadStats() {
     setText('sub-today', d.today === 1 ? '1 query today' : (d.today ?? 0) + ' queries today');
     setText('val-ms', d.avg_ms != null ? d.avg_ms + ' ms' : '—');
     setText('val-conf', d.avg_conf != null ? d.avg_conf + '%' : '—');
-    setText('last-updated', '↻ updated ' + new Date().toLocaleTimeString('id-ID'));
+    setText('last-updated', 'Updated ' + new Date().toLocaleTimeString('id-ID'));
 
     renderLangChart(d.lang_counts   || {});
     renderConfChart(d.conf_buckets  || {});
@@ -60,8 +72,8 @@ function renderLangChart(counts) {
       labels: Object.keys(counts),
       datasets: [{
         data: Object.values(counts),
-        backgroundColor: ['#1a6bb3', '#2f9e64', '#c9821f', '#6a4fb3'],
-        borderWidth: 2, borderColor: '#fff',
+        backgroundColor: PALETTE,
+        borderWidth: 2, borderColor: css('--panel-solid'),
       }],
     },
     options: {
@@ -78,7 +90,7 @@ function renderConfChart(buckets) {
       labels: Object.keys(buckets).map(k => k + '%'),
       datasets: [{
         data: Object.values(buckets),
-        backgroundColor: ['#d6465a', '#c9821f', '#d9b23c', '#2f9e64'],
+        backgroundColor: ['#c42b3d', '#ff8a00', '#ffb020', '#13804f'],
         borderRadius: 6, borderWidth: 0,
       }],
     },
@@ -97,7 +109,7 @@ function renderHourlyChart(hourly) {
       labels,
       datasets: [{
         data: labels.map((_, h) => hourly[String(h)] ?? 0),
-        borderColor: '#1a6bb3', backgroundColor: 'rgba(33,131,217,.12)',
+        borderColor: '#3360f0', backgroundColor: 'rgba(51,96,240,.14)',
         borderWidth: 2, pointRadius: 3, fill: true, tension: 0.4,
       }],
     },
@@ -141,7 +153,7 @@ function renderUnanswered(items, total) {
   const el = document.getElementById('unanswered-list');
   setText('unanswered-total', total ? `${total} unanswered hit(s)` : '');
   if (!items.length) {
-    el.innerHTML = '<p style="color:var(--green);font-size:.82rem">🎉 Nothing unanswered — the dataset is covering everything asked.</p>';
+    el.innerHTML = '<p style="color:var(--green);font-size:.82rem">Nothing unanswered. The dataset covers everything people asked.</p>';
     return;
   }
   el.innerHTML = items.map(item => {
@@ -275,6 +287,8 @@ async function loadVisits() {
     renderVisitsChart(byDay);
     renderDeviceChart(d.devices || {});
     renderTopPages(d.top_pages || []);
+    renderVisitors(d.visitors || []);
+    renderRecentVisits(d.recent || []);
   } catch (e) {
     showToast('Failed to load visits: ' + e.message, 'error');
   }
@@ -287,8 +301,8 @@ function renderVisitsChart(byDay) {
       labels: byDay.map(d => d.date.slice(5)),   // MM-DD
       datasets: [{
         data: byDay.map(d => d.n),
-        backgroundColor: 'rgba(33,131,217,.55)',
-        hoverBackgroundColor: '#1a6bb3',
+        backgroundColor: 'rgba(51,96,240,.6)',
+        hoverBackgroundColor: '#ffb020',
         borderRadius: 4, borderWidth: 0, maxBarThickness: 18,
       }],
     },
@@ -313,8 +327,8 @@ function renderDeviceChart(devices) {
       labels: Object.keys(devices),
       datasets: [{
         data: Object.values(devices),
-        backgroundColor: ['#1a6bb3', '#2f9e64', '#c9821f', '#6a4fb3', '#4a9ee6', '#d6465a'],
-        borderWidth: 2, borderColor: '#fff',
+        backgroundColor: PALETTE,
+        borderWidth: 2, borderColor: css('--panel-solid'),
       }],
     },
     options: {
@@ -339,6 +353,46 @@ function renderTopPages(pages) {
       </div>
       <div class="topq-count">${Number(p.n)}×</div>
     </div>`).join('');
+}
+
+/* Visitor IDs are 16-char hashes; the first 6 are plenty to tell them apart. */
+function visitorTag(hash) {
+  return `<span class="visitor-id" title="${escHtml(hash)}">#${escHtml(String(hash || '').slice(0, 6))}</span>`;
+}
+
+function fmtTime(ts) {
+  return ts ? new Date(ts).toLocaleString('id-ID') : '—';
+}
+
+function emptyRow(cols, text) {
+  return `<tr><td colspan="${cols}" style="color:var(--gray);text-align:center;padding:20px">${text}</td></tr>`;
+}
+
+function renderVisitors(visitors) {
+  const tbody = document.getElementById('visitors-body');
+  if (!visitors.length) { tbody.innerHTML = emptyRow(7, 'No visitors recorded yet.'); return; }
+  tbody.innerHTML = visitors.map(v => `<tr>
+      <td>${visitorTag(v.visitor)}</td>
+      <td class="td-sm">${escHtml(fmtTime(v.first_seen))}</td>
+      <td class="td-sm">${escHtml(fmtTime(v.last_seen))}</td>
+      <td>${Number(v.visits)}</td>
+      <td>${Number(v.days)}</td>
+      <td class="td-trunc" title="${escHtml(v.pages.join(', '))}">${escHtml(v.pages.join(', '))}</td>
+      <td class="td-sm">${escHtml(v.device)}</td>
+    </tr>`).join('');
+}
+
+function renderRecentVisits(visits) {
+  const tbody = document.getElementById('recent-visits-body');
+  if (!visits.length) { tbody.innerHTML = emptyRow(6, 'No visits recorded yet.'); return; }
+  tbody.innerHTML = visits.map(v => `<tr>
+      <td class="td-sm">${escHtml(fmtTime(v.timestamp))}</td>
+      <td>${escHtml(v.path)}</td>
+      <td>${visitorTag(v.visitor)}</td>
+      <td>${v.first ? '<span class="badge badge-eng">NEW</span>' : '<span class="badge badge-ind">RETURNING</span>'}</td>
+      <td class="td-sm">${escHtml(v.referrer || 'direct')}</td>
+      <td class="td-sm">${escHtml(v.device)}</td>
+    </tr>`).join('');
 }
 
 /* ── Wiring ───────────────────────────────────────────────────────────── */

@@ -2,10 +2,13 @@
    admin CSP forbids inline scripts. */
 
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+/* Public URL prefix of the admin area ("/admin" or the secret path). */
+const ADMIN_BASE = document.querySelector('meta[name="admin-base"]')?.content || '/admin';
 
 /* fetch() wrapper: sends the CSRF token on state-changing requests and sends
    the admin back to the login page when the session has expired. */
 async function api(url, options = {}) {
+  if (url === '/admin' || url.startsWith('/admin/')) url = ADMIN_BASE + url.slice('/admin'.length);
   const opts = { credentials: 'same-origin', ...options };
   const method = (opts.method || 'GET').toUpperCase();
   opts.headers = { ...(opts.headers || {}) };
@@ -17,7 +20,7 @@ async function api(url, options = {}) {
   }
   const res = await fetch(url, opts);
   if (res.status === 401) {
-    window.location.href = '/admin/login?next=' + encodeURIComponent(window.location.pathname);
+    window.location.href = ADMIN_BASE + '/login?next=' + encodeURIComponent(window.location.pathname);
     throw new Error('Session expired');
   }
   let data = null;

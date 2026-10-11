@@ -128,7 +128,7 @@ function renderCard(f) {
 
 function renderList(items) {
   if (!items.length) {
-    const msg = state.status === 'unread' ? '🎉 No unread feedback — you\'re all caught up.'
+    const msg = state.status === 'unread' ? 'No unread feedback. You are all caught up.'
               : (state.status === 'all' && !state.category) ? 'No feedback submitted yet.'
               : 'No feedback matches this filter.';
     listEl.replaceChildren(el('p', 'empty-state', msg));

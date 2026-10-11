@@ -55,7 +55,7 @@ function initConstellation(canvas, opts) {
   }
 
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = 1;   // a soft background: 1x is plenty and a quarter of the pixels
     w = canvas.width = window.innerWidth * dpr;
     h = canvas.height = window.innerHeight * dpr;
     canvas.style.width = window.innerWidth + 'px';
@@ -112,22 +112,16 @@ function initConstellation(canvas, opts) {
 
     if (options.galaxy) drawGalaxy(t);
 
+    const buckets = [[], [], [], [], []];
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       for (let j = i + 1; j < particles.length; j++) {
         const q = particles[j];
         const dx = p.x - q.x, dy = p.y - q.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
         const maxDist = Math.min(p.connect, q.connect);
-        if (dist < maxDist) {
-          const lt = 1 - dist / maxDist;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(q.x, q.y);
-          ctx.strokeStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},${lt * 0.16})`;
-          ctx.lineWidth = 1 * dpr;
-          ctx.stroke();
-        }
+        if (Math.abs(dx) > maxDist || Math.abs(dy) > maxDist) continue;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < maxDist) buckets[Math.min(4, ((1 - dist / maxDist) * 5) | 0)].push(p.x, p.y, q.x, q.y);
       }
       if (mx > -1000) {
         const dx = p.x - mx, dy = p.y - my;
@@ -144,6 +138,15 @@ function initConstellation(canvas, opts) {
       }
     }
 
+    ctx.lineWidth = 1;
+    buckets.forEach((seg, b) => {
+      if (!seg.length) return;
+      ctx.beginPath();
+      for (let k = 0; k < seg.length; k += 4) { ctx.moveTo(seg[k], seg[k + 1]); ctx.lineTo(seg[k + 2], seg[k + 3]); }
+      ctx.strokeStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},${((b + 0.5) / 5) * 0.16})`;
+      ctx.stroke();
+    });
+
     particles.forEach((p) => {
       const col = p.top ? ACCENT : INK;
       ctx.beginPath();
@@ -153,7 +156,11 @@ function initConstellation(canvas, opts) {
     });
   }
 
+  let last = 0;
   function step(t) {
+    // off-screen (the page decides via isActive) or between 30fps ticks: skip the work
+    if (t - last < 32 || (options.isActive && !options.isActive())) { if (!document.hidden) requestAnimationFrame(step); return; }
+    last = t;
     mx += (mxTarget - mx) * 0.08;
     my += (myTarget - my) * 0.08;
 

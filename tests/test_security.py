@@ -67,3 +67,28 @@ def test_admin_api_hidden_from_other_devices_on_plain_http(monkeypatch):
     c = make_app(monkeypatch, False).test_client()
     r = c.get('/admin/api/closures', environ_base={'REMOTE_ADDR': '10.1.2.3'})
     assert r.status_code == 404
+
+
+def test_secret_admin_path_hides_default_admin(monkeypatch):
+    monkeypatch.setenv('ADMIN_PATH', 'ops-x7k2q9m4')
+    try:
+        app = make_app(monkeypatch, False)
+        c = app.test_client()
+        assert c.get('/admin/api/closures').status_code == 404           # default path is gone
+        assert c.get('/ops-x7k2q9m4/api/closures').status_code == 401    # secret path reaches the (locked) API
+        assert security.admin_base() == '/ops-x7k2q9m4'
+        assert security.safe_next_url('/ops-x7k2q9m4/feedback') == '/admin/feedback'
+        assert security.safe_next_url('//evil.com') == '/admin'
+    finally:
+        monkeypatch.delenv('ADMIN_PATH')
+        security.init_security(Flask(__name__))       # reset the module-level admin base
+        assert security.admin_base() == '/admin'
+
+
+def test_secret_admin_path_must_be_well_formed(monkeypatch):
+    import pytest
+    monkeypatch.setenv('ADMIN_PATH', 'a/b')
+    with pytest.raises(RuntimeError):
+        make_app(monkeypatch, False)
+    monkeypatch.delenv('ADMIN_PATH')
+    security.init_security(Flask(__name__))

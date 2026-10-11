@@ -1,0 +1,85 @@
+/* Kiosk layout v3 (loaded after kiosk.css).
+   Guide panel: name + voice + language on top, the character standing at the
+   bottom edge, the microphone in a glass bar at her feet.
+   Route column: destination summary, map + directions, search at the bottom. */
+
+/* ── Guide panel ────────────────────────────────────────────────────── */
+.col-guide {
+  position: relative; display: flex; flex-direction: column; gap: 12px;
+  padding: 18px 18px 0; overflow: hidden;
+}
+.guide-head { position: relative; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.guide-head .switch { padding: 0; min-height: 44px; }
+.guide-name { font-size: 1.1875rem; }
+.guide-seg { position: relative; z-index: 2; width: 100%; }
+.guide-seg button { min-width: 0; }
+
+.guide-fig {
+  position: relative; flex: 1 1 auto; min-height: 220px; margin: 0 -18px;
+  overflow: hidden; border-radius: 0; cursor: pointer;
+  background: radial-gradient(60% 46% at 50% 100%, var(--cobalt-wash), transparent 75%);
+}
+.guide-fig .char-img {
+  position: absolute; left: 50%; right: auto; top: auto; bottom: -2%;
+  height: min(100%, 470px); width: auto; max-width: none; aspect-ratio: 1; translate: -50% 0;
+  object-fit: contain; transform-origin: 50% 100%;
+  -webkit-mask-image: none; mask-image: none;
+}
+/* standing, not floating: only a slow breath while idle */
+.guide-fig.floating .char-img.active { animation: charBreath 5s cubic-bezier(.65, 0, .35, 1) infinite; }
+@keyframes charBreath { 50% { transform: scale(1.012); } }
+
+.guide-dock {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 3;
+  display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 18px;
+  background: color-mix(in srgb, var(--panel-solid) 94%, transparent);
+  border: 1px solid var(--line); box-shadow: var(--shadow-2);
+}
+.guide-dock .mic-btn { width: 60px; height: 60px; flex: none; }
+.guide-dock .mic-btn svg { width: 26px; height: 26px; }
+.dock-text { display: grid; gap: 6px; min-width: 0; flex: 1; }
+.dock-text .mic-hint { text-align: left; font-weight: 600; color: var(--text); font-size: .9375rem; }
+.guide-dock .wave { justify-content: flex-start; height: 18px; gap: 3px; }
+.guide-dock .wave i { width: 3px; }
+
+/* ── Route column: flex, so a hidden destination leaves no empty row ── */
+.col-route { display: flex; flex-direction: column; gap: 14px; }
+.route-body { flex: 1 1 auto; min-height: 0; }
+.dest[hidden] { display: none; }
+.dest {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 12px 24px; padding: 14px 18px; animation: destIn .3s var(--ease-out);
+}
+@keyframes destIn { from { opacity: 0; transform: translateY(-6px); } }
+.dest-main { flex: 1 1 260px; min-width: 0; display: grid; gap: 4px; container-type: normal; }
+.dest-name { font: 800 clamp(1.25rem, 1.7vw, 1.75rem)/1.15 var(--font-display); font-stretch: 112%; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.dest-sub { font-size: .9375rem; color: var(--text-2); font-weight: 500; }
+.dest-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+.dest-stats .stat { padding: 8px 12px; }
+
+/* search lives at the bottom now, so its suggestions open upward */
+.finder { padding: 10px; }
+.finder .search-results { top: auto; bottom: calc(100% + 8px); transform-origin: 50% 100%; animation: popUp .22s var(--ease-out); }
+@keyframes popUp { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+
+/* ── 900–1179px: the guide becomes a compact strip above the chat ──── */
+@media (max-width: 1179px) and (min-width: 900px) {
+  .col-guide { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; }
+  .guide-fig { display: none; }
+  .guide-head { flex: 1 1 auto; }
+  .guide-seg { order: 3; width: 100%; }
+  .guide-dock { position: static; order: 2; padding: 0; background: none; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dock-text { display: none; }
+  .guide-dock .mic-btn { width: 52px; height: 52px; }
+}
+
+/* ── Phones: search first again, suggestions drop down ─────────────── */
+@media (max-width: 899px) {
+  .finder { order: -2; }
+  .dest { order: -1; }
+  .finder .search-results { top: calc(100% + 8px); bottom: auto; transform-origin: 50% 0; animation-name: popIn; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-fig.floating .char-img.active, .dest { animation: none; }
+}

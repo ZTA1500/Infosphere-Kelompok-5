@@ -31,7 +31,7 @@
       "alt": "Denah Lantai 2: B0201, Library (LKC), Toilet (dekat Library), Studio Fotografi, Greenscreen, Binus TV, Binus Radio, Amphitheatre, C0207, Toilet (dekat C0207), C0201, C0212, C0209, C0206, C0203, C0210, C0205, C0204.",
       "connector": {
         "name": "Eskalator",
-        "xy": [ 648, 516 ]
+        "xy": [ 352, 800 ]
       },
       "voids": [ [657, 439, 837, 594], [250, 717, 455, 882], [645, 697, 830, 760], [625, 842, 830, 882], [312, 587, 395, 662] ]
     },
@@ -45,13 +45,7 @@
       "alt": "Denah Lantai 3: Kelas Besar B0301, B0302, Toilet (dekat B0302), Library, Finance, Rektorat, SADC, C0301, C0307, Toilet (dekat C0307), C0302, C0312, C0309, C0306, C0303, C0311, C0304, C0305, C0310.",
       "connector": {
         "name": "Eskalator",
-        "xy": [ 606, 552 ]
-      },
-      "access": {
-        "via_floors": [ 2, 4 ],
-        "note": "Untuk mahasiswa, Lantai 3 hanya bisa diakses lewat tangga darurat dari Lantai 2 atau Lantai 4",
-        "note_en": "Students can only reach Floor 3 by the emergency stairs from Floor 2 or Floor 4",
-        "note_zh": "学生只能从2楼或4楼走紧急楼梯到3楼"
+        "xy": [ 461, 798 ]
       },
       "voids": [ [323, 715, 600, 882], [403, 580, 520, 677], [523, 567, 695, 677], [860, 709, 1113, 757], [835, 857, 1113, 912] ]
     },
@@ -65,7 +59,14 @@
       "alt": "Denah Lantai 4: Auditorium B0401, B0402, Toilet (dekat B0402), B0403, B0404, B0405, LSC C0407, Toilet (dekat LSC), C0401, LSC C0408-09, IT, C0412, C0411, C0406, C0403, C0410.",
       "connector": {
         "name": "Eskalator",
-        "xy": [ 272, 374 ]
+        "xy": [ 407, 757 ]
+      },
+      "access": {
+        "building": "B",
+        "via_floors": [ 3, 5 ],
+        "note": "Lantai 4 Gedung B hanya bisa diakses lewat tangga darurat dari Lantai 3 atau Lantai 5, atau naik lift",
+        "note_en": "Floor 4 of Building B can only be reached by the emergency stairs from Floor 3 or Floor 5, or by the lift",
+        "note_zh": "B栋4楼只能从3楼或5楼走紧急楼梯上去，或乘坐电梯"
       },
       "inside": [ [25, 500, 745, 880], [590, 540, 1205, 970] ],
       "voids": [ [282, 674, 532, 841], [352, 536, 462, 636], [772, 101, 852, 186], [742, 181, 997, 241], [772, 651, 1002, 716], [747, 806, 1002, 848], [202, 281, 347, 371] ]
@@ -81,9 +82,18 @@
       "type": "facility",
       "aliases": [ "r baca", "ruang baca", "reading", "baca" ],
       "poly": [ [400, 40], [525, 40], [525, 120], [400, 120] ],
-      "location": "di samping Klinik, dekat Library (Kanan)",
-      "location_en": "next to the Clinic, near the Library (Right)",
-      "location_zh": "在诊所旁边，靠近图书馆（右）"
+      "location": "di dalam LKC, lurus dari pintu masuk LKC, di samping Klinik",
+      "location_en": "inside the LKC, straight ahead from the LKC entrance, next to the Clinic",
+      "location_zh": "在 LKC 里面，从 LKC 入口直走，诊所旁边",
+      "access": {
+        "via_room": "library_right",
+        "note": "R Baca hanya bisa diakses lewat LKC: masuk LKC lalu jalan lurus",
+        "note_en": "The Reading Room can only be reached through the LKC: go in and walk straight ahead",
+        "note_zh": "阅览室只能经由 LKC 进入：进入 LKC 后直走",
+        "step": "Masuk LKC, lalu jalan lurus ke R Baca",
+        "step_en": "Go into the LKC and walk straight ahead to the Reading Room",
+        "step_zh": "进入 LKC 后直走到阅览室"
+      }
     },
     {
       "id": "library_left",
@@ -113,16 +123,17 @@
     },
     {
       "id": "library_right",
-      "name": "Library (Kanan)",
-      "name_en": "Library (Right)",
-      "name_zh": "图书馆（右）",
+      "name": "Library (LKC)",
+      "qa_id": 4,
+      "name_en": "Library (LKC)",
+      "name_zh": "图书馆（LKC）",
       "floor": 1,
       "type": "library",
-      "aliases": [ "library kanan" ],
+      "aliases": [ "lkc", "library kanan", "library and knowledge center", "pintu masuk lkc" ],
       "poly": [ [400, 150], [545, 150], [545, 235], [400, 235] ],
-      "location": "di sebelah kanan eskalator, di samping R Baca",
-      "location_en": "to the right of the escalator, next to the Reading Room",
-      "location_zh": "在扶梯右边，阅览室旁边"
+      "location": "di sebelah kanan eskalator, pintu masuk ke R Baca dan ke Library Lantai 2",
+      "location_en": "to the right of the escalator; it is the way into the Reading Room and the Floor 2 library",
+      "location_zh": "在扶梯右边，是进入阅览室和2楼图书馆的入口"
     },
     {
       "id": "apple",
@@ -257,16 +268,24 @@
     {
       "id": "library-2",
       "name": "Library (LKC)",
-      "qa_id": 4,
       "name_en": "Library (LKC)",
       "name_zh": "图书馆（LKC）",
       "floor": 2,
       "type": "library",
-      "aliases": [ "library lantai 2", "perpustakaan lantai 2", "lkc", "library and knowledge center" ],
+      "aliases": [ "library lantai 2", "perpustakaan lantai 2", "lkc lantai 2" ],
       "poly": [ [504, 83], [1052, 83], [1052, 410], [504, 410] ],
-      "location": "di seberang eskalator, di sisi kanan gedung",
-      "location_en": "across from the escalator, on the right side of the building",
-      "location_zh": "在扶梯对面，大楼右侧"
+      "location": "di sisi kanan gedung, di atas LKC Lantai 1",
+      "location_en": "on the right side of the building, above the LKC on Floor 1",
+      "location_zh": "在大楼右侧，1楼 LKC 的上方",
+      "access": {
+        "via_room": "library_right",
+        "note": "Library Lantai 2 hanya bisa diakses dari dalam LKC di Lantai 1",
+        "note_en": "The Floor 2 library can only be reached from inside the LKC on Floor 1",
+        "note_zh": "2楼图书馆只能从1楼的 LKC 里面上去",
+        "step": "Di dalam LKC, naik ke Lantai 2",
+        "step_en": "Inside the LKC, go up to Floor 2",
+        "step_zh": "在 LKC 里面上到2楼"
+      }
     },
     {
       "id": "toilet-2a",

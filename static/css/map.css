@@ -1,15 +1,18 @@
-/* Floor map component (static/js/floor-map.js). Light surface, BINUS blue + orange. */
+/* Floor map component (static/js/floor-map.js), used by the kiosk and the
+   admin "Area Status" page. Colours come from sphere.css tokens (with
+   fallbacks): amber = route, destination, active floor; cobalt = "you". */
 
 .fm {
-  --fm-blue: #1565c0;
-  --fm-blue-2: #1976d2;
-  --fm-orange: #f7941d;
-  --fm-ink: #10243a;
-  --fm-muted: #4a5d70;
-  --fm-surface: #ffffff;
-  --fm-bg: #eef2f6;
-  --fm-route: #e53935;
-  --fm-focus: 0 0 0 3px rgba(247, 148, 29, .55);
+  --fm-amber: var(--amber, #1a6bc6);
+  --fm-amber-ink: var(--amber-ink, #8a4b00);
+  --fm-cobalt: var(--cobalt, #3360f0);
+  --fm-ink: var(--text, #0f1828);
+  --fm-muted: var(--text-3, #556377);
+  --fm-surface: var(--panel-solid, #ffffff);
+  --fm-bg: var(--panel-2, #f5f7fb);
+  --fm-line: var(--line-2, rgba(14, 22, 38, .16));
+  --fm-route: var(--amber, #1a6bc6);
+  --fm-focus: 0 0 0 3px var(--fm-amber);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -18,32 +21,41 @@
   color: var(--fm-ink);
 }
 
-/* ── floor switcher ─────────────────────────────────────────────── */
+/* ── floor tabs ─────────────────────────────────────────────────────── */
 .fm-floors {
-  display: flex; gap: 6px; padding: 6px 8px;
-  background: rgba(255, 255, 255, .92);
-  border-bottom: 1px solid rgba(21, 101, 192, .12);
+  position: relative;
+  display: flex; gap: 6px; padding: 10px 12px;
+  background: var(--fm-surface);
+  border-bottom: 1px solid var(--line, rgba(14, 22, 38, .09));
   overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
 }
 .fm-floors::-webkit-scrollbar { display: none; }
 .fm-floor-btn {
   position: relative; flex-shrink: 0;
-  min-height: 32px; padding: 4px 14px; border-radius: 16px;
-  border: 1.5px solid rgba(21, 101, 192, .3);
-  background: #fff; color: var(--fm-ink);
-  font: 700 .74rem/1 'Exo 2', 'Nunito', system-ui, sans-serif; letter-spacing: .03em;
-  cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  min-height: 40px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--fm-line);
+  background: transparent; color: var(--fm-ink);
+  font: 700 .875rem/1 var(--font-body, system-ui), sans-serif; white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .2s, color .2s, border-color .2s, transform .15s cubic-bezier(.16, 1, .3, 1), box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
 }
-.fm-floor-btn:hover { border-color: var(--fm-blue-2); }
-.fm-floor-btn.active { background: var(--fm-blue); color: #fff; border-color: var(--fm-blue); }
-/* a dot marks floors that have part of the current route */
+.fm-floor-btn:hover { border-color: var(--fm-amber); }
+@media (hover: hover) and (pointer: fine) { .fm-floor-btn:hover { transform: translateY(-1px); } }
+.fm-floor-btn:active { transform: scale(.95); }
+.fm-floor-btn.active {
+  background: var(--fm-amber); color: var(--on-amber, #ffffff); border-color: transparent;
+  box-shadow: 0 4px 14px rgba(26, 107, 198, .35);
+}
+/* a dot marks floors that carry part of the current route */
 .fm-floor-btn.has-route::after {
-  content: ''; position: absolute; top: 3px; right: 5px;
-  width: 7px; height: 7px; border-radius: 50%; background: var(--fm-orange);
-  box-shadow: 0 0 0 1.5px #fff;
+  content: ''; position: absolute; top: 4px; right: 6px;
+  width: 8px; height: 8px; border-radius: 50%; background: var(--fm-route);
+  box-shadow: 0 0 0 2px var(--fm-surface);
 }
+.fm-floor-btn.active.has-route::after { background: var(--ink-band, #0e1626); box-shadow: 0 0 0 2px var(--fm-amber); }
 
-/* ── viewport ───────────────────────────────────────────────────── */
+/* ── viewport ───────────────────────────────────────────────────────── */
 .fm-viewport {
   position: relative; flex: 1; min-height: 0; overflow: hidden;
   touch-action: none;             /* every gesture over the map is ours */
@@ -51,6 +63,9 @@
   cursor: grab; outline: none;
   user-select: none; -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  background:
+    radial-gradient(circle at 1px 1px, var(--line-2, rgba(14, 22, 38, .14)) 1px, transparent 1.4px) 0 0 / 22px 22px,
+    var(--fm-bg);
 }
 .fm-viewport:focus-visible { box-shadow: inset var(--fm-focus); }
 .fm-viewport.is-panning { cursor: grabbing; }
@@ -61,36 +76,42 @@
   position: absolute; inset: 0; width: 100%; height: 100%;
   display: block; pointer-events: none;
 }
-.fm-img { background: #fff; image-rendering: auto; }
+.fm-img { background: #fff; image-rendering: auto; border-radius: 6px; box-shadow: 0 10px 40px rgba(14, 22, 38, .14); }
+/* floor plans are drawn on white; in dark mode dim them so they don't glare */
+:root[data-theme="dark"] .fm-img { filter: brightness(.82) contrast(1.05); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fm-img { filter: brightness(.82) contrast(1.05); } }
 .fm[data-state='missing'] .fm-picture { visibility: hidden; }
 .fm-svg { position: absolute; inset: 0; overflow: visible; }
 
-/* ── rooms ──────────────────────────────────────────────────────── */
+/* ── rooms ──────────────────────────────────────────────────────────── */
 .fm-room {
   fill: transparent; stroke: transparent; stroke-width: 2;
   vector-effect: non-scaling-stroke; cursor: pointer; outline: none;
-  transition: fill .12s, stroke .12s;
+  transition: fill .15s, stroke .15s;
 }
-.fm-room:hover { fill: rgba(25, 118, 210, .12); stroke: var(--fm-blue-2); }
-.fm-room:focus-visible { fill: rgba(247, 148, 29, .18); stroke: var(--fm-orange); stroke-width: 3; }
-.fm-admin .fm-room { stroke: rgba(21, 101, 192, .35); stroke-dasharray: 4 3; }
-.fm-room.selected { fill: rgba(247, 148, 29, .28); stroke: var(--fm-orange); stroke-width: 3; stroke-dasharray: none; }
+.fm-room:hover { fill: rgba(51, 96, 240, .12); stroke: var(--fm-cobalt); }
+.fm-room:focus-visible { fill: rgba(26, 107, 198, .22); stroke: var(--fm-amber); stroke-width: 3; }
+.fm-admin .fm-room { stroke: rgba(51, 96, 240, .35); stroke-dasharray: 4 3; }
+.fm-room.selected { fill: rgba(26, 107, 198, .3); stroke: var(--fm-amber); stroke-width: 3; stroke-dasharray: none; }
 .fm-hl {
-  fill: rgba(229, 57, 53, .22); stroke: var(--fm-route); stroke-width: 3;
+  fill: rgba(26, 107, 198, .20); stroke: var(--fm-route); stroke-width: 3;
   vector-effect: non-scaling-stroke; pointer-events: none;
+  animation: fm-hl 1.6s ease-in-out infinite alternate;
 }
+@keyframes fm-hl { to { fill: rgba(26, 107, 198, .32); } }
 
-/* ── closures: dark + hatched (not colour-only) ─────────────────── */
+/* ── closures: dark + hatched (not colour-only) ─────────────────────── */
 .fm-closure { stroke: #0f172a; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: help; }
 .fm-closure-under_construction { stroke: #b45309; }
 .fm-closure.clickable { cursor: pointer; }
 
-/* ── route ──────────────────────────────────────────────────────── */
+/* ── route ──────────────────────────────────────────────────────────── */
 .fm-route-casing, .fm-route-line { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; }
-.fm-route-casing { stroke: rgba(255, 255, 255, .9); stroke-width: 9; }
-.fm-route-line { stroke: var(--fm-route); stroke-width: 4.5; stroke-dasharray: 10 7; animation: fm-dash .6s linear infinite; }
-@keyframes fm-dash { to { stroke-dashoffset: -17; } }
-.fm-draft-rect { fill: rgba(247, 148, 29, .25); stroke: var(--fm-orange); stroke-width: 2.5; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; }
+.fm-route-casing { stroke: rgba(14, 22, 38, .85); stroke-width: 10; }
+.fm-route-line { stroke: var(--fm-amber); stroke-width: 5; stroke-dasharray: 2 10; animation: fm-dash .7s linear infinite; }
+.fm-drawing .fm-route-line { stroke-dasharray: none; animation: none; }
+@keyframes fm-dash { to { stroke-dashoffset: -12; } }
+.fm-draft-rect { fill: rgba(26, 107, 198, .25); stroke: var(--fm-amber); stroke-width: 2.5; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; }
 
 /* ── pins & tags: counter-scaled so they stay the same on-screen size ── */
 .fm-pins { position: absolute; inset: 0; pointer-events: none; }
@@ -106,26 +127,33 @@
 .fm-pin { display: flex; flex-direction: column; align-items: center; z-index: 2; }
 .fm-dot {
   width: 16px; height: 16px; border-radius: 50%;
-  border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
-  background: var(--fm-blue-2);
+  border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+  background: var(--fm-cobalt);
 }
-.fm-pin-end .fm-dot { background: var(--fm-route); width: 18px; height: 18px; }
-.fm-pin-connector .fm-dot { background: #2e7d32; }
-.fm-pin-you .fm-dot { animation: fm-pulse 1.8s ease-out infinite; }
+.fm-pin-end .fm-dot { background: var(--fm-amber); width: 22px; height: 22px; border-color: #0e1626; }
+.fm-pin-connector .fm-dot { background: #13804f; }
+.fm-pin-you .fm-dot { width: 20px; height: 20px; animation: fm-pulse 2s cubic-bezier(.16, 1, .3, 1) infinite; }
 @keyframes fm-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, .55), 0 1px 4px rgba(0, 0, 0, .35); }
-  100% { box-shadow: 0 0 0 14px rgba(25, 118, 210, 0), 0 1px 4px rgba(0, 0, 0, .35); }
+  0% { box-shadow: 0 0 0 0 rgba(51, 96, 240, .6), 0 2px 6px rgba(0, 0, 0, .35); }
+  100% { box-shadow: 0 0 0 18px rgba(51, 96, 240, 0), 0 2px 6px rgba(0, 0, 0, .35); }
 }
+.fm-pin-wait { opacity: 0; }
+.fm-pin-pop .fm-dot { animation: fm-pop .45s cubic-bezier(.34, 1.56, .64, 1); }
+.fm-pin-pop .fm-pin-label { animation: fm-label .35s .1s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes fm-pop { from { transform: scale(.6); opacity: 0; } }
+@keyframes fm-label { from { opacity: 0; transform: translateY(-4px); } }
 .fm-pin-label {
-  margin-top: 4px; padding: 2px 8px; border-radius: 10px; white-space: nowrap;
-  background: rgba(16, 36, 58, .9); color: #fff;
-  font: 700 12px/1.4 'Nunito', system-ui, sans-serif;
+  margin-top: 6px; padding: 4px 10px; border-radius: 8px; white-space: nowrap;
+  background: #0e1626; color: #fff;
+  font: 700 13px/1.3 var(--font-body, system-ui), sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
 }
+.fm-pin-end .fm-pin-label { background: var(--fm-amber); color: #ffffff; }
 .fm-tag {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
   max-width: 220px; padding: 4px 9px; border-radius: 8px; text-align: center;
   background: rgba(15, 23, 42, .92); color: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
-  font: 700 12px/1.3 'Nunito', system-ui, sans-serif; pointer-events: auto; cursor: help;
+  font: 700 12px/1.3 var(--font-body, system-ui), sans-serif; pointer-events: auto; cursor: help;
 }
 .fm-tag-under_construction { background: #7c2d12; }
 .fm-tag { z-index: 1; }
@@ -136,47 +164,58 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 @media (prefers-reduced-motion: reduce) {
-  .fm-route-line, .fm-pin-you .fm-dot { animation: none; }
+  .fm-route-line, .fm-pin-you .fm-dot, .fm-hl, .fm-pin-pop .fm-dot, .fm-pin-pop .fm-pin-label { animation: none; }
 }
 
-/* ── controls ───────────────────────────────────────────────────── */
+/* ── controls ───────────────────────────────────────────────────────── */
 .fm-controls {
-  position: absolute; right: 10px; bottom: 10px; z-index: 5;
-  display: flex; flex-direction: column; gap: 6px;
+  position: absolute; right: 12px; bottom: 12px; z-index: 5;
+  display: flex; flex-direction: column; gap: 6px; padding: 6px;
+  border-radius: 14px; background: var(--panel, rgba(255, 255, 255, .85));
+  border: 1px solid var(--line, rgba(14, 22, 38, .09));
+  box-shadow: var(--shadow-2, 0 6px 20px rgba(16, 36, 58, .18));
 }
 .fm-ctrl {
-  width: 38px; height: 38px; border-radius: 10px;
-  border: 1px solid rgba(21, 101, 192, .25); background: #fff; color: var(--fm-blue);
+  width: 44px; height: 44px; border-radius: 10px;
+  border: 0; background: transparent; color: var(--fm-ink);
   display: grid; place-items: center; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(16, 36, 58, .18);
+  transition: background-color .15s, transform .15s cubic-bezier(.16, 1, .3, 1);
+  -webkit-tap-highlight-color: transparent;
 }
-.fm-ctrl svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.fm-ctrl:hover { background: #e8f1fb; }
+.fm-ctrl svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.fm-ctrl:hover { background: var(--fm-bg); }
+.fm-ctrl:active { transform: scale(.9); }
+.fm-ctrl[aria-pressed="true"] { background: var(--fm-amber); color: #ffffff; }
 .fm-ctrl:focus-visible, .fm-floor-btn:focus-visible { outline: none; box-shadow: var(--fm-focus); }
+.fm-ctrl-sep { height: 1px; margin: 2px 6px; background: var(--line, rgba(14, 22, 38, .09)); }
 
-/* ── loading / missing state ─────────────────────────────────────── */
+/* ── loading / missing state ─────────────────────────────────────────── */
 .fm-state {
   position: absolute; inset: 0; z-index: 4;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-  padding: 16px; text-align: center; background: rgba(238, 242, 246, .94); pointer-events: none;
+  padding: 16px; text-align: center; background: var(--fm-bg); pointer-events: none;
 }
 .fm-state[hidden] { display: none; }
-.fm-state-title { font: 800 .95rem/1.3 'Nunito', system-ui, sans-serif; color: var(--fm-ink); }
-.fm-state-sub { font: 600 .8rem/1.4 'Nunito', system-ui, sans-serif; color: var(--fm-muted); max-width: 300px; }
+.fm-state-title { font: 700 1rem/1.3 var(--font-body, system-ui), sans-serif; color: var(--fm-ink); }
+.fm-state-sub { font: 500 .875rem/1.45 var(--font-body, system-ui), sans-serif; color: var(--fm-muted); max-width: 300px; }
 .fm-spinner {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 3px solid rgba(21, 101, 192, .2); border-top-color: var(--fm-blue);
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid var(--line-2, rgba(14, 22, 38, .16)); border-top-color: var(--fm-amber);
   animation: fm-spin .8s linear infinite;
 }
 @keyframes fm-spin { to { transform: rotate(360deg); } }
 
-/* Narrow screens: zoom buttons get their own bar under the map so they never
-   cover a pin or the destination. */
-@media (max-width: 768px) {
+/* Narrow screens: the controls become a horizontal bar under the map so
+   they never cover a pin or the destination. */
+@media (max-width: 899px) {
   .fm-controls {
-    position: static; flex-direction: row; justify-content: flex-end; gap: 8px;
-    padding: 6px 8px; background: rgba(255, 255, 255, .95);
-    border-top: 1px solid rgba(21, 101, 192, .12); flex-shrink: 0;
+    position: static; flex-direction: row; justify-content: flex-end; gap: 4px;
+    padding: 6px 8px; border-radius: 0; border-width: 1px 0 0; box-shadow: none;
+    background: var(--fm-surface); flex-shrink: 0;
   }
-  .fm-ctrl { width: 44px; height: 36px; box-shadow: none; }
+  .fm-ctrl-sep { width: 1px; height: auto; margin: 6px 2px; }
 }
+
+/* floor switch: the new plan fades in instead of snapping */
+.fm-picture { transition: opacity .22s cubic-bezier(.16, 1, .3, 1); }
+.fm[data-state='loading'] .fm-picture { opacity: 0; }

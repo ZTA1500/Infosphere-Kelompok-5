@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="no-js" data-sphere-ripple="off">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Who We Are — Infosphere</title>
+<title>Who We Are · Infosphere</title>
+<meta name="description" content="Why Infosphere exists and how Kaela, the campus guide, finds a room and walks you there on the real floor plans.">
+{% include '_social.html' %}
 <script nonce="{{ csp_nonce() }}">
 /* Opened by double-clicking the .html file? Its styles, images and links are
    served by the Infosphere server, so explain how to start it instead of
@@ -25,11 +27,17 @@
 })();
 </script>
 <link rel="icon" type="image/png" href="/static/brand/favicon-256.png">
+<meta name="theme-color" content="#0d1b2a">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="/static/js/theme-init.js?v={{ asset_v }}"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<link rel="stylesheet" href="/static/css/theme-tokens.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/landing-fx.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/css/landing-deco.css?v={{ asset_v }}">
+<script src="/static/js/sphere.js?v={{ asset_v }}" defer></script>
 <script src="/static/vendor/gsap.min.js"></script>
 <script src="/static/vendor/ScrollTrigger.min.js"></script>
 <script src="/static/js/constellation.js"></script>
@@ -82,7 +90,7 @@
   .nav {
     position: relative; z-index: 5;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 26px clamp(20px, 5vw, 64px) 0;
+    padding: 16px clamp(20px, 5vw, 64px);
   }
   .nav-mark { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
   .nav-mark .mark-icon { height: 22px; width: auto; }
@@ -223,7 +231,7 @@
     opacity: 0; transform: translateY(24px);
   }
   .value-row:last-child { border-bottom: 1px solid var(--line); }
-  .value-index { font-family: var(--font-display); font-size: 1rem; color: var(--accent); flex-shrink: 0; width: 34px; }
+  .value-index { font-family: var(--font-display); font-size: 1rem; color: var(--accent-2); flex-shrink: 0; width: 34px; }
   .value-row h4 { font-size: 1.02rem; font-weight: 700; flex: 0 0 220px; }
   .value-row p { color: var(--ink-faint); font-size: .88rem; line-height: 1.6; }
 
@@ -299,6 +307,7 @@
   .footer-links a { font-weight: 600; font-size: .8rem; color: var(--ink-faint); transition: color .2s ease; }
   .footer-links a:hover { color: var(--accent-2); }
   .footer-copy { font-size: .74rem; letter-spacing: .02em; }
+  .footer-copy a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   @media (max-width: 560px) { .footer-inner { justify-content: center; text-align: center; } }
 
   .toast {
@@ -318,6 +327,7 @@
   }
 </style>
 </head>
+{% from '_art.html' import art, floaters %}
 <body>
 
 <canvas id="orbit" aria-hidden="true"></canvas>
@@ -325,10 +335,20 @@
 
 <nav class="nav">
   <div class="nav-mark"><img class="mark-icon" src="/static/brand/logo-icon.png" alt="" aria-hidden="true">infosphere</div>
+  <div class="nav-actions">
   <a class="nav-back" href="/landing">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
-    Back to campus
-  </a>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Back to campus
+    </a>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <defs><mask id="tt-mask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="tt-shade" cx="12" cy="12" r="8" fill="#000"/></mask></defs>
+        <circle class="tt-disc" cx="12" cy="12" r="5" fill="currentColor" mask="url(#tt-mask)"/>
+        <g class="tt-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+      </svg>
+    </button>
+    <button type="button" class="nav-pill amber" data-feedback-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="lbl">Feedback</span></button>
+  </div>
 </nav>
 
 <!-- ═══════════════════ HERO ═══════════════════ -->
@@ -351,36 +371,57 @@
 <section class="mission">
   <p id="missionText">
     We believe technology on a campus should feel like <em>asking a friend</em>,
-    not filling out a form — fast, honest, and human enough to say
+    not filling out a form: fast, honest, and human enough to say
     <em>"I don't know yet, but I'm learning."</em>
   </p>
 </section>
 
-<!-- ═══════════════════ STORY (horizontal pin) ═══════════════════ -->
+<!-- ═══════════════════ STORY: steps + 3D floor stack ═══════════════════ -->
 <section class="story" id="story">
-  <div class="story-track" id="storyTrack">
-
-    <div class="story-panel">
-      <div class="story-num">01</div>
-      <h3>We <em>listen</em> first.</h3>
-      <p>Every question — spoken or typed, in Indonesian, English, or Mandarin — starts by actually being heard, not pattern-matched against a script.</p>
-      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+  <div class="story-grid">
+    <div class="story-steps">
+      <div class="story-panel on" data-step="1">
+        <div class="story-num">01</div>
+        <h3>We <em>listen</em> first.</h3>
+        <p>Every question, spoken or typed, in Indonesian, English or Mandarin, starts by actually being heard, not pattern-matched against a script.</p>
+      </div>
+      <div class="story-panel" data-step="2">
+        <div class="story-num">02</div>
+        <h3>We <em>understand</em> the space.</h3>
+        <p>Rooms, floors, offices and routes are mapped and cross-referenced on the real floor plans, so an answer isn't just correct, it's useful to someone standing in the lobby.</p>
+      </div>
+      <div class="story-panel" data-step="3">
+        <div class="story-num">03</div>
+        <h3>We <em>guide</em>, not just answer.</h3>
+        <p>The route starts where you stand and climbs the floors with you. Every conversation makes the next one sharper.</p>
+      </div>
     </div>
-
-    <div class="story-panel">
-      <div class="story-num">02</div>
-      <h3>We <em>understand</em> the space.</h3>
-      <p>Rooms, floors, offices, routes — mapped and cross-referenced for whichever space we're set up to serve, so an answer isn't just correct, it's actually useful to someone standing there.</p>
-      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+    <div class="story-stage" aria-hidden="true">
+      <div class="stack" id="floorStack" data-step="1">
+        <div class="stack-spin">
+          {%- for n in range(1, 5) %}
+          <div class="floor" style="--i:{{ n - 1 }}" data-label="L{{ n }}">
+            <img src="/static/maps/lantai-{{ n }}.webp" alt="" loading="lazy">
+            {%- if n == 1 %}
+            <svg class="wf" viewBox="0 0 800 530" preserveAspectRatio="xMidYMid slice">
+              <path class="wf-path" pathLength="1" d="M264 300 H338 V250 H360"/>
+            </svg>
+            <span class="spot you"></span><span class="beam"></span>
+            {%- endif %}
+            {%- if n == 2 %}
+            <svg class="wf" viewBox="0 0 1547 1011" preserveAspectRatio="xMidYMid slice">
+              <rect class="wf-room" x="504" y="83" width="548" height="327" rx="14"/>
+              <path class="wf-path f2" pathLength="1" d="M648 516 V452 H778 V410"/>
+              <circle class="wf-walker" r="13"><animateMotion dur="2.6s" repeatCount="indefinite" path="M648 516 V452 H778 V410" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".65 0 .35 1"/></circle>
+            </svg>
+            <span class="spot dest"></span><span class="room-tag">Library</span>
+            {%- endif %}
+            {%- if n == 4 %}<span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>{% endif %}
+          </div>
+          {%- endfor %}
+        </div>
+      </div>
     </div>
-
-    <div class="story-panel">
-      <div class="story-num">03</div>
-      <h3>We <em>guide</em>, not just answer.</h3>
-      <p>Every conversation makes the next one sharper. Infosphere is built to keep learning from whichever space it's deployed to — quietly, in the background.</p>
-      <div class="story-progress"><span><i></i></span><span><i></i></span><span><i></i></span></div>
-    </div>
-
   </div>
 </section>
 
@@ -392,14 +433,15 @@
   </div>
 
   <div class="value-row"><div class="value-index">01</div><h4>Clarity over cleverness</h4><p>A short, correct answer beats an impressive-sounding vague one, every time.</p></div>
-  <div class="value-row"><div class="value-index">02</div><h4>Say "I don't know"</h4><p>Guessing confidently is worse than admitting a gap — so Infosphere is built to do the latter.</p></div>
-  <div class="value-row"><div class="value-index">03</div><h4>Local, not generic</h4><p>Trained on each space's own data — its rooms, its language, its people — not a one-size-fits-all script.</p></div>
-  <div class="value-row"><div class="value-index">04</div><h4>Always improving</h4><p>Every unanswered question gets reviewed and taught back in — the assistant is never really "finished."</p></div>
+  <div class="value-row"><div class="value-index">02</div><h4>Say "I don't know"</h4><p>Guessing confidently is worse than admitting a gap, so Infosphere is built to admit it.</p></div>
+  <div class="value-row"><div class="value-index">03</div><h4>Local, not generic</h4><p>Trained on each space's own data (its rooms, its language, its people), not a one-size-fits-all script.</p></div>
+  <div class="value-row"><div class="value-index">04</div><h4>Always improving</h4><p>Every unanswered question gets reviewed and taught back in. The assistant is never really "finished."</p></div>
 </section>
 
 <!-- ═══════════════════ STATS ═══════════════════ -->
 <section class="stats">
-  <div class="stat"><strong data-count="588">0</strong><span>Questions known</span></div>
+  {{ floaters(12, "lantai-1") }}
+  <div class="stat"><strong data-count="0" data-fact="answers">0</strong><span>Question phrasings known</span></div>
   <div class="stat"><strong data-count="3">0</strong><span>Languages spoken</span></div>
   <div class="stat"><strong data-count="4">0</strong><span>Floors mapped</span></div>
 </section>
@@ -422,11 +464,16 @@
       <a href="/landing">Home</a>
       <a href="/feedback">Feedback</a>
     </nav>
-    <span class="footer-copy">copyright 2025 @infosphere · BINUS University</span>
+    <span class="footer-copy">copyright 2025 @infosphere · BINUS University · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
   </div>
 </footer>
 
 <div class="toast" id="toast"></div>
+
+<button type="button" class="fb-tab" data-feedback-open>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1 6.3 20.2l1.2-6.3L2.8 9.5l6.4-.8z"/></svg>
+  <span>Rate us</span>
+</button>
 
 <script nonce="{{ csp_nonce() }}">
 /* Same placeholder contract as landing.html — replace the body to wire up
@@ -445,10 +492,19 @@ function showToast(msg) {
 }
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* live numbers from the server (never invented) */
+fetch('/api/facts').then(r => r.json()).then(f => {
+  document.querySelectorAll('[data-fact]').forEach(el => {
+    const v = f[el.dataset.fact];
+    if (v == null) { el.closest('.stat').hidden = true; return; }
+    el.dataset.count = v;
+    if (reduceMotion) el.textContent = v.toLocaleString('en-US');
+  });
+}).catch(() => {});
 
 /* Galaxy rings restored alongside the constellation particles — both layers
    now live in the shared assets/js/constellation.js module. */
-initConstellation(document.getElementById('orbit'), { galaxy: true });
+initConstellation(document.getElementById('orbit'), { galaxy: true, isActive: () => window.scrollY < window.innerHeight * 1.2 });
 
 /* ═══════════════════ GSAP reveals ═══════════════════ */
 gsap.registerPlugin(ScrollTrigger);
@@ -476,7 +532,7 @@ if (reduceMotion) {
   });
 
   gsap.utils.toArray('.stat strong').forEach((el) => {
-    const target = Number(el.dataset.count);
+    const target = () => Number(el.dataset.count);
     ScrollTrigger.create({
       trigger: el, start: 'top 85%', once: true,
       onEnter: () => gsap.fromTo(el, { textContent: 0 }, {
@@ -486,57 +542,20 @@ if (reduceMotion) {
     });
   });
 
-  /* horizontal-pin story section, desktop only */
-  const mq = window.matchMedia('(min-width: 721px)');
-  if (mq.matches) {
-    const track = document.getElementById('storyTrack');
-    const panels = gsap.utils.toArray('.story-panel');
-    const bars = gsap.utils.toArray('.story-progress i');
-
-    const storyTween = gsap.to(track, {
-      x: () => -(track.scrollWidth - window.innerWidth),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#story',
-        start: 'top top',
-        end: () => '+=' + (track.scrollWidth - window.innerWidth),
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1,
-      },
-    });
-
-    panels.forEach((panel, i) => {
-      ScrollTrigger.create({
-        trigger: panel,
-        containerAnimation: storyTween,
-        start: 'left 60%',
-        end: 'right 40%',
-        onEnter: () => gsap.to(bars[i], { scaleX: 1, duration: .3 }),
-        onLeaveBack: () => gsap.to(bars[i], { scaleX: 0, duration: .3 }),
-      });
-
-      // whoosh: each panel drifts in tilted-back-and-dim, passes through flat-
-      // crisp-full at center, exits tilted the other way — a camera gliding
-      // past rather than a slide. Scroll-scrubbed, so ease stays 'none': the
-      // scrollbar itself is the easing curve here.
-      gsap.timeline({
-        scrollTrigger: {
-          containerAnimation: storyTween,
-          trigger: panel,
-          start: 'left right',
-          end: 'right left',
-          scrub: 0.4,
-        },
-      })
-        .fromTo(panel,
-          { rotateY: -26, z: -320, scale: .82, opacity: .2, filter: 'blur(3px)' },
-          { rotateY: 0, z: 0, scale: 1, opacity: 1, filter: 'blur(0px)', ease: 'none' })
-        .to(panel,
-          { rotateY: 26, z: -320, scale: .82, opacity: .2, filter: 'blur(3px)', ease: 'none' });
-    });
-  }
 }
+
+/* Story: whichever step is in the middle of the screen sets the stack's state */
+(function storyStack() {
+  const stack = document.getElementById('floorStack');
+  const panels = Array.from(document.querySelectorAll('.story-panel'));
+  if (!stack || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    panels.forEach(pn => pn.classList.toggle('on', pn === en.target));
+    stack.dataset.step = en.target.dataset.step;
+  }), { rootMargin: '-45% 0px -45% 0px' });
+  panels.forEach(pn => io.observe(pn));
+})();
 
 /* Event wiring — inline onclick= attributes are blocked by the
    Content-Security-Policy, so elements carry data-ai-chat="source" instead. */
