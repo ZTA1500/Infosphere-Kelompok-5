@@ -92,3 +92,19 @@ def test_secret_admin_path_must_be_well_formed(monkeypatch):
         make_app(monkeypatch, False)
     monkeypatch.delenv('ADMIN_PATH')
     security.init_security(Flask(__name__))
+
+
+def test_new_password_signs_existing_admins_out(admin, monkeypatch):
+    assert admin.get('/admin/api/closures').status_code == 200
+    monkeypatch.setenv('ADMIN_PASSWORD_HASH', 'scrypt:32768:8:1$othersaltothersa$' + 'b' * 128)
+    assert admin.get('/admin/api/closures').status_code == 401
+
+
+def test_new_username_signs_existing_admins_out(admin, monkeypatch):
+    monkeypatch.setenv('ADMIN_USER', 'someone-else')
+    assert admin.get('/admin/api/closures').status_code == 401
+
+
+def test_removing_the_password_signs_admins_out(admin, monkeypatch):
+    monkeypatch.delenv('ADMIN_PASSWORD_HASH')
+    assert admin.get('/admin/api/closures').status_code == 401

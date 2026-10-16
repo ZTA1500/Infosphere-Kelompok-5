@@ -24,7 +24,8 @@ def test_time_answer_in_each_language():
 
 
 def test_weather_answer_and_rain_hint():
-    assert smalltalk.weather_text('id', {'temp_c': 29.6, 'code': 2}) == 'Cuaca di sekitar kampus sekarang cerah berawan, sekitar 30°C.'
+    assert (smalltalk.weather_text('id', {'temp_c': 29.6, 'code': 2})
+            == 'Cuaca di sekitar kampus sekarang cerah berawan, sekitar 30°C.')
     assert 'umbrella' in smalltalk.weather_text('en', {'temp_c': 27, 'code': 63})
     assert smalltalk.weather_text('zh', {'temp_c': 27, 'code': 0}) == '现在校园附近晴朗，大约27°C。'
 

@@ -30,7 +30,8 @@ def _enabled():
 def _fetch():
     lat = float(os.environ.get('WEATHER_LAT', '-6.2018'))
     lon = float(os.environ.get('WEATHER_LON', '106.7823'))
-    req = urllib.request.Request(_URL.format(lat=lat, lon=lon), headers={'User-Agent': 'Infosphere-kiosk'})
+    req = urllib.request.Request(_URL.format(lat=lat, lon=lon),      # noqa: S310 (fixed https host)
+                                 headers={'User-Agent': 'Infosphere-kiosk'})
     with urllib.request.urlopen(req, timeout=4) as resp:      # noqa: S310 (fixed https host)
         body = json.loads(resp.read(65536).decode('utf-8'))
     cur = body.get('current') or {}

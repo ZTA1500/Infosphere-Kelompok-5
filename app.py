@@ -677,7 +677,12 @@ def terms():
     return render_template('legal.html', page='terms')
 
 
-PUBLIC_PAGES = ['/', '/landing', '/about', '/feedback', '/privacy', '/terms']
+@app.route('/cookies')
+def cookies():
+    return render_template('legal.html', page='cookies')
+
+
+PUBLIC_PAGES = ['/', '/landing', '/about', '/feedback', '/privacy', '/cookies', '/terms']
 
 
 @app.route('/robots.txt')
@@ -1144,7 +1149,7 @@ def admin_login():
     if csrf_failed():
         return fail('Your session expired. Please try again.', 400)
     if not admin_configured():
-        return fail('Admin login is disabled until a password is set (run scripts/set_admin_password.py).', 503)
+        return fail('Admin sign-in is not available right now.', 503)
     locked = login_lock_remaining(ip)
     if locked:
         return fail(f'Too many failed attempts. Try again in {max(1, locked // 60)} minute(s).', 429)

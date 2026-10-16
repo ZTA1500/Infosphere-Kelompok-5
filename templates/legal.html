@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-{#- Privacy policy (page='privacy') and terms of use (page='terms'). Every
+{#- Privacy policy (page='privacy'), cookie policy (page='cookies') and terms
+    of use (page='terms'). Every
     statement here describes what the code actually does; update the text when
-    that changes (what is stored: server/db.py, server/analytics.py). -#}
+    that changes (what is stored: server/db.py, server/analytics.py; cookies:
+    server/security.py; browser storage: static/js/sphere.js, kiosk-keyboard.js). -#}
 {%- set is_privacy = page == 'privacy' %}
-{%- set title = 'Privacy policy' if is_privacy else 'Terms of use' %}
-{%- set description = 'What Infosphere stores when you use the campus guide, why, and who can see it.' if is_privacy else 'The ground rules for using Infosphere, the campus guide kiosk and website.' %}
+{%- set is_cookies = page == 'cookies' %}
+{%- set title = {'privacy': 'Privacy policy', 'cookies': 'Cookie policy'}.get(page, 'Terms of use') %}
+{%- set description = {
+      'privacy': 'What Infosphere stores when you use the campus guide, why, and who can see it.',
+      'cookies': 'The one cookie and the two browser settings Infosphere uses, what each is for and how long it lasts.',
+    }.get(page, 'The ground rules for using Infosphere, the campus guide kiosk and website.') %}
 <html lang="en" class="no-js">
 <head>
 <meta charset="UTF-8">
@@ -54,7 +60,7 @@
 
 <main id="main">
   <article class="wrap legal">
-    <p class="legal-kicker">Last updated 11 October 2026</p>
+    <p class="legal-kicker">Last updated {{ '16 October 2026' if is_cookies or is_privacy else '11 October 2026' }}</p>
     <h1 class="display">{{ title }}</h1>
 
     {%- if is_privacy %}
@@ -69,7 +75,7 @@
     </dl>
 
     <h2>Cookies and storage</h2>
-    <p>One cookie keeps the site secure (it protects the forms from being sent by other sites, and keeps staff signed in to the admin pages). Your browser also remembers whether you picked the light or dark theme. There are no advertising or tracking cookies, which is why there is no cookie banner.</p>
+    <p>One cookie keeps the site secure (it protects the forms from being sent by other sites, and keeps staff signed in to the admin pages). Your browser also remembers whether you picked the light or dark theme. There are no advertising or tracking cookies, which is why there is no cookie banner. The <a href="/cookies">cookie policy</a> lists each one and how long it lasts.</p>
 
     <h2>Services the site uses</h2>
     <ul>
@@ -112,6 +118,33 @@
 
     <h2>Changes</h2>
     <p>If what the site keeps changes, this page changes with it and the date at the top moves.</p>
+
+    {%- elif is_cookies %}
+    <p class="lede">Infosphere uses one cookie, only to keep the site secure, and remembers two settings in your browser. Nothing here tracks you, shows you ads or is shared with anyone else.</p>
+
+    <h2>The cookie</h2>
+    <dl class="legal-list">
+      <div><dt>{{ '__Host-infosphere' if config.IS_PRODUCTION else 'infosphere_session' }}</dt><dd><strong>Strictly necessary.</strong> Set by Infosphere when you open a page. It holds a random security code that proves a form, such as feedback, was sent from this site and not from another one, and it keeps Infosphere staff signed in to the admin pages. Your browser deletes it when you close the browser; for staff it ends after 30 minutes without activity and at most 12 hours after signing in. {% if config.IS_PRODUCTION %}It is only ever sent over an encrypted connection, and it{% else %}It{% endif %} cannot be read by scripts on the page.</dd></div>
+    </dl>
+
+    <h2>Settings saved in your browser</h2>
+    <p>These stay on your device. They are never sent to Infosphere or anyone else.</p>
+    <dl class="legal-list">
+      <div><dt>sphere-theme</dt><dd>Whether you picked the light or dark theme, so the next page opens the same way. Kept until you clear your browser's site data. If you never switch the theme, it is not saved and the site follows your device's setting.</dd></div>
+      <div><dt>sphere-kiosk</dt><dd>Only on the campus kiosk screen: tells the page to show the on-screen keyboard. Deleted when the browser is closed.</dd></div>
+    </dl>
+
+    <h2>What we do not use</h2>
+    <p>No advertising, analytics or social media cookies, and no cookies from other companies. Visitors are counted on our server without cookies, as explained in the <a href="/privacy">privacy policy</a>. The typefaces are downloaded from Google Fonts, which sees your IP address like any website you load but does not set cookies for it.</p>
+
+    <h2>Why there is no cookie banner</h2>
+    <p>The only cookie is needed for the site to work safely, and the two settings only remember choices you made. None of them track you, so there is nothing to agree to.</p>
+
+    <h2>Turning them off</h2>
+    <p>You can block or delete cookies and site data in your browser's settings. The guide, map and chat still work. Sending feedback needs the cookie, so allow it for this site if you want to send a note.</p>
+
+    <h2>Changes</h2>
+    <p>If the site starts using a new cookie or setting, it is added to this page and the date at the top moves. Questions? Use the <a href="/feedback">feedback page</a>.</p>
 
     {%- else %}
     <p class="lede">Infosphere is a free guide that helps you find rooms, offices and facilities on campus. By using the kiosk or this website you agree to these simple rules.</p>

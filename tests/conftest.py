@@ -16,6 +16,8 @@ os.environ['INFOSPHERE_INSTANCE'] = _TMP
 os.environ.pop('INFOSPHERE_DB', None)
 os.environ.pop('INFOSPHERE_ENV', None)
 os.environ['SECRET_KEY'] = 'test-secret-key-not-used-anywhere-else'
+os.environ['ADMIN_USER'] = 'tester'
+os.environ['ADMIN_PASSWORD_HASH'] = 'scrypt:32768:8:1$testsalttestsalt$' + 'a' * 128
 
 from flask import Flask, jsonify  # noqa: E402
 

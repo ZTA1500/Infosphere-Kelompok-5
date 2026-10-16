@@ -168,6 +168,13 @@ def _token_hash(token):
     return hashlib.sha256(token.encode('utf-8')).hexdigest()
 
 
+def _credential_fingerprint():
+    """Changes whenever ADMIN_USER or the password hash changes, so setting a
+    new password (even only in a hosting dashboard) signs every admin out."""
+    cred = os.environ.get('ADMIN_USER', 'admin') + '\n' + os.environ.get('ADMIN_PASSWORD_HASH', '').strip()
+    return hashlib.sha256(cred.encode('utf-8')).hexdigest()[:32]
+
+
 def start_admin_session(username=''):
     """Called after a successful login: throw away the old session (prevents
     fixation) and issue a fresh random token stored server-side."""
@@ -177,6 +184,7 @@ def start_admin_session(username=''):
     db.create_admin_session(_token_hash(token))
     session['admin_sid'] = token
     session['admin_user'] = str(username)[:100]
+    session['_cred'] = _credential_fingerprint()
     session['_csrf'] = secrets.token_urlsafe(32)
     session['_touched'] = time.time()
     session.permanent = True
@@ -199,7 +207,9 @@ def is_admin():
     row = db.get_admin_session(sid)
     now = time.time()
     if (not row or now - row['last_seen'] > ADMIN_IDLE_SECONDS
-            or now - row['created_at'] > ADMIN_MAX_AGE_SECONDS):
+            or now - row['created_at'] > ADMIN_MAX_AGE_SECONDS
+            or not admin_configured()
+            or not hmac.compare_digest(session.get('_cred', ''), _credential_fingerprint())):
         if row:
             db.delete_admin_session(sid)
         session.pop('admin_sid', None)
